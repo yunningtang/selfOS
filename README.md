@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="./assets/selfos-logo.png" alt="SelfOS Logo" width="280"/>
+
 # selfOS
 
 ### **内在心灵的数字加速器 · 模拟自性之径**
@@ -373,7 +375,7 @@ POST /api/report/chat           # 与 ReportAgent 对话深入分析
 
 selfOS 致力于探索 AI 作为"精神助产士"的可能性。
 
-MiroFish 用万千Agent模拟社会舆论的涌现，selfOS 用万千Agent模拟内在心灵的涌现。在这个"内在平行世界"中，东方命理（八字、Vedic Jyotish）不是宿命论的工具，而是为 Agent 提供"初始条件"的精密参数——正如 MiroFish 从新闻报道中提取实体关系来初始化Agent，selfOS 从命盘中提取先天能量配置来初始化内在Agent。
+MiroFish 用万千Agent模拟社会舆论的涌现，selfOS 用万千Agent模拟内在心灵的涌现。在这个"内在平行世界"中，东方命理（八字、Vedic Jyotish）不是宿命论的工具，而是为 Agent 提供"初始条件"的精密参数selfOS 从命盘中提取先天能量配置来初始化内在Agent。
 
 我们相信，通过对内在世界的数字化建模与高保真仿真，个体可以更清晰地观照自我，在复杂的世界中找到属于自己的"中心点"。
 
