@@ -25,28 +25,26 @@
 
 系统通过将复杂的心理动力学参数化，驱动代表不同内在能量的智能体进行模拟博弈。其核心价值在于揭示潜意识中的涌现行为，帮助个体识别内在阻力并寻找动态平衡。
 
-与 [MiroFish](https://github.com/666ghj/MiroFish) 向外预测社会群体涌现行为不同，selfOS 将群体智能引擎**向内翻转**——在个体心灵的"内在社会"中运行多Agent仿真，预测并观照自我整合的路径。
-
 > **"理解'为什么'比知道'是什么'更有决策价值。"**
 
 ---
 
-## 🔄 核心工作流：四世界流水线（参照 MiroFish 五阶段模型）
+## 🔄 核心工作流：四世界流水线
 
-selfOS 的运行逻辑遵循卡巴拉的"四世界"演化模型，同时对标 MiroFish 的五阶段仿真生命周期（Ontology → GraphRAG → Environment → Simulation → Report），将原始数据升华为觉察：
+selfOS 的运行逻辑遵循卡巴拉的"四世界"演化模型，将原始数据逐层升华为觉察：
 
-| 阶段 | selfOS 四世界 | MiroFish 对标 | 核心动作 |
-|:---:|:---:|:---:|:---|
-| **1** | **神性界 (Atzilut)** — 意志 | Ontology Generation | 确立自性化核心意图；从用户生命素材（日记、对话、命盘数据）中提取本体论实体与关系；定义全局 Agent 的原始动力与偏好 |
-| **2** | **创造界 (Beria)** — 结构 | GraphRAG Construction | 利用 **GraphRAG** 技术构建生命叙事图谱；自动提取核心信念簇与情感锚点；注入个体与集体记忆（八字命盘、Vedic星盘作为"先天记忆"） |
-| **3** | **形成界 (Yetzirah)** — 演化 | Dual-Platform Simulation | 内在议会博弈阶段；代表限制、创造、阴影与观察者的智能体在模拟空间内进行多轮交互；天文历法周期（大运、流年、Dasha）作为时序驱动变量 |
-| **4** | **物质界 (Assiya)** — 显现 | Report Generation + Interaction | 输出多维分析报告；通过实时监测关键变量反馈心理能量流向；支持与任意内在Agent对话 |
+| 阶段 | 四世界 | 核心动作 |
+|:---:|:---:|:---|
+| **1** | **神性界 (Atzilut)** — 意志 | 确立自性化核心意图；从用户生命素材（日记、对话、命盘数据）中提取本体论实体与关系；定义全局 Agent 的原始动力与偏好 |
+| **2** | **创造界 (Beria)** — 结构 | 利用 **GraphRAG** 技术构建生命叙事图谱；自动提取核心信念簇与情感锚点；注入个体与集体记忆（八字命盘、Vedic星盘作为"先天记忆"） |
+| **3** | **形成界 (Yetzirah)** — 演化 | 内在议会博弈阶段；代表限制、创造、阴影与观察者的智能体在模拟空间内进行多轮交互；天文历法周期（大运、流年、Dasha）作为时序驱动变量 |
+| **4** | **物质界 (Assiya)** — 显现 | 输出多维分析报告；通过实时监测关键变量反馈心理能量流向；支持与任意内在Agent对话 |
 
 ---
 
 ## 🏗️ 系统架构
 
-项目采用前后端解耦的模块化设计，参照 MiroFish 的 Node.js 前端 + Python/Flask 后端架构，确保心理逻辑与计算架构的高度解耦：
+项目采用前后端解耦的模块化设计，确保心理逻辑与计算架构的高度解耦：
 
 ```
 selfOS/
@@ -356,7 +354,6 @@ POST /api/report/chat           # 与 ReportAgent 对话深入分析
 
 | 项目/资源 | 说明 |
 |:---|:---|
-| [MiroFish](https://github.com/666ghj/MiroFish) | 群体智能预测引擎——selfOS 的架构灵感来源（向外预测→向内观照） |
 | [OASIS (CAMEL-AI)](https://github.com/camel-ai/oasis) | 开源多Agent社会仿真框架，支持百万级Agent扩展 |
 | [Swiss Ephemeris](https://www.astro.com/swisseph/swephinfo_e.htm) | Astrodienst 高精度天文星历库（DE431, 13201 BC—17191 AD） |
 | [Jagannatha Hora](https://www.vedicastrologer.org/jh/) | P.V.R. Narasimha Rao 开发的 Vedic 占星软件——Vedic 计算的权威参照 |
@@ -375,7 +372,7 @@ POST /api/report/chat           # 与 ReportAgent 对话深入分析
 
 selfOS 致力于探索 AI 作为"精神助产士"的可能性。
 
-MiroFish 用万千Agent模拟社会舆论的涌现，selfOS 用万千Agent模拟内在心灵的涌现。在这个"内在平行世界"中，东方命理（八字、Vedic Jyotish）不是宿命论的工具，而是为 Agent 提供"初始条件"的精密参数selfOS 从命盘中提取先天能量配置来初始化内在Agent。
+传统的多Agent仿真系统面向外部世界——模拟社会舆论、市场行为、群体决策。selfOS 将这一范式**向内翻转**，在个体心灵的"内在社会"中运行多Agent仿真。在这个"内在平行世界"中，东方命理（八字、Vedic Jyotish）不是宿命论的工具，而是为 Agent 提供"初始条件"的精密参数——从命盘中提取先天能量配置来初始化内在 Agent，从生命叙事中构建后天经验图谱。
 
 我们相信，通过对内在世界的数字化建模与高保真仿真，个体可以更清晰地观照自我，在复杂的世界中找到属于自己的"中心点"。
 
