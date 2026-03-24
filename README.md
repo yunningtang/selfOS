@@ -2,8 +2,6 @@
 
 <img src="./assets/selfos-logo.png" alt="SelfOS Logo" width="280"/>
 
-# selfOS
-
 ### **内在心灵的数字加速器 · 模拟自性之径**
 *A Digital Accelerator for the Inner Soul, Simulating the Path of Individuation*
 
