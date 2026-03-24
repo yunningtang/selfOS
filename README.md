@@ -101,13 +101,15 @@ selfOS/
 
 | 层级 | 模块 | 技术栈 | 说明 |
 |:---:|:---:|:---:|:---|
-| **感知层** | Perception Engine | LLM + NLP Pipeline | 全域数字记忆提取；将非结构化文本（日记、梦境记录）转化为结构化心理图谱 |
+| **感知层** | Perception Engine | LLM + NLP Pipeline | 可以使用ChatGPT或者其它软件日记/微博/备忘录等将非结构化文本导出（日记、梦境记录）转化为结构化心理图谱 |
 | **感知层** | Divination Engine | Swiss Ephemeris + pyswisseph + PyJHora | 八字排盘与 Vedic 星盘计算；天文精度 0.001 角秒 |
-| **认知层** | Agent Council | OASIS Framework (CAMEL-AI) | 基于原型的智能体实例化——防御者(Gevurah)、创造者(Chesed)、阴影(Qliphoth)、调停者(Tiphereth)、观察者(Kether) |
-| **认知层** | Long-term Memory | Zep Cloud / Neo4j | 跨时间维度的认知追踪与模式识别；命盘数据作为"先天记忆锚点"注入 |
+| **认知层** | Agent Council | OASIS Framework (CAMEL-AI) | 基于荣格的原型的智能体实例化| 防御者(Gevurah)、创造者(Chesed)、阴影(Qliphoth)、调停者(Tiphereth)、观察者(Kether) |
+| **认知层** | Long-term Memory | Zep Cloud / Neo4j | 跨时间维度的认知追踪与模式识别；命盘数据作为类似先天原始数据注，加入一个事件节点时间线（类似于一个全新的高精度事件流记录系统）
+- 记录重大事件、梦境与心理转折点，构建序列化的长时记忆集。|
 | **逻辑层** | Dynamic Topology Router | 自研通信协议 | 基于生命之树 22 条路径的能量通信协议；大运/流年/Dasha 周期调制路径权重 |
+| **逻辑层** |Release Protocol|  (FSM) + LLM 意图识别 |情绪干预核心：CBT + 莱斯特结合体。• Step 1 (CBT归因)：提取“触发事件 ➔ 自动思维 ➔ 核心信念”因果链并在UI可视化。• Step 2 (莱斯特释放)：观察者 Agent 介入，向下挖掘核心匮乏（想要控制、认同、安全、生存）。机制：释放成功后，动态下调系统的 $Grip$（抓取度）和 $Resistance$（抗拒度）参数。  |
 | **逻辑层** | Parametric Model | LLM-as-Judge + 数值优化 | 高精度参数（$Grip$、$Resistance$、五行分值、Shadbala）作为智能体决策权重 |
-| **表现层** | Visualization Interface | D3.js + Three.js + ECharts | 动态展示心灵能量在各原质间的张力；排盘图表交互渲染 |
+| **表现层** | Visualization Interface | D3.js + Three.js + ECharts | 动态展示在各原质间的张力；排盘图表交互渲染 （？）待定|
 
 ---
 
