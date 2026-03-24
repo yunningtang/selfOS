@@ -102,7 +102,7 @@ selfOS/
 | 层级 | 模块 | 技术栈 | 说明 |
 |:---:|:---:|:---:|:---|
 | **感知层** | Perception Engine | LLM + NLP Pipeline | 将非结构化文本（如日记，微博，社交媒体记录/手动给Agent输入信息整理/GPT聊天文档导入/梦境记录/微博微信账号）转化为结构化心理图谱 |
-| **感知层** | Divination Engine | Swiss Ephemeris + pyswisseph + PyJHora | 八字排盘与 Vedic 星盘计算，天文精度可达 0.001 角秒 |
+| **感知层** | Divination Engine | Swiss Ephemeris + pyswisseph + PyJHora | 八字排盘与 Vedic 星盘计算 |
 | **认知层** | Agent Council | OASIS Framework (CAMEL-AI) | 基于荣格原型构建多智能体系统：自我（Ego，执行与决策）/ 阴影（Shadow，被压抑内容）/ 人格面具（Persona，社会适应）/ 阿尼玛-阿尼姆斯（内在对立性别原型）/ 自性（Self，整体整合中心） |
 | **认知层** | Long-term Memory | Zep Cloud / Neo4j | 构建跨时间的认知追踪系统：<br>• 命盘作为先天数据输入<br>• 事件节点时间线记录（重大事件/梦境/心理转折）<br>• 支持长期模式识别 |
 | **逻辑层** | Dynamic Topology Router | 自研通信协议 | 基于生命之树 22 路径构建通信机制；结合大运、流年、Dasha 周期动态调整路径权重 |
