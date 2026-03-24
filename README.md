@@ -101,10 +101,10 @@ selfOS/
 
 | 层级 | 模块 | 技术栈 | 说明 |
 |:---:|:---:|:---:|:---|
-| **感知层** | Perception Engine | LLM + NLP Pipeline | 将非结构化文本（如日记、梦境记录、社交媒体）转化为结构化心理图谱 |
+| **感知层** | Perception Engine | LLM + NLP Pipeline | 将非结构化文本（如日记，微博，社交媒体记录，手动给Agent聊天输入等，GPT聊天文档输出等，梦境记录，社交媒体）转化为结构化心理图谱 |
 | **感知层** | Divination Engine | Swiss Ephemeris + pyswisseph + PyJHora | 八字排盘与 Vedic 星盘计算，天文精度可达 0.001 角秒 |
 | **认知层** | Agent Council | OASIS Framework (CAMEL-AI) | 基于荣格原型构建多智能体系统：防御者（Gevurah）、创造者（Chesed）、阴影（Qliphoth）、调停者（Tiphereth）、观察者（Kether） |
-| **认知层** | Long-term Memory | Zep Cloud / Neo4j | 构建跨时间的认知追踪系统：<br>• 命盘作为先天数据输入<br>• 事件节点时间线记录（重大事件、梦境、心理转折）<br>• 支持长期模式识别 |
+| **认知层** | Long-term Memory | Zep Cloud / Neo4j | 构建跨时间的认知追踪系统：<br>• 命盘作为先天数据输入<br>• 事件节点时间线记录（重大事件/梦境/心理转折）<br>• 支持长期模式识别 |
 | **逻辑层** | Dynamic Topology Router | 自研通信协议 | 基于生命之树 22 路径构建通信机制；结合大运、流年、Dasha 周期动态调整路径权重 |
 | **逻辑层** | Release Protocol | FSM + LLM 意图识别 | 情绪干预机制：<br>• Step 1（CBT）：提取「触发事件 → 自动思维 → 核心信念」<br>• Step 2（释放）：观察者 Agent 介入，识别深层匮乏（控制、认同、安全、生存）<br>• 动态调整系统参数：Grip（抓取度）、Resistance（抗拒度） |
 | **逻辑层** | Parametric Model | LLM-as-Judge + 数值优化 | 使用参数驱动决策：Grip、Resistance、五行分值、Shadbala 等作为权重输入 |
