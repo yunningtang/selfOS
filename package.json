@@ -1,0 +1,9 @@
+{
+  "name": "selfos",
+  "private": true,
+  "scripts": {
+    "setup:frontend": "npm --prefix frontend install",
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build"
+  }
+}

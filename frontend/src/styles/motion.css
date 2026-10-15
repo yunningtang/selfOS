@@ -1,0 +1,195 @@
+/*
+ * Motion. Ambient motion is slow (seconds to minutes); responses are immediate (<200ms).
+ * Everything ambient is gated by [data-motion='full'] on <html>, which the UI store sets
+ * from prefers-reduced-motion and the user's own preference.
+ */
+
+@keyframes lq-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(var(--breathe-to, 1.035));
+  }
+}
+
+@keyframes lq-morph {
+  0%,
+  100% {
+    border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%;
+  }
+  25% {
+    border-radius: 54% 46% 49% 51% / 47% 53% 47% 53%;
+  }
+  50% {
+    border-radius: 47% 53% 55% 45% / 52% 46% 54% 48%;
+  }
+  75% {
+    border-radius: 52% 48% 45% 55% / 49% 55% 45% 51%;
+  }
+}
+
+@keyframes lq-drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6vw, 4vh, 0) scale(1.12);
+  }
+}
+@keyframes lq-drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(-5vw, -6vh, 0) scale(0.94);
+  }
+}
+@keyframes lq-drift-c {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.96);
+  }
+  50% {
+    transform: translate3d(3vw, -3vh, 0) scale(1.1);
+  }
+}
+
+@keyframes lq-iris-turn {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes lq-ripple {
+  from {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.32;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes lq-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lq-flow {
+  to {
+    stroke-dashoffset: var(--flow-to, -48);
+  }
+}
+
+@keyframes lq-pulse-ring {
+  from {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* Ripple element injected by v-ripple */
+.lq-ripple-host {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.lq-ripple {
+  position: absolute !important;
+  z-index: 0;
+  width: var(--ripple-size);
+  height: var(--ripple-size);
+  border-radius: 50%;
+  background: radial-gradient(circle, currentColor 0%, transparent 70%);
+  pointer-events: none;
+  animation: lq-ripple 620ms var(--ease-out) forwards;
+}
+
+/* Route transitions — opacity plus a hair of depth. */
+.route-enter-active,
+.route-leave-active {
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+.route-enter-from {
+  opacity: 0;
+  transform: translateY(8px) scale(0.995);
+}
+.route-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.rise-enter-active {
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    transform var(--dur-slow) var(--ease-spring);
+}
+.rise-leave-active {
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.rise-enter-from,
+.rise-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.list-enter-active {
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+.list-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────── */
+html[data-motion='reduced'] *,
+html[data-motion='reduced'] *::before,
+html[data-motion='reduced'] *::after {
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+}
+html[data-motion='reduced'] .ambient-anim,
+html[data-motion='reduced'] .ambient-anim::before,
+html[data-motion='reduced'] .ambient-anim::after {
+  animation: none !important;
+}
+html[data-motion='reduced'] .route-enter-from {
+  transform: none;
+}
+html[data-motion='reduced'] .rise-enter-from,
+html[data-motion='reduced'] .rise-leave-to,
+html[data-motion='reduced'] .list-enter-from {
+  transform: none;
+}
+html[data-motion='reduced'] .lq-ripple {
+  animation-duration: 240ms;
+}
