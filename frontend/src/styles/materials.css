@@ -1,0 +1,102 @@
+/*
+ * Materials. Three tiers, used deliberately:
+ *   .lq-glass   — floating membranes (navigation, inspectors, controls over visualisations)
+ *   .lq-surface — opaque, quiet panels for reading and forms
+ *   .lq-well    — sunken areas for data (charts, tables, inputs)
+ * Glass is never used for long-form reading.
+ */
+
+.lq-glass {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(180deg, var(--glass-top), var(--glass-bottom));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border-radius: var(--r-lg);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 0 0 1px var(--glass-edge),
+    var(--shadow-float);
+}
+
+/* Iridescent rim: a 1px gradient edge, like light bending through the membrane's thickness. */
+.lq-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 200deg at 50% 50%,
+    transparent 0deg,
+    var(--glass-iris-a) 40deg,
+    transparent 95deg,
+    var(--glass-iris-b) 170deg,
+    transparent 230deg,
+    var(--glass-iris-c) 300deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+
+/* Caustic sheen pooled near the top edge — subsurface light, not a gloss stripe. */
+.lq-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 70% at 12% -10%, var(--glass-sheen), transparent 55%),
+    radial-gradient(80% 50% at 100% 110%, var(--accent-soft), transparent 60%);
+  pointer-events: none;
+}
+
+/* Browsers without backdrop-filter get an opaque membrane, never unreadable text. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lq-glass {
+    background: var(--surface);
+  }
+}
+
+.lq-surface {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow:
+    inset 0 0 0 1px var(--hairline),
+    var(--shadow-1);
+}
+
+.lq-well {
+  background: var(--surface-sunken);
+  border-radius: var(--r-md);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+
+/* Section padding presets */
+.pad-sm {
+  padding: var(--sp-3);
+}
+.pad {
+  padding: var(--sp-5);
+}
+.pad-lg {
+  padding: var(--sp-7);
+}
+
+@media (max-width: 640px) {
+  .pad {
+    padding: var(--sp-4);
+  }
+  .pad-lg {
+    padding: var(--sp-5);
+  }
+}

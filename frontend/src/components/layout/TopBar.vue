@@ -1,0 +1,132 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { dataSource } from '@/api'
+import { useUiStore } from '@/stores/ui'
+import LqButton from '@/components/ui/LqButton.vue'
+import PipelineTrack from './PipelineTrack.vue'
+
+const emit = defineEmits<{ menu: [] }>()
+const route = useRoute()
+const ui = useUiStore()
+const title = computed(() => route.meta.title)
+
+function cycleTheme() {
+  ui.themePref = ui.theme === 'dark' ? 'light' : 'dark'
+}
+function toggleMotion() {
+  ui.motionPref = ui.reducedMotion ? 'full' : 'reduced'
+}
+</script>
+
+<template>
+  <header class="topbar">
+    <LqButton class="menu" variant="quiet" icon="list" icon-only @click="emit('menu')">Open navigation</LqButton>
+    <p class="crumb">
+      <span class="t-muted">selfOS</span>
+      <span class="sep" aria-hidden="true">/</span>
+      <span>{{ title }}</span>
+    </p>
+    <PipelineTrack class="track" />
+    <div class="end">
+      <span
+        v-if="dataSource.usingDemo"
+        class="demo"
+        tabindex="0"
+        title="The selfOS backend was not reachable, so this view is showing bundled demo data. Charts are computed locally; narrative, memories and simulation are fictional samples."
+      >
+        <span class="pip" aria-hidden="true" />
+        Demo data
+      </span>
+      <LqButton
+        class="quick"
+        variant="quiet"
+        size="sm"
+        :icon="ui.reducedMotion ? 'still' : 'wave'"
+        icon-only
+        :aria-pressed="!ui.reducedMotion"
+        @click="toggleMotion"
+      >
+        Ambient motion {{ ui.reducedMotion ? 'off' : 'on' }}
+      </LqButton>
+      <LqButton class="quick" variant="quiet" size="sm" :icon="ui.theme === 'dark' ? 'moon' : 'sun'" icon-only @click="cycleTheme">
+        Switch to {{ ui.theme === 'dark' ? 'light' : 'dark' }} appearance
+      </LqButton>
+    </div>
+  </header>
+</template>
+
+<style scoped>
+.topbar {
+  position: relative;
+  z-index: var(--z-float);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  height: var(--topbar-h);
+  padding: 0 var(--sp-7);
+}
+.crumb {
+  display: flex;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+}
+.sep {
+  color: var(--text-3);
+}
+.track {
+  margin-left: auto;
+}
+.end {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+.demo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  margin-right: var(--sp-2);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-2);
+  box-shadow: inset 0 0 0 1px var(--hairline-2);
+  cursor: help;
+}
+.pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-sand);
+}
+.menu {
+  display: none;
+}
+@media (max-width: 1100px) {
+  .topbar {
+    padding: 0 var(--sp-5);
+  }
+}
+@media (max-width: 760px) {
+  .topbar {
+    padding: 0 var(--sp-3);
+    gap: var(--sp-2);
+  }
+  .menu {
+    display: inline-flex;
+  }
+  .crumb .t-muted,
+  .crumb .sep,
+  .track {
+    display: none;
+  }
+  .end {
+    margin-left: auto;
+  }
+}
+</style>
