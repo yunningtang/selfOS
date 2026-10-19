@@ -18,9 +18,11 @@
   --c-ink: #4a4566;
 
   /* ── Typography ───────────────────────────────────────────────────── */
-  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'SF Pro Text', 'Segoe UI',
-    'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', 'Noto Sans CJK SC', 'Microsoft YaHei',
-    'Noto Sans Hebrew', sans-serif;
+  /* Latin from the bundled Inter; CJK from the best system sans on each platform (declared
+     before system-ui so Windows never falls back to SimSun / a Japanese face for 汉字). */
+  --font-sans: 'Inter Variable', 'Inter', -apple-system, 'PingFang SC', 'Hiragino Sans GB',
+    'HarmonyOS Sans SC', 'MiSans', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Noto Sans SC',
+    'Noto Sans CJK SC', 'Source Han Sans SC', 'Segoe UI', system-ui, 'Noto Sans Hebrew', sans-serif;
 
   --fs-2xs: 0.6875rem; /* 11 */
   --fs-xs: 0.75rem; /* 12 */

@@ -96,8 +96,8 @@ export const INDIVIDUATION_STEPS = [
 ]
 
 export const FOUR_WORLDS = [
-  { key: 'atzilut', name: 'Atzilut', zh: '神性界', theme: 'Will', action: 'Set the core intent and offer life material', route: '/seed' },
-  { key: 'beria', name: 'Beria', zh: '创造界', theme: 'Structure', action: 'Build the narrative graph and innate memory', route: '/atlas' },
-  { key: 'yetzirah', name: 'Yetzirah', zh: '形成界', theme: 'Formation', action: 'Let the inner council deliberate', route: '/council' },
-  { key: 'assiya', name: 'Assiya', zh: '物质界', theme: 'Manifestation', action: 'Read, question and reflect', route: '/reflection' },
+  { key: 'atzilut', name: 'Atzilut', zh: '神性界', theme: '意志', action: '设定核心意图，提供生命素材', route: '/seed' },
+  { key: 'beria', name: 'Beria', zh: '创造界', theme: '结构', action: '排出命盘，构建叙事图谱与先天记忆', route: '/celestial' },
+  { key: 'yetzirah', name: 'Yetzirah', zh: '形成界', theme: '形成', action: '让内在议会推演与辩论', route: '/council' },
+  { key: 'assiya', name: 'Assiya', zh: '物质界', theme: '显化', action: '阅读、追问、反思报告', route: '/reflection' },
 ] as const

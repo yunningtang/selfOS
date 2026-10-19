@@ -12,7 +12,7 @@ const KEY = 'selfos.birth.v2'
 
 const DEFAULT_PROFILE: BirthProfile = {
   name: '',
-  year: 1990, month: 5, day: 15, hour: 12, minute: 0,
+  year: 2000, month: 1, day: 1, hour: 12, minute: 0,
   calendar: 'solar', lunarLeap: false, gender: 'F',
   place: '北京', latitude: 39.9042, longitude: 116.4074, timeZone: 'Asia/Shanghai', dst: 'auto',
 }
@@ -38,6 +38,9 @@ export const useDivinationStore = defineStore('divination', () => {
   const baziOptions = ref<BaziOptions>(load(`${KEY}.bazi`, DEFAULT_BAZI_OPTIONS))
   const westernSettings = ref<WesternSettings>(load(`${KEY}.western`, DEFAULT_WESTERN_SETTINGS))
   const vedicSettings = ref<VedicSettings>(load(`${KEY}.vedic`, DEFAULT_VEDIC_SETTINGS))
+  /** True once the user has confirmed a profile; nothing is cast before that. */
+  const ready = ref<boolean>(load(`${KEY}.ready`, { ok: false }).ok)
+  watch(ready, (v) => save(`${KEY}.ready`, { ok: v }))
   watch(birth, (v) => save(KEY, v), { deep: true })
   watch(baziOptions, (v) => save(`${KEY}.bazi`, v), { deep: true })
   watch(westernSettings, (v) => save(`${KEY}.western`, v), { deep: true })
@@ -68,7 +71,7 @@ export const useDivinationStore = defineStore('divination', () => {
   watch(
     [birth, baziOptions, westernSettings, vedicSettings],
     () => {
-      if (!bazi.value) return
+      if (!bazi.value || !ready.value) return
       window.clearTimeout(recastTimer)
       recastTimer = window.setTimeout(() => cast(), 350)
     },
@@ -99,6 +102,12 @@ export const useDivinationStore = defineStore('divination', () => {
     } finally {
       loading.value = false
     }
+  }
+
+  /** Confirm the profile from the wizard and cast. */
+  async function commitProfile() {
+    ready.value = true
+    await cast()
   }
 
   function selectLuck(index: number) {
@@ -162,8 +171,8 @@ export const useDivinationStore = defineStore('divination', () => {
 
   return {
     birth, baziOptions, westernSettings, vedicSettings,
-    bazi, western, vedic, ziwei, loading, engineReady, error, injected,
+    ready, bazi, western, vedic, ziwei, loading, engineReady, error, injected,
     luckIndex, annualYear, annual, monthly, summary,
-    cast, selectLuck, selectYear, injectAsMemory,
+    cast, commitProfile, selectLuck, selectYear, injectAsMemory,
   }
 })

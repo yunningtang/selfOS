@@ -7,8 +7,8 @@ defineProps<{ title: string; zh?: string; world?: string; lede?: string }>()
     <div class="titles">
       <p v-if="world" class="world t-label">{{ world }}</p>
       <h1>
-        {{ title }}
-        <span v-if="zh" class="zh t-cjk">{{ zh }}</span>
+        <template v-if="zh">{{ zh }}<span class="zh">{{ title }}</span></template>
+        <template v-else>{{ title }}</template>
       </h1>
       <p v-if="lede" class="lede">{{ lede }}</p>
     </div>

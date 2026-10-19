@@ -12,11 +12,14 @@ declare module 'vue-router' {
     immersive?: boolean
     /** Shown in the mobile tab bar */
     primary?: boolean
+    /** Not listed in navigation */
+    hidden?: boolean
   }
 }
 
 export const routes: RouteRecordRaw[] = [
   { path: '/', name: 'threshold', component: () => import('@/views/Threshold/ThresholdView.vue'), meta: { title: 'Threshold', zh: '入口', icon: 'threshold' } },
+  { path: '/begin', name: 'begin', component: () => import('@/views/Begin/BeginView.vue'), meta: { title: 'Begin', zh: '出生信息', icon: 'celestial', quiet: true, hidden: true } },
   { path: '/seed', name: 'seed', component: () => import('@/views/SeedUpload/SeedUploadView.vue'), meta: { title: 'Seed', zh: '生命素材', icon: 'seed', world: 'atzilut', quiet: true } },
   { path: '/atlas', name: 'atlas', component: () => import('@/views/GraphBuilder/InnerAtlasView.vue'), meta: { title: 'Inner Atlas', zh: '生命之树', icon: 'atlas', world: 'beria', immersive: true, primary: true } },
   { path: '/memory', name: 'memory', component: () => import('@/views/MemoryChamber/MemoryChamberView.vue'), meta: { title: 'Memory Chamber', zh: '记忆之室', icon: 'memory', world: 'beria', primary: true } },
@@ -34,5 +37,5 @@ export const router = createRouter({
 })
 
 router.afterEach((to) => {
-  document.title = to.meta.title === 'Threshold' ? 'selfOS' : `${to.meta.title} · selfOS`
+  document.title = to.meta.title === 'Threshold' ? 'selfOS · 内在世界的观测台' : `${to.meta.zh ?? to.meta.title} · selfOS`
 })

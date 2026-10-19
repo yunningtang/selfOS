@@ -9,7 +9,7 @@ import PipelineTrack from './PipelineTrack.vue'
 const emit = defineEmits<{ menu: [] }>()
 const route = useRoute()
 const ui = useUiStore()
-const title = computed(() => route.meta.title)
+const title = computed(() => route.meta.zh ?? route.meta.title)
 
 function cycleTheme() {
   ui.themePref = ui.theme === 'dark' ? 'light' : 'dark'
@@ -33,10 +33,10 @@ function toggleMotion() {
         v-if="dataSource.usingDemo"
         class="demo"
         tabindex="0"
-        title="The selfOS backend was not reachable, so this view is showing bundled demo data. Charts are computed locally; narrative, memories and simulation are fictional samples."
+        title="未连接 selfOS 后端，图谱、记忆与议会内容为内置示例；命盘全部由本地计算，是真实结果。"
       >
         <span class="pip" aria-hidden="true" />
-        Demo data
+        示例数据
       </span>
       <LqButton
         class="quick"

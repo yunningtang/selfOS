@@ -56,17 +56,18 @@ h3,
 h4 {
   font-weight: var(--fw-medium);
   line-height: var(--lh-tight);
-  letter-spacing: -0.011em;
+  /* Mixed 中英 headings: keep tracking near zero so CJK glyphs don't collide. */
+  letter-spacing: -0.004em;
   text-wrap: balance;
 }
 
 h1 {
   font-size: var(--fs-2xl);
-  letter-spacing: -0.019em;
+  letter-spacing: -0.008em;
 }
 h2 {
   font-size: var(--fs-xl);
-  letter-spacing: -0.017em;
+  letter-spacing: -0.006em;
 }
 h3 {
   font-size: var(--fs-lg);

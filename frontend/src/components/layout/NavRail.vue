@@ -9,7 +9,7 @@ const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 
 const groups = computed(() => {
-  const items = routes.filter((r) => r.meta?.title)
+  const items = routes.filter((r) => r.meta?.title && !r.meta.hidden)
   return [
     { key: 'home', label: '', items: items.filter((r) => !r.meta!.world) },
     ...FOUR_WORLDS.map((w) => ({
@@ -54,9 +54,9 @@ watch(
           <p v-if="g.label" class="group-label t-label">{{ g.label }}</p>
           <ul>
             <li v-for="r in g.items" :key="String(r.name)">
-              <RouterLink :to="r.path" class="link" :title="r.meta!.title" @click="emit('close')">
+              <RouterLink :to="r.path" class="link" :title="`${r.meta!.zh ?? ''} ${r.meta!.title}`" @click="emit('close')">
                 <LqIcon :name="r.meta!.icon" />
-                <span class="text">{{ r.meta!.title }}</span>
+                <span class="text">{{ r.meta!.zh ?? r.meta!.title }}<span class="en">{{ r.meta!.zh ? r.meta!.title : '' }}</span></span>
               </RouterLink>
             </li>
           </ul>
@@ -259,5 +259,11 @@ watch(
     z-index: calc(var(--z-overlay) - 1);
     background: rgba(5, 6, 10, 0.5);
   }
+}
+.en {
+  display: block;
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+  line-height: 1.2;
 }
 </style>

@@ -9,7 +9,7 @@ const items = routes.filter((r) => r.meta?.primary)
   <nav class="tabbar lq-glass" aria-label="Core interfaces">
     <RouterLink v-for="r in items" :key="String(r.name)" :to="r.path" class="tab">
       <LqIcon :name="r.meta!.icon" :size="22" />
-      <span>{{ r.meta!.title.split(' ').slice(-1)[0] }}</span>
+      <span>{{ r.meta!.zh ?? r.meta!.title }}</span>
     </RouterLink>
   </nav>
 </template>
