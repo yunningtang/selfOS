@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   /** `auto` (default): use the backend, fall back to demo data when it is unreachable. `live`: backend only. `demo`: demo data only. */
   readonly VITE_DATA_MODE?: 'auto' | 'live' | 'demo'
   readonly VITE_BACKEND_URL?: string
+  /** Public base path for builds served from a sub-path (e.g. `/selfOS/` on GitHub Pages). */
+  readonly VITE_BASE?: string
 }
 
 declare module '*.vue' {

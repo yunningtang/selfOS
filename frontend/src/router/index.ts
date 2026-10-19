@@ -27,7 +27,8 @@ export const routes: RouteRecordRaw[] = [
 ]
 
 export const router = createRouter({
-  history: createWebHistory(),
+  // BASE_URL is '/' locally and '/selfOS/' on GitHub Pages (see VITE_BASE in the Pages workflow).
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
   scrollBehavior: (_to, _from, saved) => saved ?? { top: 0 },
 })
