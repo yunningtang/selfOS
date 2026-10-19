@@ -1,7 +1,7 @@
 import { api } from './client'
+import type { InnateSummary } from '@/types'
 import type {
   GraphBuildResult,
-  InjectMemoryRequest,
   InjectMemoryResult,
   MemoryRecord,
   SeedKind,
@@ -34,9 +34,9 @@ export const graphApi = {
   sephiroth: () => api.get<SephirothState>('/graph/sephiroth', { demo: async () => (await demo()).demoSephiroth() }),
 
   /** POST /api/graph/inject-memory */
-  injectMemory: (body: InjectMemoryRequest) =>
+  injectMemory: (body: InnateSummary) =>
     api.post<InjectMemoryResult>('/graph/inject-memory', body, {
-      demo: async () => ({ anchors: (body.bazi ? 8 : 0) + (body.vedic ? 12 : 0), message: 'Innate memory anchored.' }),
+      demo: async () => ({ anchors: (body.bazi ? 8 : 0) + (body.western ? 6 : 0) + (body.vedic ? 12 : 0), message: 'Innate memory anchored.' }),
     }),
 
   /**

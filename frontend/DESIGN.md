@@ -87,7 +87,7 @@ body, buttons, numbers, charts. Fallbacks: `system-ui`, SF Pro, then system CJK 
 | Seed (Atzilut) | `/seed` | Calm form; a clear liquid bead in the drop zone that brightens while dragging. |
 | Inner Atlas | `/atlas` | Full-bleed SVG Tree of Life (10 nodes, 22 paths). Luminous nodes sized by energy; light motes travel paths at speed ∝ flow; retention points marked. d3-zoom pan/zoom/pinch; arrow keys walk connected nodes. Inspector + full path table. |
 | Memory Chamber | `/memory` | Three.js helix of iridescent, transmissive spheres (only Three.js use). List and timeline views, search and kind filters alongside; opaque reading pane. |
-| Celestial Engine | `/celestial` | Strict BaZi four-pillar grid with CJK glyphs; South/North Indian charts (D1/D9/D10), graha table, Vimshottari timeline, Shadbala bars with table view. Atmosphere only behind the header. |
+| Celestial Engine | `/celestial` | One birth form, three systems from the Swiss Ephemeris. 八字 in the familiar 排盘 layout (主星/天干/地支/藏干/星运/自坐/空亡/纳音/神煞 rows, 大运 → 流年 → 流月 strips, 五行 bars). Western natal wheel (ASC left, signs, houses, aspect lines) with planet/house/aspect-grid tables. Jyotish South/North charts for any of 16 vargas, graha table, panchanga, dasha tree, Shadbala breakdown, Ashtakavarga. Atmosphere only behind the header. |
 | Inner Council | `/council` | Agents as differentiated liquid materials on a ring around the Self; alliance/opposition filaments; individuation steps; event stream with filters; per-agent interview. |
 | Reflection | `/reflection` | Opaque editorial page, 68ch measure. Each section expands to its supporting memories, model assumptions and simulation events. ReportAgent chat below. |
 

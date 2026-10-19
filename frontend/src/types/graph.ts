@@ -1,5 +1,4 @@
 /** Types for /api/graph — GraphRAG narrative graph and Tree of Life topology. */
-import type { BaziRequest, VedicRequest } from './divination'
 
 export type SephirahId =
   | 'kether'
@@ -50,11 +49,6 @@ export interface GraphBuildResult {
   relations: number
   beliefClusters: { id: string; label: string; weight: number }[]
   emotionalAnchors: { id: string; label: string; valence: number }[]
-}
-
-export interface InjectMemoryRequest {
-  bazi?: BaziRequest
-  vedic?: VedicRequest
 }
 
 export interface InjectMemoryResult {

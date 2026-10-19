@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { GRAHAS, SIGNS } from '@/data/lexicon'
-import type { GrahaId } from '@/types'
+
+type GrahaId = keyof typeof GRAHAS
 
 /** South Indian format: signs fixed in a 4×4 frame, Pisces top-left, running clockwise. */
 const props = defineProps<{
   ascendant: number
-  placements: Record<GrahaId, number>
-  retro?: Partial<Record<GrahaId, boolean>>
+  placements: Record<string, number>
+  retro?: Record<string, boolean>
   title: string
 }>()
 

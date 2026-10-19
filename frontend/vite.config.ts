@@ -1,13 +1,36 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
+import { readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { dirname, join } from 'node:path'
+
+const require = createRequire(import.meta.url)
+
+/**
+ * swisseph-wasm resolves its .wasm/.data files as `new URL('../wasm/' + name, import.meta.url)`,
+ * which from a built chunk in /assets/ becomes <base>/wasm/<name>. Emit the two files there.
+ */
+function swissEphemerisAssets(): Plugin {
+  const dir = join(dirname(require.resolve('swisseph-wasm/package.json')), 'wasm')
+  return {
+    name: 'swiss-ephemeris-assets',
+    apply: 'build',
+    generateBundle() {
+      for (const f of ['swisseph.wasm', 'swisseph.data'])
+        this.emitFile({ type: 'asset', fileName: `wasm/${f}`, source: readFileSync(join(dir, f)) })
+    },
+  }
+}
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
     // Served from a sub-path on GitHub Pages; '/' everywhere else.
     base: env.VITE_BASE || '/',
-    plugins: [vue()],
+    plugins: [vue(), swissEphemerisAssets()],
+    // Keep the ephemeris loader un-prebundled so its import.meta.url still points at node_modules in dev.
+    optimizeDeps: { exclude: ['swisseph-wasm'] },
     resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
     server: {
       port: 3000,
@@ -25,6 +48,7 @@ export default defineConfig(({ mode }) => {
           manualChunks(id) {
             if (id.includes('node_modules/three')) return 'three'
             if (id.includes('node_modules/d3')) return 'd3'
+            if (id.includes('node_modules/swisseph-wasm')) return 'swisseph'
           },
         },
       },

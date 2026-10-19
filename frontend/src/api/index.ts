@@ -1,5 +1,4 @@
 export { dataSource, ApiError } from './client'
-export { divinationApi } from './divination'
 export { graphApi } from './graph'
 export { simulationApi } from './simulation'
 export { reportApi } from './report'

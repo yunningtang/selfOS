@@ -226,7 +226,7 @@ Agent 决策权重 = f(
 
 ### 当前可运行：前端
 
-目前仓库中已实现前端（`frontend/`），后端尚在开发中。没有后端时，前端会自动使用内置演示数据，并在界面顶栏标注 “Demo data”。
+目前仓库中已实现前端（`frontend/`），后端尚在开发中。八字、西方占星与 Vedic 三套排盘完全在浏览器内基于 Swiss Ephemeris（WASM）计算，精度与桌面排盘软件一致；叙事图谱、仿真与报告在没有后端时使用内置演示数据，并在界面顶栏标注 “Demo data”。
 
 ```bash
 git clone https://github.com/yunningtang/selfOS.git

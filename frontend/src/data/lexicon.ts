@@ -1,5 +1,7 @@
 /** Shared labels and visual identities for archetypes, elements and astrological entities. */
-import type { ArchetypeKind, FiveElement, GrahaId, MemoryKind, SimEventType } from '@/types'
+import type { ArchetypeKind, FiveElement, MemoryKind, SimEventType } from '@/types'
+
+type GrahaId = 'Su' | 'Mo' | 'Ma' | 'Me' | 'Ju' | 'Ve' | 'Sa' | 'Ra' | 'Ke'
 
 export interface OrbMaterial {
   /** Base hue of the liquid body */
