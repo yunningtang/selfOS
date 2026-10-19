@@ -206,4 +206,11 @@ export const EN: Record<string, string> = {
   '亏凸月': 'Waning Gibbous',
   '下弦月': 'Last Quarter',
   '残月': 'Waning Crescent',
+  // ---- standalone destiny app
+  '导航': 'Navigation', '切换外观': 'Switch appearance', '命盘 · 本地计算 · 不上传': 'Charts · computed locally · nothing uploaded',
+  '一个出生时刻，四套命盘': 'One birth moment, four charts', '八字、紫微斗数、西方占星与 Jyotish 由同一个时刻算起，再给出带依据的分析。': 'BaZi, Zi Wei Dou Shu, Western astrology and Jyotish from the same moment, followed by an analysis that states its basis.',
+  '百余条断语、格局、喜用神、五行与十神强弱，每一条都标明推断依据。': 'A hundred-odd readings, patterns, useful gods, element and ten-god strength, each with its basis stated.',
+  '八字 · 四柱、大运流年流月、神煞、调候、古籍': 'BaZi · pillars, luck periods, stars, climate gods, classics', '紫微斗数 · 十二宫、四化、大限流年': 'Zi Wei Dou Shu · twelve palaces, transformations, decades and years',
+  '西方占星 · 九种宫位制、相位、庙旺': 'Western · nine house systems, aspects, dignities', 'Jyotish · 十六分盘、Dasha、Shadbala': 'Jyotish · sixteen vargas, dasha, shadbala',
+  '排盘全部在你的浏览器本地完成，出生信息只保存在本机。': 'Charts are computed in your browser; birth data stays on this device.',
 }

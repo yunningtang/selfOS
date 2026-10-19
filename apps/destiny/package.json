@@ -1,0 +1,28 @@
+{
+  "name": "@selfos/destiny-app",
+  "private": true,
+  "version": "0.1.0",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "description": "命盘 · 八字、紫微、占星、Jyotish — the standalone chart site built on @selfos/destiny-core.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "typecheck": "vue-tsc --noEmit",
+    "preview": "vite preview --port 3100"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@selfos/destiny-core": "*",
+    "pinia": "^4.1.0",
+    "vue": "^3.5.44",
+    "vue-router": "^5.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "typescript": "~5.9",
+    "vite": "^8.3.4",
+    "vue-tsc": "^3.3.13"
+  }
+}

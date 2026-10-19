@@ -33,6 +33,12 @@ jobs:
           VITE_DATA_MODE: demo
       # Pages has no SPA rewrite; serving index.html as 404.html lets deep links like /atlas load.
       - run: cp frontend/dist/index.html frontend/dist/404.html
+      - name: Build standalone chart site (served at /destiny/)
+        run: npm run build -w @selfos/destiny-app
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/destiny/
+          VITE_DATA_MODE: demo
+      - run: mkdir -p frontend/dist/destiny && cp -r apps/destiny/dist/. frontend/dist/destiny/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
