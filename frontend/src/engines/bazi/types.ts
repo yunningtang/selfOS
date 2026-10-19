@@ -20,6 +20,8 @@ export interface BirthInput {
   latitude: number
   gender: 'M' | 'F'
   place?: string
+  /** Read the clock time as standard time even when the zone was on daylight-saving time */
+  ignoreDst?: boolean
 }
 
 export interface BaziOptions {

@@ -135,8 +135,10 @@ const ELS: FiveElement[] = ['wood', 'fire', 'earth', 'metal', 'water']
         <li v-for="l in chart.luck.pillars" :key="l.index">
           <button type="button" class="cell" :class="{ on: l.index === luckIndex, now: l.startYear <= thisYear && thisYear <= l.endYear }" @click="store.selectLuck(l.index)">
             <span class="c-top t-num">{{ l.startAge }}<span class="t-faint">岁</span></span>
-            <span class="c-gz"><b :style="{ color: el(tables.STEM_ELEMENT[l.sexagenary % 10]) }">{{ l.stemChar }}</b><b :style="{ color: el(tables.BRANCH_ELEMENT[l.sexagenary % 12]) }">{{ l.branchChar }}</b></span>
-            <span class="c-sub">{{ TEN_GOD_SHORT[l.stemTenGod] }}{{ TEN_GOD_SHORT[l.branchMainTenGod] }} · <span class="t-num">{{ l.startYear }}</span></span>
+            <span class="c-god">{{ TEN_GOD_SHORT[l.stemTenGod] }}</span>
+            <span class="c-gz" :style="{ color: el(tables.STEM_ELEMENT[l.sexagenary % 10]) }">{{ l.stemChar }}</span>
+            <span class="c-gz" :style="{ color: el(tables.BRANCH_ELEMENT[l.sexagenary % 12]) }">{{ l.branchChar }}</span>
+            <span class="c-sub">{{ TEN_GOD_SHORT[l.branchMainTenGod] }} · <span class="t-num">{{ l.startYear }}</span></span>
           </button>
         </li>
       </ol>
@@ -144,8 +146,10 @@ const ELS: FiveElement[] = ['wood', 'fire', 'earth', 'metal', 'water']
         <li v-for="a in annual" :key="a.year">
           <button type="button" class="cell" :class="{ on: a.year === annualYear, now: a.year === thisYear }" @click="store.selectYear(a.year)">
             <span class="c-top t-num">{{ a.year }}</span>
-            <span class="c-gz"><b :style="{ color: el(tables.STEM_ELEMENT[a.sexagenary % 10]) }">{{ a.stemChar }}</b><b :style="{ color: el(tables.BRANCH_ELEMENT[a.sexagenary % 12]) }">{{ a.branchChar }}</b></span>
-            <span class="c-sub">{{ TEN_GOD_SHORT[a.stemTenGod] }}{{ TEN_GOD_SHORT[a.branchMainTenGod] }} · {{ a.nominalAge }}虚岁</span>
+            <span class="c-god">{{ TEN_GOD_SHORT[a.stemTenGod] }}</span>
+            <span class="c-gz" :style="{ color: el(tables.STEM_ELEMENT[a.sexagenary % 10]) }">{{ a.stemChar }}</span>
+            <span class="c-gz" :style="{ color: el(tables.BRANCH_ELEMENT[a.sexagenary % 12]) }">{{ a.branchChar }}</span>
+            <span class="c-sub">{{ TEN_GOD_SHORT[a.branchMainTenGod] }} · {{ a.nominalAge }}虚岁</span>
           </button>
         </li>
       </ol>
@@ -153,8 +157,10 @@ const ELS: FiveElement[] = ['wood', 'fire', 'earth', 'metal', 'water']
         <li v-for="m in monthly" :key="m.index">
           <div class="cell static">
             <span class="c-top">{{ m.term }} <span class="t-num t-faint">{{ m.startsAt.slice(5, 10) }}</span></span>
-            <span class="c-gz"><b :style="{ color: el(tables.STEM_ELEMENT[m.sexagenary % 10]) }">{{ m.stemChar }}</b><b :style="{ color: el(tables.BRANCH_ELEMENT[m.sexagenary % 12]) }">{{ m.branchChar }}</b></span>
-            <span class="c-sub">{{ TEN_GOD_SHORT[m.stemTenGod] }}{{ TEN_GOD_SHORT[m.branchMainTenGod] }}</span>
+            <span class="c-god">{{ TEN_GOD_SHORT[m.stemTenGod] }}</span>
+            <span class="c-gz" :style="{ color: el(tables.STEM_ELEMENT[m.sexagenary % 10]) }">{{ m.stemChar }}</span>
+            <span class="c-gz" :style="{ color: el(tables.BRANCH_ELEMENT[m.sexagenary % 12]) }">{{ m.branchChar }}</span>
+            <span class="c-sub">{{ TEN_GOD_SHORT[m.branchMainTenGod] }}</span>
           </div>
         </li>
       </ol>
@@ -246,8 +252,8 @@ const ELS: FiveElement[] = ['wood', 'fire', 'earth', 'metal', 'water']
   font-size: 44px;
   line-height: 1.15;
   font-weight: 500;
-  color: var(--text);
-  text-shadow: 0 0 24px color-mix(in srgb, var(--tone) 55%, transparent);
+  color: var(--tone);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--tone) 35%, transparent);
 }
 .p-char + .p-char {
   margin-top: -4px;
@@ -287,7 +293,8 @@ const ELS: FiveElement[] = ['wood', 'fire', 'earth', 'metal', 'water']
   font-size: 40px;
   line-height: 1;
   font-weight: 500;
-  text-shadow: 0 0 24px color-mix(in srgb, var(--tone) 60%, transparent);
+  color: var(--tone);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--tone) 40%, transparent);
 }
 .dm-text {
   display: grid;
@@ -390,8 +397,8 @@ const ELS: FiveElement[] = ['wood', 'fire', 'earth', 'metal', 'water']
 .cell {
   display: grid;
   justify-items: center;
-  gap: 2px;
-  min-width: 86px;
+  gap: 1px;
+  min-width: 76px;
   padding: 10px 8px;
   border: 0;
   border-radius: var(--r-md);
@@ -425,11 +432,13 @@ button.cell:active {
   color: var(--text-2);
   white-space: nowrap;
 }
-.c-gz {
-  font-size: 22px;
-  line-height: 1.2;
+.c-god {
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
 }
-.c-gz b {
+.c-gz {
+  font-size: 26px;
+  line-height: 1.1;
   font-weight: var(--fw-medium);
 }
 .c-sub {
@@ -438,7 +447,7 @@ button.cell:active {
   white-space: nowrap;
 }
 .months .cell {
-  min-width: 74px;
+  min-width: 68px;
 }
 
 /* ── Detail table ─────────────────────────────────────── */

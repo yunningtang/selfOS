@@ -23,6 +23,8 @@ export interface BirthProfile {
   longitude: number
   /** IANA zone name, or fixed UTC offset in hours */
   timeZone: string | number
+  /** 'auto': apply historical daylight-saving time from the zone database; 'ignore': read the clock as standard time */
+  dst: 'auto' | 'ignore'
 }
 
 export type { BaziChart, BaziOptions, LuckPillar, AnnualPillar, MonthlyPillar, Pillar } from '@/engines/bazi/types'

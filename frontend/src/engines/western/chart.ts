@@ -29,6 +29,7 @@ export interface WesternInput extends CivilTime {
   longitude: number
   latitude: number
   place?: string
+  ignoreDst?: boolean
 }
 
 export type Dignity = 'domicile' | 'exaltation' | 'detriment' | 'fall' | null
@@ -118,7 +119,7 @@ function dignityOf(id: BodyId, sign: number, modern: boolean): Dignity {
 }
 
 export function computeWestern(swe: SwissEph, input: WesternInput, settings: WesternSettings): WesternChart {
-  const inst = resolveInstant(input, input.timeZone)
+  const inst = resolveInstant(input, input.timeZone, { ignoreDst: input.ignoreDst })
   const jd = inst.jdUt
   const h = houses(swe, jd, input.latitude, input.longitude, settings.houseSystem)
   const cusps = h.cusps

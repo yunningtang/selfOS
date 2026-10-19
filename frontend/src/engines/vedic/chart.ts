@@ -39,6 +39,7 @@ export interface VedicInput extends CivilTime {
   longitude: number
   latitude: number
   place?: string
+  ignoreDst?: boolean
 }
 
 export type VedicDignity = 'exalted' | 'moolatrikona' | 'own' | 'adhimitra' | 'mitra' | 'sama' | 'satru' | 'adhisatru' | 'debilitated'
@@ -177,7 +178,7 @@ export function subPeriods(p: DashaPeriod, offsetMin: number): DashaPeriod[] {
 }
 
 export function computeVedic(swe: SwissEph, input: VedicInput, settings: VedicSettings): VedicChart {
-  const inst = resolveInstant(input, input.timeZone)
+  const inst = resolveInstant(input, input.timeZone, { ignoreDst: input.ignoreDst })
   const jd = inst.jdUt
   const ay = AYANAMSAS[settings.ayanamsa]
   setSidereal(swe, ay.mode)

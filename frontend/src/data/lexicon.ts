@@ -24,11 +24,11 @@ export const ARCHETYPES: Record<ArchetypeKind, { label: string; zh: string; role
 }
 
 export const ELEMENTS: Record<FiveElement, { zh: string; label: string; token: string }> = {
-  wood: { zh: '木', label: 'Wood', token: 'var(--el-wood)' },
-  fire: { zh: '火', label: 'Fire', token: 'var(--el-fire)' },
-  earth: { zh: '土', label: 'Earth', token: 'var(--el-earth)' },
-  metal: { zh: '金', label: 'Metal', token: 'var(--el-metal)' },
-  water: { zh: '水', label: 'Water', token: 'var(--el-water)' },
+  wood: { zh: '木', label: 'Wood', token: 'var(--wx-wood)' },
+  fire: { zh: '火', label: 'Fire', token: 'var(--wx-fire)' },
+  earth: { zh: '土', label: 'Earth', token: 'var(--wx-earth)' },
+  metal: { zh: '金', label: 'Metal', token: 'var(--wx-metal)' },
+  water: { zh: '水', label: 'Water', token: 'var(--wx-water)' },
 }
 
 export const ELEMENT_ORDER: FiveElement[] = ['wood', 'fire', 'earth', 'metal', 'water']

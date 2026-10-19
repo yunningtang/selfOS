@@ -94,7 +94,7 @@ export interface ResolvedInstant {
  * offset in hours. Ambiguous or non-existent local times (DST transitions) resolve to the
  * earlier offset, which is what most ephemeris programmes do.
  */
-export function resolveInstant(local: CivilTime, zone: string | number): ResolvedInstant {
+export function resolveInstant(local: CivilTime, zone: string | number, opts: { ignoreDst?: boolean } = {}): ResolvedInstant {
   const localAsUtc = Date.UTC(local.year, local.month - 1, local.day, local.hour, local.minute, Math.floor(local.second ?? 0))
   let offset: number
   let dst = false
@@ -109,8 +109,14 @@ export function resolveInstant(local: CivilTime, zone: string | number): Resolve
     offset = guess
     const jan = zoneOffsetAt(zone, Date.UTC(local.year, 0, 1))
     const jul = zoneOffsetAt(zone, Date.UTC(local.year, 6, 1))
-    dst = offset > Math.min(jan, jul)
-    zoneLabel = `${zone} (UTC${fmtOffset(offset)}${dst ? ', DST' : ''})`
+    const standard = Math.min(jan, jul)
+    dst = offset > standard
+    if (dst && opts.ignoreDst) {
+      // Treat the clock reading as standard time (the convention of most 八字 apps).
+      offset = standard
+      dst = false
+      zoneLabel = `${zone} (UTC${fmtOffset(offset)}, 夏令时未换算)`
+    } else zoneLabel = `${zone} (UTC${fmtOffset(offset)}${dst ? ', 夏令时' : ''})`
   }
   const utcMs = localAsUtc - offset * 60000
   const d = new Date(utcMs)

@@ -62,7 +62,7 @@ const tabMeta = computed(() => {
         <div class="who">
           <span class="name">{{ birth.name || '出生档案' }}</span>
           <span class="meta t-num">{{ profileLine }} · {{ birth.place || `${birth.latitude}, ${birth.longitude}` }}</span>
-          <span class="meta t-faint t-num">{{ bazi.time.zoneLabel }} · UTC {{ bazi.time.utc.slice(0, 16) }}</span>
+          <span class="meta t-faint t-num">{{ bazi.time.zoneLabel }} · UTC {{ bazi.time.utc.slice(0, 16) }}<template v-if="bazi.time.dst"> · 已按夏令时换算</template></span>
         </div>
         <div class="row-wrap">
           <LqButton variant="ghost" size="sm" icon="layers" :loading="injecting" @click="inject">写入先天记忆</LqButton>

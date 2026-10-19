@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import LqButton from '@/components/ui/LqButton.vue'
 import LqSegmented from '@/components/ui/LqSegmented.vue'
 import { CITIES, listTimeZones } from '@/data/cities'
@@ -12,16 +12,62 @@ const emit = defineEmits<{ cast: [] }>()
 
 const zones = listTimeZones()
 const cityQuery = ref('')
-const matches = computed(() => {
+interface Place {
+  name: string
+  detail: string
+  lat: number
+  lon: number
+  tz: string
+}
+const localMatches = computed<Place[]>(() => {
   const q = cityQuery.value.trim().toLowerCase()
   if (!q) return []
-  return CITIES.filter((c) => c.name.includes(q) || c.en.toLowerCase().includes(q)).slice(0, 8)
+  return CITIES.filter((c) => c.name.includes(q) || c.en.toLowerCase().includes(q)).slice(0, 6).map((c) => ({ name: c.name, detail: c.en, lat: c.lat, lon: c.lon, tz: c.tz }))
 })
-function pickCity(name: string) {
-  const c = CITIES.find((x) => x.name === name || x.en === name)
-  if (!c) return
+const remote = ref<Place[]>([])
+const searching = ref(false)
+let timer: number | undefined
+let seq = 0
+/** Any place in the world via the Open-Meteo geocoder (free, no key; returns the IANA zone). */
+watch(cityQuery, (q) => {
+  window.clearTimeout(timer)
+  const term = q.trim()
+  if (term.length < 2) {
+    remote.value = []
+    return
+  }
+  timer = window.setTimeout(async () => {
+    const my = ++seq
+    searching.value = true
+    try {
+      const lang = /[\u4e00-\u9fff]/.test(term) ? 'zh' : 'en'
+      const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(term)}&count=8&language=${lang}&format=json`)
+      const data = (await r.json()) as { results?: { name: string; latitude: number; longitude: number; country?: string; admin1?: string; timezone?: string }[] }
+      if (my !== seq) return
+      remote.value = (data.results ?? []).map((x) => ({
+        name: x.name, detail: [x.admin1, x.country].filter(Boolean).join(' · '),
+        lat: Math.round(x.latitude * 10000) / 10000, lon: Math.round(x.longitude * 10000) / 10000, tz: x.timezone || 'UTC',
+      }))
+    } catch {
+      remote.value = []
+    } finally {
+      if (my === seq) searching.value = false
+    }
+  }, 300)
+})
+const matches = computed<Place[]>(() => {
+  const seen = new Set<string>()
+  return [...localMatches.value, ...remote.value].filter((p) => {
+    const k = `${p.lat.toFixed(2)},${p.lon.toFixed(2)}`
+    if (seen.has(k)) return false
+    seen.add(k)
+    return true
+  }).slice(0, 8)
+})
+function pickCity(c: Place) {
   birth.value = { ...birth.value, place: c.name, latitude: c.lat, longitude: c.lon, timeZone: c.tz }
   cityQuery.value = ''
+  remote.value = []
 }
 const fixedOffset = computed({
   get: () => (typeof birth.value.timeZone === 'number' ? birth.value.timeZone : 8),
@@ -36,7 +82,11 @@ const offsetNote = computed(() => {
   if (typeof b.timeZone === 'number') return `UTC${fmtOffset(b.timeZone * 60)}`
   try {
     const ms = Date.UTC(b.year, b.month - 1, b.day, b.hour, b.minute)
-    return `该日期 UTC${fmtOffset(zoneOffsetAt(b.timeZone, ms))}`
+    const off = zoneOffsetAt(b.timeZone, ms)
+    const jan = zoneOffsetAt(b.timeZone, Date.UTC(b.year, 0, 1)), jul = zoneOffsetAt(b.timeZone, Date.UTC(b.year, 6, 1))
+    const std = Math.min(jan, jul)
+    if (off > std) return b.dst === 'ignore' ? `该日期处于夏令时，按标准时 UTC${fmtOffset(std)} 读取` : `该日期处于夏令时，UTC${fmtOffset(off)}`
+    return `该日期 UTC${fmtOffset(off)}`
   } catch {
     return ''
   }
@@ -84,11 +134,12 @@ const offsetNote = computed(() => {
       <h3 class="t-label">出生地与时区</h3>
       <div class="field city">
         <label class="lbl" for="b-city">城市</label>
-        <input id="b-city" v-model="cityQuery" class="lq-input" :placeholder="birth.place || '搜索城市，自动填入经纬度与时区'" autocomplete="off" />
-        <ul v-if="matches.length" class="city-list lq-surface" role="listbox">
-          <li v-for="c in matches" :key="c.en">
-            <button type="button" role="option" @click="pickCity(c.en)">{{ c.name }} <span class="t-muted">{{ c.en }}</span></button>
+        <input id="b-city" v-model="cityQuery" class="lq-input" :placeholder="birth.place || '输入任意城市或地名，自动填入经纬度与时区'" autocomplete="off" />
+        <ul v-if="matches.length || searching" class="city-list lq-surface" role="listbox">
+          <li v-for="c in matches" :key="c.name + c.lat">
+            <button type="button" role="option" @click="pickCity(c)">{{ c.name }} <span class="t-muted">{{ c.detail }}</span> <span class="t-faint t-num">{{ c.lat.toFixed(2) }}, {{ c.lon.toFixed(2) }}</span></button>
           </li>
+          <li v-if="searching" class="t-caption searching">搜索中…</li>
         </ul>
       </div>
       <div class="field two">
@@ -100,6 +151,11 @@ const offsetNote = computed(() => {
           <label class="lbl" for="b-lon">经度</label>
           <input id="b-lon" v-model.number="birth.longitude" class="lq-input t-num" type="number" step="0.0001" min="-180" max="180" />
         </div>
+      </div>
+      <div class="field">
+        <span class="lbl">夏令时</span>
+        <LqSegmented v-model="birth.dst" :options="[{ value: 'auto', label: '按历史自动换算' }, { value: 'ignore', label: '不换算' }]" label="夏令时" size="sm" />
+        <span class="t-caption">中国 1986–1991 年等时期实行过夏令时。多数八字 App 默认不换算；占星软件一般换算。</span>
       </div>
       <div class="field">
         <span class="lbl">时区 <span class="t-faint">{{ offsetNote }}</span></span>
@@ -213,6 +269,9 @@ const offsetNote = computed(() => {
 }
 .city-list button:hover {
   background: var(--accent-soft);
+}
+.searching {
+  padding: var(--sp-2) var(--sp-3);
 }
 .tz {
   display: grid;

@@ -154,6 +154,12 @@
   --el-earth: var(--c-sand);
   --el-metal: var(--c-pearl);
   --el-water: var(--c-mist);
+  /* 五行 as readers expect them on a 排盘: 木绿 火红 土棕 金金 水蓝 */
+  --wx-wood: #7cc69b;
+  --wx-fire: #ea7d6c;
+  --wx-earth: #c9a16a;
+  --wx-metal: #e6c76f;
+  --wx-water: #72aee6;
   --tension: var(--c-clay);
   --harmony: var(--c-sage);
   --danger-ink: #e6b3aa;
@@ -216,6 +222,11 @@
   --el-earth: #b8a57a;
   --el-metal: #9aa3b8;
   --el-water: #6f9fc4;
+  --wx-wood: #3f9a5f;
+  --wx-fire: #d4503b;
+  --wx-earth: #a07a3a;
+  --wx-metal: #b8901a;
+  --wx-water: #2f7fc9;
   --tension: #c98f7f;
   --harmony: #6fae94;
   --danger-ink: #a24f40;

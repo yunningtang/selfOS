@@ -13,7 +13,7 @@ const DEFAULT_PROFILE: BirthProfile = {
   name: '',
   year: 1990, month: 5, day: 15, hour: 12, minute: 0,
   calendar: 'solar', lunarLeap: false, gender: 'F',
-  place: '北京', latitude: 39.9042, longitude: 116.4074, timeZone: 'Asia/Shanghai',
+  place: '北京', latitude: 39.9042, longitude: 116.4074, timeZone: 'Asia/Shanghai', dst: 'auto',
 }
 
 function load<T>(key: string, fallback: T): T {
@@ -58,7 +58,7 @@ export const useDivinationStore = defineStore('divination', () => {
 
   const inputCore = computed(() => {
     const b = birth.value
-    return { year: b.year, month: b.month, day: b.day, hour: b.hour, minute: b.minute, timeZone: b.timeZone, longitude: b.longitude, latitude: b.latitude, place: b.place }
+    return { year: b.year, month: b.month, day: b.day, hour: b.hour, minute: b.minute, timeZone: b.timeZone, longitude: b.longitude, latitude: b.latitude, place: b.place, ignoreDst: b.dst === 'ignore' }
   })
 
   async function cast() {

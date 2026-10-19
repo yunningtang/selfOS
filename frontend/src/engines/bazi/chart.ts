@@ -42,7 +42,7 @@ export function computeBazi(swe: SwissEph, raw: BirthInput, options: BaziOptions
   const civilDate =
     raw.calendar === 'lunar' ? lunarToSolar(raw.year, raw.month, raw.day, !!raw.lunarLeap) : { year: raw.year, month: raw.month, day: raw.day }
   const civil: CivilTime = { ...civilDate, hour: raw.hour, minute: raw.minute, second: raw.second ?? 0 }
-  const inst = resolveInstant(civil, raw.timeZone)
+  const inst = resolveInstant(civil, raw.timeZone, { ignoreDst: raw.ignoreDst })
   const jdUt = inst.jdUt
 
   // ── Time standards ──────────────────────────────────────────────
