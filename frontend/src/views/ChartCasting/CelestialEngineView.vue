@@ -9,14 +9,15 @@ import BirthForm from '@/components/celestial/BirthForm.vue'
 import BaZiBoard from '@/components/BaZiChart/BaZiBoard.vue'
 import WesternPanel from '@/components/WesternChart/WesternPanel.vue'
 import VedicPanel from '@/components/VedicChart/VedicPanel.vue'
+import ZiweiPanel from '@/components/ZiweiChart/ZiweiPanel.vue'
 import { HOUSE_SYSTEMS } from '@/engines/western/tables'
 import { AYANAMSAS } from '@/engines/vedic/chart'
 import { useDivinationStore } from '@/stores/divination'
 
 const div = useDivinationStore()
-const { birth, baziOptions, westernSettings, vedicSettings, bazi, western, vedic, loading, error, injected } = storeToRefs(div)
+const { birth, baziOptions, westernSettings, vedicSettings, bazi, western, vedic, ziwei, loading, error, injected } = storeToRefs(div)
 
-const system = ref<'bazi' | 'western' | 'vedic'>('bazi')
+const system = ref<'bazi' | 'ziwei' | 'western' | 'vedic'>('bazi')
 const editing = ref(false)
 const injecting = ref(false)
 
@@ -47,6 +48,7 @@ const profileLine = computed(() => {
 const tabMeta = computed(() => {
   if (!bazi.value) return ''
   if (system.value === 'bazi') return `${bazi.value.options.trueSolarTime ? '真太阳时' : '标准时'} ${bazi.value.time.trueSolar.slice(11, 16)} · 晚子时${bazi.value.options.lateZi === 'next-day' ? '换日' : '不换日'}`
+  if (system.value === 'ziwei') return ziwei.value ? `${ziwei.value.fiveElementsClass} · 命主${ziwei.value.soul} · 身主${ziwei.value.body} · 按出生地钟表时 ${ziwei.value.time}` : ''
   if (system.value === 'western') return `${HOUSE_SYSTEMS.find((h) => h.code === westernSettings.value.houseSystem)?.zh}宫位制 · ${westernSettings.value.nodeType === 'true' ? '真' : '平'}交点`
   return `${AYANAMSAS[vedicSettings.value.ayanamsa].name} · ${vedicSettings.value.nodeType} node`
 })
@@ -55,7 +57,7 @@ const tabMeta = computed(() => {
 <template>
   <section class="celestial" aria-labelledby="cel-title">
     <div class="atmo ambient-anim" aria-hidden="true" />
-    <PageHeader title="Celestial Engine" zh="先天记忆" world="Beria · 创造界" lede="一个出生时刻，三套体系。八字、西方占星与 Jyotish 皆由瑞士星历在本地精算——先天参数，而非宿命。" />
+    <PageHeader title="Celestial Engine" zh="先天记忆" world="Beria · 创造界" lede="一个出生时刻，四套体系。八字、紫微斗数、西方占星与 Jyotish 皆在本地精算——先天参数，而非宿命。" />
 
     <!-- Profile card: collapsed once a chart exists -->
     <div class="profile lq-glass" :class="{ editing }">
@@ -102,7 +104,7 @@ const tabMeta = computed(() => {
     <Notice v-if="error" tone="error">{{ error }}</Notice>
 
     <div class="tabs">
-      <LqSegmented v-model="system" :options="[{ value: 'bazi', label: '八字' }, { value: 'western', label: '占星' }, { value: 'vedic', label: 'Jyotish' }]" label="排盘体系" />
+      <LqSegmented v-model="system" :options="[{ value: 'bazi', label: '八字' }, { value: 'ziwei', label: '紫微' }, { value: 'western', label: '占星' }, { value: 'vedic', label: 'Jyotish' }]" label="排盘体系" />
       <p class="t-caption">{{ tabMeta }}</p>
     </div>
 
@@ -110,6 +112,10 @@ const tabMeta = computed(() => {
       <div v-if="system === 'bazi'" key="bazi" class="panel">
         <BaZiBoard v-if="bazi" :chart="bazi" />
         <p v-else class="t-muted pad">{{ loading ? '正在加载星历并排盘…' : '填写出生信息后排盘。' }}</p>
+      </div>
+      <div v-else-if="system === 'ziwei'" key="ziwei" class="panel">
+        <ZiweiPanel v-if="ziwei" :chart="ziwei" />
+        <p v-else class="t-muted pad">{{ loading ? '排盘中…' : '填写出生信息后排盘。' }}</p>
       </div>
       <div v-else-if="system === 'western'" key="western" class="panel">
         <WesternPanel v-if="western" :chart="western" />

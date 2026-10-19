@@ -1,6 +1,7 @@
 export * from './types'
 export * from './chart'
 export * from './tables'
+export * from './classics'
 export type { Relation } from './relations'
 export type { ShenShaHit } from './shensha'
 export type { StrengthResult } from './strength'

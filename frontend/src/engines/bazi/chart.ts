@@ -19,6 +19,7 @@ import {
 import { computeRelations } from './relations'
 import { computeShenSha } from './shensha'
 import { computeStrength } from './strength'
+import { GE_JU, GE_JU_NAMES, JIN_BU_HUAN, SI_LING, TIAO_HOU, TIAO_HOU_NOTE } from './classics'
 import type { AnnualPillar, BaziChart, BaziOptions, BirthInput, LuckPillar, MonthlyPillar, Pillar } from './types'
 
 const KEYS: PillarKey[] = ['year', 'month', 'day', 'hour']
@@ -166,6 +167,14 @@ export function computeBazi(swe: SwissEph, raw: BirthInput, options: BaziOptions
   const relations = computeRelations(pillars.map((p) => ({ key: p.key, label: p.key, stem: p.stem, branch: p.branch })))
   const shensha = computeShenSha({ stems, branches, sexa, gender: raw.gender })
   const fiveElements = Object.fromEntries(ELEMENT_ORDER.map((e) => [e, strength.scores[e]])) as Record<FiveElement, number>
+  const classicsKey = `${STEMS[dayStem]}${BRANCHES[monthBranch]}`
+  const classics = {
+    key: classicsKey,
+    tiaoHou: { levels: TIAO_HOU[classicsKey] ?? [], note: TIAO_HOU_NOTE[classicsKey] },
+    jinBuHuan: JIN_BU_HUAN[classicsKey] ?? null,
+    geJu: GE_JU_NAMES.map((name, i) => ({ name, verdict: GE_JU[STEM_ELEMENT[dayStem]][BRANCHES[monthBranch]]?.[i] ?? '' })).filter((g) => g.verdict),
+    siLing: SI_LING[BRANCHES[monthBranch]] ?? '',
+  }
 
   return {
     input: raw, options,
@@ -189,7 +198,7 @@ export function computeBazi(swe: SwissEph, raw: BirthInput, options: BaziOptions
       nextQi: mark(nextQiJd, prevQi > jdUt ? prevJieLon + 15 : prevJieLon + 45),
     },
     luck: { forward, daysToTerm, startAge: { years, months, days }, startDate, pillars: luckPillars },
-    strength, relations, shensha, fiveElements,
+    strength, relations, shensha, fiveElements, classics,
   }
 }
 

@@ -157,4 +157,19 @@ export interface BaziChart {
   shensha: ShenShaHit[]
   /** Element tally of the eight characters, for the energy mapping */
   fiveElements: Record<FiveElement, number>
+  /** Classical reference readings keyed on 日干 + 月支 */
+  classics: ClassicsReading
+}
+
+export interface ClassicsReading {
+  /** 日干+月支, e.g. 辛未 */
+  key: string
+  /** 调候用神 (《穷通宝鉴》): preference levels, each a list of stems */
+  tiaoHou: { levels: string[][]; note?: string }
+  /** 金不换大运 */
+  jinBuHuan: { tiaohou: string; luck: string; note: string } | null
+  /** 格局选用 verdicts for the 日主五行 in this month */
+  geJu: { name: string; verdict: string }[]
+  /** 月令司令 (人元用事) */
+  siLing: string
 }

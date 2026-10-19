@@ -75,6 +75,7 @@ const transitRelations = computed(() => {
 const label = (k: string) => ({ year: '年', month: '月', day: '日', hour: '时', luck: '运', annual: '流' })[k] ?? k
 const shenshaBy = (kind: string) => props.chart.shensha.filter((s) => s.kind === kind)
 const ELS: FiveElement[] = ['wood', 'fire', 'earth', 'metal', 'water']
+const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof STEMS)[number])]
 </script>
 
 <template>
@@ -107,6 +108,14 @@ const ELS: FiveElement[] = ['wood', 'fire', 'earth', 'metal', 'water']
           </li>
         </ul>
         <p class="t-sm"><span class="t-muted">喜用</span> {{ elZh(chart.strength.favourable) }} <span class="t-faint">·</span> <span class="t-muted">忌</span> {{ elZh(chart.strength.unfavourable) }} <span class="t-faint">·</span> {{ chart.strength.support.ling ? '得令' : '失令' }} {{ chart.strength.support.di ? '得地' : '失地' }} {{ chart.strength.support.shi ? '得势' : '失势' }}</p>
+        <p v-if="chart.classics.tiaoHou.levels.length" class="t-sm tiaohou"><span class="t-muted">调候</span>
+          <template v-for="(lv, i) in chart.classics.tiaoHou.levels" :key="i">
+            <span v-if="i" class="t-faint">›</span>
+            <b v-for="st in lv" :key="st" class="th-stem" :style="{ color: el(stemEl(st)) }">{{ st }}</b>
+          </template>
+          <span v-if="chart.classics.tiaoHou.note" class="t-faint">{{ chart.classics.tiaoHou.note }}</span>
+          <span class="t-faint">《穷通宝鉴》{{ chart.classics.key }}</span>
+        </p>
       </div>
     </div>
 
@@ -194,6 +203,25 @@ const ELS: FiveElement[] = ['wood', 'fire', 'earth', 'metal', 'water']
           </ul>
         </div>
       </div>
+    </LqCollapse>
+
+    <LqCollapse title="古籍参考" :summary="`${chart.classics.key} · 调候 · 金不换 · 格局选用 · 司令`">
+      <dl class="classics">
+        <div v-if="chart.classics.tiaoHou.levels.length"><dt>调候用神</dt><dd>
+          <template v-for="(lv, i) in chart.classics.tiaoHou.levels" :key="i"><span class="t-faint">{{ ['首选', '次选', '再次'][i] ?? `第${i + 1}` }}</span> <b v-for="st in lv" :key="st" class="th-stem" :style="{ color: el(stemEl(st)) }">{{ st }}</b> </template>
+          <span v-if="chart.classics.tiaoHou.note" class="t-muted">{{ chart.classics.tiaoHou.note }}</span>
+          <span class="t-faint">— 《穷通宝鉴》以日干配月令取调候，与扶抑用神并观。</span>
+        </dd></div>
+        <div v-if="chart.classics.jinBuHuan"><dt>金不换大运</dt><dd>
+          <span>{{ chart.classics.jinBuHuan.tiaohou }}</span>
+          <span v-if="chart.classics.jinBuHuan.luck" class="t-muted"> · 大运 {{ chart.classics.jinBuHuan.luck }}</span>
+          <span v-if="chart.classics.jinBuHuan.note" class="t-muted"> · {{ chart.classics.jinBuHuan.note }}</span>
+        </dd></div>
+        <div v-if="chart.classics.geJu.length"><dt>格局选用</dt><dd class="geju">
+          <span v-for="g in chart.classics.geJu" :key="g.name" class="ge" :class="{ good: /佳|贵|富/.test(g.verdict), bad: /无用|贫|夭|疾|弱|孤|凶|非|不佳/.test(g.verdict) }"><span class="t-muted">{{ g.name }}</span>{{ g.verdict }}</span>
+        </dd></div>
+        <div v-if="chart.classics.siLing"><dt>月令司令</dt><dd class="t-muted">{{ chart.classics.siLing }}</dd></div>
+      </dl>
     </LqCollapse>
 
     <LqCollapse title="旺衰算法说明">
@@ -545,6 +573,66 @@ button.cell:active {
   }
   .facts {
     grid-template-columns: 1fr;
+  }
+}
+.tiaohou {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+.th-stem {
+  font-size: var(--fs-md);
+  font-weight: 500;
+}
+.classics {
+  display: grid;
+  gap: 0;
+}
+.classics div {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: var(--sp-3);
+  padding: 10px 0;
+  border-top: 1px solid var(--hairline);
+  font-size: var(--fs-sm);
+}
+.classics div:first-child {
+  border-top: 0;
+}
+.classics dt {
+  color: var(--text-2);
+}
+.classics dd {
+  min-width: 0;
+  line-height: 1.7;
+}
+.classics .th-stem {
+  margin: 0 3px;
+}
+.classics dd > .t-faint:not(:first-child) {
+  margin-left: 6px;
+}
+.geju {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+.ge {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+}
+.ge.good {
+  color: var(--wx-wood);
+}
+.ge.bad {
+  color: var(--wx-fire);
+}
+@media (max-width: 640px) {
+  .classics div {
+    grid-template-columns: 1fr;
+    gap: 2px;
   }
 }
 </style>

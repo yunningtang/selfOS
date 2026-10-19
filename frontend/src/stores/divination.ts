@@ -5,6 +5,7 @@ import { getSwe } from '@/engines/ephemeris'
 import { DEFAULT_BAZI_OPTIONS, annualPillars, computeBazi, monthlyPillars } from '@/engines/bazi'
 import { DEFAULT_WESTERN_SETTINGS, computeWestern, SIGNS } from '@/engines/western'
 import { DEFAULT_VEDIC_SETTINGS, computeVedic, GRAHA_IDS, RASHI } from '@/engines/vedic'
+import { computeZiwei, type ZiweiChart } from '@/engines/ziwei'
 import type { AnnualPillar, BaziChart, BaziOptions, BirthProfile, InnateSummary, MonthlyPillar, VedicChart, VedicSettings, WesternChart, WesternSettings } from '@/types'
 
 const KEY = 'selfos.birth.v2'
@@ -45,6 +46,7 @@ export const useDivinationStore = defineStore('divination', () => {
   const bazi = shallowRef<BaziChart | null>(null)
   const western = shallowRef<WesternChart | null>(null)
   const vedic = shallowRef<VedicChart | null>(null)
+  const ziwei = shallowRef<ZiweiChart | null>(null)
   const loading = ref(false)
   const engineReady = ref(false)
   const error = ref<string | null>(null)
@@ -87,6 +89,7 @@ export const useDivinationStore = defineStore('divination', () => {
       bazi.value = baziChart
       western.value = computeWestern(swe, solarInput, westernSettings.value)
       vedic.value = computeVedic(swe, solarInput, vedicSettings.value)
+      ziwei.value = await computeZiwei({ year: civil.year, month: civil.month, day: civil.day, hour: civil.hour, minute: civil.minute, gender: b.gender })
       // Default 大运 selection: the one running now
       const now = new Date().getFullYear()
       const cur = baziChart.luck.pillars.find((l) => l.startYear <= now && now <= l.endYear) ?? baziChart.luck.pillars[0]
@@ -120,6 +123,7 @@ export const useDivinationStore = defineStore('divination', () => {
     const b = bazi.value
     const w = western.value
     const v = vedic.value
+    const z = ziwei.value
     const wb = (id: string) => w?.bodies.find((x) => x.id === id)
     return {
       birth: birth.value,
@@ -140,6 +144,12 @@ export const useDivinationStore = defineStore('divination', () => {
             shadbala: Object.fromEntries(v.shadbala.map((s) => [GRAHA_IDS[s.graha], Math.round(s.rupas * 100) / 100])),
           }
         : undefined,
+      ziwei: z
+        ? {
+            soulPalace: z.soulBranch, bodyPalace: z.bodyBranch, fiveElementsClass: z.fiveElementsClass, soul: z.soul, body: z.body,
+            soulStars: z.palaces.find((p) => p.isSoul)?.majorStars.map((s) => s.name) ?? [],
+          }
+        : undefined,
     }
   })
 
@@ -152,7 +162,7 @@ export const useDivinationStore = defineStore('divination', () => {
 
   return {
     birth, baziOptions, westernSettings, vedicSettings,
-    bazi, western, vedic, loading, engineReady, error, injected,
+    bazi, western, vedic, ziwei, loading, engineReady, error, injected,
     luckIndex, annualYear, annual, monthly, summary,
     cast, selectLuck, selectYear, injectAsMemory,
   }

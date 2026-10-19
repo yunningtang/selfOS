@@ -49,6 +49,7 @@ export default defineConfig(({ mode }) => {
             if (id.includes('node_modules/three')) return 'three'
             if (id.includes('node_modules/d3')) return 'd3'
             if (id.includes('node_modules/swisseph-wasm')) return 'swisseph'
+            if (/node_modules\/(iztro|lunar-lite|lunar-typescript|i18next|dayjs)\//.test(id)) return 'ziwei'
           },
         },
       },

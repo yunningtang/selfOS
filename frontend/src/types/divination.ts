@@ -31,6 +31,7 @@ export type { BaziChart, BaziOptions, LuckPillar, AnnualPillar, MonthlyPillar, P
 export type { WesternChart, WesternSettings, PlacedBody, Aspect, HouseCusp } from '@/engines/western/chart'
 export type { VedicChart, VedicSettings, Graha, DashaPeriod } from '@/engines/vedic/chart'
 export type { ShadbalaEntry } from '@/engines/vedic/shadbala'
+export type { ZiweiChart, ZiweiPalace, ZiweiStar } from '@/engines/ziwei'
 
 /** Compact innate-memory payload sent to POST /api/graph/inject-memory */
 export interface InnateSummary {
@@ -45,4 +46,5 @@ export interface InnateSummary {
   }
   western?: { sun: string; moon: string; ascendant: string; elements: Record<string, number> }
   vedic?: { lagna: string; moonNakshatra: string; currentDasha: string[]; shadbala: Record<string, number> }
+  ziwei?: { soulPalace: string; bodyPalace: string; fiveElementsClass: string; soul: string; body: string; soulStars: string[] }
 }
