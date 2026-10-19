@@ -10,3 +10,7 @@ for (const f of forecastYears(c, 2024, 2030, a)) console.log('流年', f.stemCha
 const y = forecastYears(c, 2026, 2026, a)[0]
 for (const l of y.lines) console.log('  ', l.tag ? `【${l.tag}】` : '', l.text, '←', l.basis)
 for (const m of monthlyPillars(swe, c, 2026).slice(0, 3)) { const f = forecastMonth(c, m, a); console.log('流月', f.label, f.stemChar + f.branchChar, RATING_LABEL[f.rating], f.summary) }
+import { assessWealth } from '../src/bazi/wealth'
+const w = assessWealth(c, a, { cityTier: 'tier1', family: 'middle', education: 'c211', occupation: 'student' })
+console.log(JSON.stringify({ baseline: w.baseline, chart: w.chart, luck: w.luck, total: w.total, band: w.band, chartBand: w.chartBand, baselineBand: w.baselineBand, checkpoints: w.checkpoints, education: w.education }, null, 1).slice(0, 3500))
+for (const n of w.narrative) console.log(n)

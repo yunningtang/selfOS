@@ -15,6 +15,7 @@ const DEFAULT_PROFILE: BirthProfile = {
   year: 2000, month: 1, day: 1, hour: 12, minute: 0,
   calendar: 'solar', lunarLeap: false, gender: 'F',
   place: '北京', latitude: 39.9042, longitude: 116.4074, timeZone: 'Asia/Shanghai', dst: 'auto',
+  context: { cityTier: 'unknown', family: 'unknown', education: 'unknown', occupation: 'unknown' },
 }
 
 function load<T>(key: string, fallback: T): T {

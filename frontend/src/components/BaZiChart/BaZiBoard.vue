@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { useI18n } from '@/i18n'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import LqCollapse from '@/components/ui/LqCollapse.vue'
 import LqSegmented from '@/components/ui/LqSegmented.vue'
 import BaziAnalysisPanel from './BaziAnalysisPanel.vue'
 import BaziForecastPanel from './BaziForecastPanel.vue'
+import BaziWealthPanel from './BaziWealthPanel.vue'
 import { ELEMENTS } from '@/data/lexicon'
 import { computeRelations, type LabelledPillar } from '@selfos/destiny-core/bazi/relations'
 import * as tables from '@selfos/destiny-core/bazi/tables'
@@ -16,6 +17,8 @@ import type { BaziChart, FiveElement, PillarKey } from '@/types'
 const { t } = useI18n()
 
 const props = defineProps<{ chart: BaziChart }>()
+const emit = defineEmits<{ edit: [] }>()
+const mode = defineModel<'chart' | 'analysis' | 'forecast' | 'wealth'>('mode', { default: 'chart' })
 const store = useDivinationStore()
 const { luckIndex, annualYear, annual, monthly } = storeToRefs(store)
 
@@ -80,18 +83,18 @@ const transitRelations = computed(() => {
 const label = (k: string) => ({ year: '年', month: '月', day: '日', hour: '时', luck: '运', annual: '流' })[k] ?? k
 const shenshaBy = (kind: string) => props.chart.shensha.filter((s) => s.kind === kind)
 const ELS: FiveElement[] = ['wood', 'fire', 'earth', 'metal', 'water']
-const mode = ref<'chart' | 'analysis' | 'forecast'>('chart')
 const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof STEMS)[number])]
 </script>
 
 <template>
   <div class="board cjk-prose">
     <div class="mode">
-      <LqSegmented v-model="mode" :options="[{ value: 'chart', label: t('排盘') }, { value: 'analysis', label: t('分析') }, { value: 'forecast', label: t('运势') }]" :label="t('八字视图')" size="sm" />
-      <span class="t-caption">{{ mode === 'chart' ? t('四柱 · 大运流年 · 神煞 · 古籍') : mode === 'analysis' ? t('断语 · 评分 · 喜用神 · 五行与十神强弱') : t('大运 · 流年 · 流月的大致预判') }}</span>
+      <LqSegmented v-model="mode" :options="[{ value: 'chart', label: t('排盘') }, { value: 'analysis', label: t('分析') }, { value: 'forecast', label: t('运势') }, { value: 'wealth', label: t('资产') }]" :label="t('八字视图')" size="sm" />
+      <span class="t-caption">{{ mode === 'chart' ? t('四柱 · 大运流年 · 神煞 · 古籍') : mode === 'analysis' ? t('断语 · 评分 · 喜用神 · 五行与十神强弱') : mode === 'forecast' ? t('大运 · 流年 · 流月的大致预判') : t('现实起点 × 命局财力 × 运势 → 资产层级与学业') }}</span>
     </div>
     <BaziAnalysisPanel v-if="mode === 'analysis'" :chart="chart" />
     <BaziForecastPanel v-else-if="mode === 'forecast'" :chart="chart" />
+    <BaziWealthPanel v-else-if="mode === 'wealth'" :chart="chart" @edit="emit('edit')" />
     <template v-else>
     <!-- Hero: the eight characters -->
     <div class="hero">

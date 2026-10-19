@@ -10,6 +10,7 @@ import { fmtOffset, zoneOffsetAt } from '@selfos/destiny-core/ephemeris/time'
 import { HOUSE_SYSTEMS } from '@selfos/destiny-core/western/tables'
 import { AYANAMSAS } from '@selfos/destiny-core/vedic/chart'
 import { usePlaceSearch, type Place } from '@/composables/usePlaceSearch'
+import { CITY_TIERS, EDUCATIONS, FAMILIES, OCCUPATIONS, DEFAULT_CONTEXT, type RealityContext } from '@selfos/destiny-core/bazi/wealth'
 import { useDivinationStore } from '@/stores/divination'
 const { t, isEn } = useI18n()
 
@@ -28,6 +29,7 @@ const STEPS = [
   { key: 'who', title: '出生时间', hint: '公历或农历皆可，时间越准，时柱与上升越准。' },
   { key: 'where', title: '出生地点', hint: '经纬度与时区决定真太阳时和星盘宫位。' },
   { key: 'options', title: '排盘设定', hint: '不确定就保持默认，之后随时可改。' },
+  { key: 'context', title: '现实背景', hint: '可选。城市、家庭、学历、职业用于校准资产与学业判断，只保存在本机。' },
   { key: 'confirm', title: '确认排盘', hint: '核对一遍，然后开始。' },
 ] as const
 const step = ref(0)
@@ -112,6 +114,9 @@ async function finish() {
 }
 watch(step, () => (touched.value = false))
 
+const ctx = computed<RealityContext>({ get: () => birth.value.context ?? DEFAULT_CONTEXT, set: (v) => (birth.value = { ...birth.value, context: v }) })
+const setCtx = (k: keyof RealityContext, e: Event) => (ctx.value = { ...ctx.value, [k]: (e.target as HTMLSelectElement).value } as RealityContext)
+const ctxLine = computed(() => [CITY_TIERS.find((x) => x.value === ctx.value.cityTier)?.label, FAMILIES.find((x) => x.value === ctx.value.family)?.label, EDUCATIONS.find((x) => x.value === ctx.value.education)?.label, OCCUPATIONS.find((x) => x.value === ctx.value.occupation)?.label].filter((x) => x && x !== '未填写').join(' · ') || t('未填写'))
 const pad = (n: number) => String(n).padStart(2, '0')
 const houseName = (code: string) => { const h = HOUSE_SYSTEMS.find((x) => x.code === code); return h ? (isEn.value ? h.en : h.zh + t('宫位制')) : '' }
 const summary = computed(() => {
@@ -254,7 +259,16 @@ const summary = computed(() => {
         </div>
       </div>
 
-      <!-- Step 4: confirm -->
+      <!-- Step 4: reality context (optional) -->
+      <div v-else-if="step === 3" class="grid">
+        <div class="field"><span class="lbl">{{ t('出生 / 成长城市') }}</span><select class="lq-input" :value="ctx.cityTier" @change="setCtx('cityTier', $event)"><option v-for="o in CITY_TIERS" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
+        <div class="field"><span class="lbl">{{ t('家庭背景') }}</span><select class="lq-input" :value="ctx.family" @change="setCtx('family', $event)"><option v-for="o in FAMILIES" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
+        <div class="field"><span class="lbl">{{ t('学历') }}</span><select class="lq-input" :value="ctx.education" @change="setCtx('education', $event)"><option v-for="o in EDUCATIONS" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
+        <div class="field"><span class="lbl">{{ t('职业') }}</span><select class="lq-input" :value="ctx.occupation" @change="setCtx('occupation', $event)"><option v-for="o in OCCUPATIONS" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
+        <p class="span t-caption">{{ t('这些信息不影响排盘本身，只用于「资产」页把命局与现实起点放在一起判断。不填也可以继续。') }}</p>
+      </div>
+
+      <!-- Step 5: confirm -->
       <div v-else class="confirm">
         <dl class="sum">
           <div><dt>{{ t('姓名') }}</dt><dd>{{ birth.name || '—' }} · {{ birth.gender === 'F' ? t('女') : t('男') }}</dd></div>
@@ -262,6 +276,7 @@ const summary = computed(() => {
           <div><dt>{{ t('出生地') }}</dt><dd class="t-num">{{ summary.where }}</dd></div>
           <div><dt>{{ t('时区') }}</dt><dd class="t-num">{{ summary.zone }}</dd></div>
           <div><dt>{{ t('排盘设定') }}</dt><dd>{{ summary.options }}</dd></div>
+          <div><dt>{{ t('现实背景') }}</dt><dd>{{ ctxLine }}</dd></div>
         </dl>
         <p class="t-caption">{{ t('排盘全部在你的浏览器本地完成，出生信息只保存在本机。点击任一步骤标题可返回修改。') }}</p>
       </div>

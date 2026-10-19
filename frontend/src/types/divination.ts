@@ -4,6 +4,7 @@
  */
 
 import type { FiveElement } from '@selfos/destiny-core'
+import type { RealityContext } from '@selfos/destiny-core/bazi/wealth'
 
 export type { FiveElement, PillarKey } from '@selfos/destiny-core'
 
@@ -26,6 +27,8 @@ export interface BirthProfile {
   timeZone: string | number
   /** 'auto': apply historical daylight-saving time from the zone database; 'ignore': read the clock as standard time */
   dst: 'auto' | 'ignore'
+  /** Optional real-world background used to calibrate the wealth / education reading */
+  context?: RealityContext
 }
 
 export type { BaziChart, BaziOptions, LuckPillar, AnnualPillar, MonthlyPillar, Pillar } from '@selfos/destiny-core/bazi/types'

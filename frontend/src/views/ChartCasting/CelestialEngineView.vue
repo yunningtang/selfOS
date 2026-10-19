@@ -7,6 +7,7 @@ import LqButton from '@/components/ui/LqButton.vue'
 import LqSegmented from '@/components/ui/LqSegmented.vue'
 import Notice from '@/components/ui/Notice.vue'
 import BirthWizard from '@/components/celestial/BirthWizard.vue'
+import ChartSummaryStrip from '@/components/celestial/ChartSummaryStrip.vue'
 import BaZiBoard from '@/components/BaZiChart/BaZiBoard.vue'
 import WesternPanel from '@/components/WesternChart/WesternPanel.vue'
 import VedicPanel from '@/components/VedicChart/VedicPanel.vue'
@@ -21,6 +22,11 @@ const { birth, ready, westernSettings, vedicSettings, bazi, western, vedic, ziwe
 
 const system = ref<'bazi' | 'ziwei' | 'western' | 'vedic'>('bazi')
 const editing = ref(false)
+const baziMode = ref<'chart' | 'analysis' | 'forecast' | 'wealth'>('chart')
+function go(mode: 'chart' | 'analysis' | 'forecast' | 'wealth') {
+  system.value = 'bazi'
+  baziMode.value = mode
+}
 const injecting = ref(false)
 
 onMounted(() => {
@@ -58,7 +64,7 @@ const tabMeta = computed(() => {
     <div v-if="!ready" class="profile lq-glass onboard">
       <div class="onboard-head">
         <h2>{{ t('先输入出生信息') }}</h2>
-        <p class="t-muted">{{ t('四步完成，之后随时可改。排盘全部在本地进行。') }}</p>
+        <p class="t-muted">{{ t('五步完成，之后随时可改。排盘全部在本地进行。') }}</p>
       </div>
       <BirthWizard mode="onboard" @done="editing = false" />
     </div>
@@ -85,6 +91,7 @@ const tabMeta = computed(() => {
     <Notice v-if="error" tone="error">{{ error }}</Notice>
 
     <template v-if="ready">
+      <ChartSummaryStrip v-if="bazi && !editing" :chart="bazi" @go="go" />
       <div class="tabs">
         <LqSegmented v-model="system" :options="[{ value: 'bazi', label: t('八字') }, { value: 'ziwei', label: t('紫微') }, { value: 'western', label: t('占星') }, { value: 'vedic', label: 'Jyotish' }]" :label="t('排盘体系')" />
         <p class="t-caption">{{ tabMeta }}</p>
@@ -92,7 +99,7 @@ const tabMeta = computed(() => {
 
       <Transition name="fade" mode="out-in">
         <div v-if="system === 'bazi'" key="bazi" class="panel">
-          <BaZiBoard v-if="bazi" :chart="bazi" />
+          <BaZiBoard v-if="bazi" v-model:mode="baziMode" :chart="bazi" @edit="editing = true" />
           <p v-else class="t-muted pad">{{ loading ? t('正在加载星历并排盘…') : t('尚未排盘。') }}</p>
         </div>
         <div v-else-if="system === 'ziwei'" key="ziwei" class="panel">

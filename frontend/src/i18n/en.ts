@@ -63,7 +63,7 @@ export const EN: Record<string, string> = {
   // ---- celestial view
   '排盘与先天记忆': 'Charts and innate memory',
   '一个出生时刻，四套体系。八字、紫微斗数、西方占星与 Jyotish 皆在本地精算——先天参数，而非宿命。': 'One birth moment, four systems. BaZi, Zi Wei Dou Shu, Western astrology and Jyotish are all computed locally: innate parameters, not fate.',
-  '先输入出生信息': 'Enter birth data first', '四步完成，之后随时可改。排盘全部在本地进行。': 'Four steps; editable any time. Everything is computed locally.',
+  '先输入出生信息': 'Enter birth data first', '五步完成，之后随时可改。排盘全部在本地进行。': 'Five steps; editable any time. Everything is computed locally.',
   '出生档案': 'Birth profile', '· 已按夏令时换算': '· DST applied', '条先天锚点已写入图谱': 'innate anchors written to the graph',
   '排盘体系': 'Chart system', '八字': 'BaZi', '紫微': 'Zi Wei', '占星': 'Western', '排盘中…': 'Casting…', '尚未排盘。': 'Not cast yet.', '正在加载星历并排盘…': 'Loading the ephemeris and casting…',
   '命主': 'Life lord', '身主': 'body lord', '按出生地钟表时': 'local clock time',
@@ -216,4 +216,13 @@ export const EN: Record<string, string> = {
   // ---- forecast
   '运势': 'Outlook', '大运 · 流年 · 流月的大致预判': 'Rough outlook by luck pillar, year and month', '预判': 'Outlook', '推断依据': 'Basis', '依据': 'basis', '流月': 'Months',
   '大吉': 'Very good', '小吉': 'Good-ish', '平': 'Neutral', '小忌': 'Caution', '以下为规则推导的大致预判：按大运、流年、流月的干支与命局的喜忌、太岁、冲合刑害、伏吟反吟、神煞给出倾向与评级，供参考而非定论。点选大运与流年查看依据。': 'A rough, rule-derived outlook: each luck pillar, year and month is rated by how its stem and branch meet the chart (useful or taboo elements, Tai Sui, clashes and combinations, repeats and reversals, stars). Guidance, not verdicts. Click a period to see the basis.',
+  // ---- wealth / reality
+  '资产': 'Assets', '现实起点 × 命局财力 × 运势 → 资产层级与学业': 'Reality × chart × luck → asset band and education', '现实背景': 'Background', '已填写，可随时修改': 'Filled in; edit any time', '未填写时按全国中位起点计算': 'Left blank: national median start is assumed',
+  '出生 / 成长城市': 'City', '家庭背景': 'Family', '学历': 'Education', '职业': 'Occupation', '未填写': 'Not filled', '综合资产层级': 'Combined asset band', '六级': 'Six bands', '综合': 'Combined', '仅现实起点': 'Reality only', '仅命局与运势': 'Chart and luck only',
+  '现实起点': 'Reality baseline', '命局财力': 'Chart wealth capacity', '运势加成': 'Luck bonus', '合计': 'Total', '阶段检查点': 'Checkpoints', '算法说明': 'How it is scored', '命盘要点': 'Chart essentials', '当前大运': 'Current luck', '今年': 'This year', '资产层级': 'Asset band',
+  '可选。城市、家庭、学历、职业用于校准资产与学业判断，只保存在本机。': 'Optional. City, family, education and occupation calibrate the asset and education reading; stored on this device only.',
+  '这些信息不影响排盘本身，只用于「资产」页把命局与现实起点放在一起判断。不填也可以继续。': 'These do not change the charts; the Assets view uses them to weigh the chart against your starting point. You can skip them.',
+  '出生地与出生信息在上方档案中修改；现实背景只保存在本机。': 'Birth data is edited in the profile above; background stays on this device.',
+  '检查点按该年龄前后十年的流年评级在综合层级上微调，30 岁前资产尚在积累期，故下调两级，40 岁下调一级。': 'Checkpoints nudge the combined band by the ratings of the ten years around that age; before 30 assets are still accumulating, so two bands lower, one band lower at 40.',
+  '资产与学业判断把三件事放在一起看：你的现实起点（城市、家庭、学历、职业）、命局本身承载财富的能力、以及工作年龄段的运势。三部分各自打分并列出依据，相加后对应到家庭净资产的六个层级。它回答的是「命局与起点相称到什么程度、何时抬升」，不是一个精确数字。': 'The asset and education reading weighs three things together: your real starting point (city, family, education, occupation), how well the chart itself carries wealth, and the luck of the working years. Each is scored with its reasons listed; the sum maps to six household-net-worth bands. It answers how the chart compares with the starting point and when it lifts, not an exact figure.',
 }

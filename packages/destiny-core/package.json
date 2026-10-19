@@ -20,6 +20,7 @@
     "./bazi/verdicts": "./src/bazi/verdicts.ts",
     "./bazi/verdicts.en": "./src/bazi/verdicts.en.ts",
     "./bazi/verdicts.tables": "./src/bazi/verdicts.tables.ts",
+    "./bazi/wealth": "./src/bazi/wealth.ts",
     "./ephemeris": "./src/ephemeris/index.ts",
     "./ephemeris/swe": "./src/ephemeris/swe.ts",
     "./ephemeris/time": "./src/ephemeris/time.ts",
