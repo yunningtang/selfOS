@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import LqCollapse from '@/components/ui/LqCollapse.vue'
+import LqSegmented from '@/components/ui/LqSegmented.vue'
+import BaziAnalysisPanel from './BaziAnalysisPanel.vue'
 import { ELEMENTS } from '@/data/lexicon'
 import { computeRelations, type LabelledPillar } from '@/engines/bazi/relations'
 import * as tables from '@/engines/bazi/tables'
@@ -75,11 +77,18 @@ const transitRelations = computed(() => {
 const label = (k: string) => ({ year: '年', month: '月', day: '日', hour: '时', luck: '运', annual: '流' })[k] ?? k
 const shenshaBy = (kind: string) => props.chart.shensha.filter((s) => s.kind === kind)
 const ELS: FiveElement[] = ['wood', 'fire', 'earth', 'metal', 'water']
+const mode = ref<'chart' | 'analysis'>('chart')
 const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof STEMS)[number])]
 </script>
 
 <template>
   <div class="board">
+    <div class="mode">
+      <LqSegmented v-model="mode" :options="[{ value: 'chart', label: '排盘' }, { value: 'analysis', label: '分析' }]" label="八字视图" size="sm" />
+      <span class="t-caption">{{ mode === 'chart' ? '四柱 · 大运流年 · 神煞 · 古籍' : '断语 · 评分 · 喜用神 · 五行与十神强弱' }}</span>
+    </div>
+    <BaziAnalysisPanel v-if="mode === 'analysis'" :chart="chart" />
+    <template v-else>
     <!-- Hero: the eight characters -->
     <div class="hero">
       <ol class="pillars" :class="{ wide: columns.length > 4 }">
@@ -227,6 +236,7 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
     <LqCollapse title="旺衰算法说明">
       <p class="t-sm t-muted algo">每字按位置加权（年干 1.0、月干 1.2、日干 1.0、时干 1.0；年支 1.0、月支 1.6、日支 1.2、时支 1.0），地支取藏干本气 1.0、中气 0.5、余气 0.3，再乘以月令旺相休囚死系数（1.3 / 1.15 / 0.9 / 0.75 / 0.6）。同党为日主与生我之五行；≥55% 为身强，≤45% 为身弱，其余中和。喜用按扶抑法给出，仅作参考，取用仍需结合调候与通关。</p>
     </LqCollapse>
+    </template>
   </div>
 </template>
 
@@ -634,5 +644,11 @@ button.cell:active {
     grid-template-columns: 1fr;
     gap: 2px;
   }
+}
+.mode {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
 }
 </style>
