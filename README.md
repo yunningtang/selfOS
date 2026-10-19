@@ -9,9 +9,7 @@
 [![Technology](https://img.shields.io/badge/Tech-GraphRAG_%7C_Multi--Agent-FF69B4?style=flat-square)]()
 [![Philosophy](https://img.shields.io/badge/Logic-Kabbalah_Tree_of_Life-DAA520?style=flat-square)]()
 [![Astrology](https://img.shields.io/badge/Divination-BaZi_%7C_Vedic_%7C_Swiss_Ephemeris-4169E1?style=flat-square)]()
-[![License](https://img.shields.io/badge/License-AGPL--3.0-green?style=flat-square)]()
-
-[English](./README-EN.md) | [中文文档](./README.md)
+[![License](https://img.shields.io/badge/License-AGPL--3.0-green?style=flat-square)](./LICENSE)
 
 </div>
 
@@ -226,20 +224,28 @@ Agent 决策权重 = f(
 - Python ≥ 3.11
 - Docker & Docker Compose（推荐）
 
-### 一键启动
+### 当前可运行：前端
+
+目前仓库中已实现前端（`frontend/`），后端尚在开发中。没有后端时，前端会自动使用内置演示数据，并在界面顶栏标注 “Demo data”。
 
 ```bash
-git clone https://github.com/your-org/selfOS.git
+git clone https://github.com/yunningtang/selfOS.git
 cd selfOS
+npm run setup:frontend   # 安装前端依赖
+npm run dev              # 启动前端 http://localhost:3000（/api 代理到 :5001）
+```
+
+详见 [`frontend/README.md`](./frontend/README.md) 与设计系统文档 [`frontend/DESIGN.md`](./frontend/DESIGN.md)。
+
+### 规划中：完整部署
+
+后端、Docker 与 `.env` 配置完成后，将支持：
+
+```bash
 cp .env.example .env
 # 编辑 .env 配置 LLM API Key、Neo4j 等
 
-# Docker 方式（推荐）
-docker compose up -d
-
-# 或手动安装
-npm run setup:all        # 安装前后端依赖
-npm run dev              # 启动开发服务器
+docker compose up -d     # 一键启动前后端 + Neo4j + 星历数据卷
 ```
 
 ### 环境变量
@@ -382,3 +388,11 @@ selfOS 致力于探索 AI 作为"精神助产士"的可能性。
 ---
 
 *Built on Jungian Psychology · Kabbalah Topology · GraphRAG · Multi-Agent Systems (OASIS) · Swiss Ephemeris · BaZi 八字 · Vedic Jyotish (PyJHora)*
+
+---
+
+## 📄 许可证
+
+本项目以 [GNU Affero General Public License v3.0](./LICENSE)（AGPL-3.0）开源。
+
+选择 AGPL-3.0 是因为后端依赖的 Swiss Ephemeris（pyswisseph）以 AGPL-3.0 授权；如需闭源商用，需另行取得 Astrodienst 的 Swiss Ephemeris Professional License。根据 AGPL 第 13 条，若将 selfOS 作为网络服务提供，需向用户提供对应源代码——前端导航栏中的 “Source” 链接即指向本仓库。

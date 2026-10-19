@@ -63,6 +63,10 @@ watch(
         </section>
       </div>
 
+      <a class="source" href="https://github.com/yunningtang/selfOS" target="_blank" rel="noopener" title="Source code (AGPL-3.0)">
+        <LqIcon name="file" :size="16" />
+        <span class="text">Source · AGPL-3.0</span>
+      </a>
       <PreferenceControls class="prefs" />
     </nav>
   </div>
@@ -179,6 +183,20 @@ watch(
   transform: translateY(-50%);
   background: linear-gradient(var(--c-pearl), var(--c-lavender));
   box-shadow: 0 0 10px var(--c-lavender);
+}
+.source {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-sm);
+  color: var(--text-3);
+  font-size: var(--fs-xs);
+  text-decoration: none;
+  transition: color var(--dur-fast);
+}
+.source:hover {
+  color: var(--text);
 }
 .scrim {
   display: none;

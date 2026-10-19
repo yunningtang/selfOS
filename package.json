@@ -1,6 +1,7 @@
 {
   "name": "selfos",
   "private": true,
+  "license": "AGPL-3.0-or-later",
   "scripts": {
     "setup:frontend": "npm --prefix frontend install",
     "dev": "npm --prefix frontend run dev",
