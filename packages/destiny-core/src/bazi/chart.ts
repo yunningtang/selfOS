@@ -7,9 +7,9 @@
  * lunar-javascript, whose calendar tables are the de-facto reference for 农历.
  */
 import { Lunar, Solar } from 'lunar-javascript'
-import type SwissEph from 'swisseph-wasm'
 import type { FiveElement, PillarKey } from '../types'
-import { SE, calc, equationOfTime, sunCrossing, norm } from '../ephemeris/swe'
+import { norm } from '../ephemeris/swe'
+import { resolveSolar, type SolarSource } from '../ephemeris/solar'
 import { fmtCivil, jdFromUtc, resolveInstant, solarTimes, utcFromJd, zoneOffsetAt, type CivilTime } from '../ephemeris/time'
 import {
   BRANCHES, BRANCH_ELEMENT, ELEMENT_ORDER, HIDDEN_STEMS, JIE_LONGITUDE_FOR_BRANCH, SIGNS_ZH, STEMS, STEM_COMBINE,
@@ -39,7 +39,8 @@ function isoLocal(jdLocal: number) {
   return fmtCivil(utcFromJd(jdLocal), true)
 }
 
-export function computeBazi(swe: SwissEph, raw: BirthInput, options: BaziOptions): BaziChart {
+export function computeBazi(source: SolarSource, raw: BirthInput, options: BaziOptions): BaziChart {
+  const eph = resolveSolar(source)
   const civilDate =
     raw.calendar === 'lunar' ? lunarToSolar(raw.year, raw.month, raw.day, !!raw.lunarLeap) : { year: raw.year, month: raw.month, day: raw.day }
   const civil: CivilTime = { ...civilDate, hour: raw.hour, minute: raw.minute, second: raw.second ?? 0 }
@@ -49,17 +50,17 @@ export function computeBazi(swe: SwissEph, raw: BirthInput, options: BaziOptions
   // ── Time standards ──────────────────────────────────────────────
   const stdOffset = standardOffsetMinutes(raw.timeZone, civilDate.year)
   const stdJd = jdUt + stdOffset / 1440
-  const st = solarTimes(jdUt, raw.longitude, equationOfTime(swe, jdUt))
+  const st = solarTimes(jdUt, raw.longitude, eph.equationOfTime(jdUt))
   const pillarJd = options.trueSolarTime ? st.latJd : stdJd
   const pillarTime = utcFromJd(pillarJd)
 
   // ── Year & month from the apparent Sun ──────────────────────────
-  const sunLon = calc(swe, jdUt, SE.SUN).lon
+  const sunLon = eph.sunLongitude(jdUt)
   // Month branch: 寅 begins at 315°; each 30° thereafter.
   const monthBranch = (2 + Math.floor(norm(sunLon - 315) / 30)) % 12
   // Year: the Gregorian year of the instant, minus one if before 立春 of that year.
   const utcY = inst.utc.year
-  const lichunThisYear = sunCrossing(swe, 315, jdFromUtc({ year: utcY, month: 1, day: 20, hour: 0, minute: 0 }))
+  const lichunThisYear = eph.sunCrossing(315, jdFromUtc({ year: utcY, month: 1, day: 20, hour: 0, minute: 0 }))
   const solarYear = jdUt >= lichunThisYear ? utcY : utcY - 1
   const yearStem = ((solarYear - 4) % 10 + 10) % 10
   const yearBranch = ((solarYear - 4) % 12 + 12) % 12
@@ -118,11 +119,11 @@ export function computeBazi(swe: SwissEph, raw: BirthInput, options: BaziOptions
 
   // ── Solar terms around birth ───────────────────────────────────
   const prevJieLon = JIE_LONGITUDE_FOR_BRANCH(monthBranch)
-  const prevJie = sunCrossing(swe, prevJieLon, jdUt - 40)
-  const nextJie = sunCrossing(swe, prevJieLon + 30, jdUt)
-  const prevQi = sunCrossing(swe, prevJieLon + 15, jdUt - 40)
-  const nextQiJd = prevQi > jdUt ? prevQi : sunCrossing(swe, prevJieLon + 45, jdUt)
-  const prevQiJd = prevQi > jdUt ? sunCrossing(swe, prevJieLon - 15, jdUt - 40) : prevQi
+  const prevJie = eph.sunCrossing(prevJieLon, jdUt - 40)
+  const nextJie = eph.sunCrossing(prevJieLon + 30, jdUt)
+  const prevQi = eph.sunCrossing(prevJieLon + 15, jdUt - 40)
+  const nextQiJd = prevQi > jdUt ? prevQi : eph.sunCrossing(prevJieLon + 45, jdUt)
+  const prevQiJd = prevQi > jdUt ? eph.sunCrossing(prevJieLon - 15, jdUt - 40) : prevQi
   const toLocal = (jd: number) => jd + inst.offsetMinutes / 1440
   const mark = (jd: number, lon: number) => ({ name: solarTermName(lon), at: isoLocal(toLocal(jd)), jdUt: jd })
 
@@ -219,7 +220,8 @@ export function annualPillars(chart: BaziChart, luck: LuckPillar): AnnualPillar[
 }
 
 /** 流月 for a calendar (solar) year: twelve months from 立春, with the 节 that begins each. */
-export function monthlyPillars(swe: SwissEph, chart: BaziChart, year: number): MonthlyPillar[] {
+export function monthlyPillars(source: SolarSource, chart: BaziChart, year: number): MonthlyPillar[] {
+  const eph = resolveSolar(source)
   const dm = chart.dayMaster.stem
   const ys = ((year - 4) % 10 + 10) % 10
   const offsetDays = (typeof chart.input.timeZone === 'number' ? chart.input.timeZone * 60 : zoneOffsetAt(chart.input.timeZone, Date.UTC(year, 6, 1))) / 1440
@@ -228,7 +230,7 @@ export function monthlyPillars(swe: SwissEph, chart: BaziChart, year: number): M
   for (let i = 0; i < 12; i++) {
     const b = (2 + i) % 12
     const lon = JIE_LONGITUDE_FOR_BRANCH(b)
-    jd = sunCrossing(swe, lon, jd)
+    jd = eph.sunCrossing(lon, jd)
     const sx = sexagenary(monthStemFor(ys, b), b)
     out.push({
       index: i + 1, sexagenary: sx, stemChar: STEMS[sx % 10], branchChar: BRANCHES[sx % 12],

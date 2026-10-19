@@ -22,6 +22,7 @@
     "./bazi/verdicts.tables": "./src/bazi/verdicts.tables.ts",
     "./bazi/wealth": "./src/bazi/wealth.ts",
     "./ephemeris": "./src/ephemeris/index.ts",
+    "./ephemeris/solar": "./src/ephemeris/solar.ts",
     "./ephemeris/swe": "./src/ephemeris/swe.ts",
     "./ephemeris/time": "./src/ephemeris/time.ts",
     "./types": "./src/types.ts",
@@ -49,7 +50,8 @@
   "dependencies": {
     "iztro": "^2.6.3",
     "lunar-javascript": "^1.7.7",
-    "swisseph-wasm": "^0.1.0"
+    "swisseph-wasm": "^0.1.0",
+    "astronomy-engine": "^2.1.19"
   },
   "devDependencies": {
     "tsx": "^4.23.15",

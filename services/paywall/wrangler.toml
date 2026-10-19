@@ -1,0 +1,9 @@
+name = "destiny-paywall"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[vars]
+STRIPE_PRICE_ID = "price_xxx"
+ALLOWED_ORIGINS = "https://yunningtang.github.io,http://localhost:3100"
+TOKEN_YEARS = "10"
+# Secrets (never in this file):  wrangler secret put STRIPE_SECRET_KEY ; wrangler secret put SIGNING_JWK

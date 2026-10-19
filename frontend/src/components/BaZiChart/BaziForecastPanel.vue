@@ -2,13 +2,14 @@
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import LqCollapse from '@/components/ui/LqCollapse.vue'
+import PaywallCard from '@/components/paywall/PaywallCard.vue'
 import { analyseBazi } from '@selfos/destiny-core/bazi/analysis'
 import { forecastLuck, forecastMonth, forecastYear, RATING_LABEL, type PeriodForecast, type Rating } from '@selfos/destiny-core/bazi/forecast'
 import { useDivinationStore } from '@/stores/divination'
 import { useI18n } from '@/i18n'
 import type { BaziChart } from '@/types'
 
-const props = defineProps<{ chart: BaziChart }>()
+const props = defineProps<{ chart: BaziChart; locked?: boolean }>()
 const { t } = useI18n()
 const store = useDivinationStore()
 const { luckIndex, annualYear, annual, monthly } = storeToRefs(store)
@@ -62,7 +63,8 @@ const lines = (f: PeriodForecast | null) => f?.lines ?? []
       </ol>
     </section>
 
-    <section v-if="selectedYear" class="block detail lq-surface">
+    <PaywallCard v-if="locked" :title="t('解锁逐年、逐月预判与依据')" />
+    <section v-else-if="selectedYear" class="block detail lq-surface">
       <header class="d-head">
         <h3>{{ selectedYear.stemChar }}{{ selectedYear.branchChar }} <span class="t-muted t-sm">{{ selectedYear.label }}</span></h3>
         <span class="badge inline" :class="cls(selectedYear.rating)">{{ label(selectedYear.rating) }}</span>
@@ -95,7 +97,7 @@ const lines = (f: PeriodForecast | null) => f?.lines ?? []
       </LqCollapse>
     </section>
 
-    <LqCollapse v-if="selectedLuck" :title="`${selectedLuck.l.stemChar}${selectedLuck.l.branchChar}${t('大运')} · ${t('依据')}`">
+    <LqCollapse v-if="selectedLuck && !locked" :title="`${selectedLuck.l.stemChar}${selectedLuck.l.branchChar}${t('大运')} · ${t('依据')}`">
       <div class="tw">
         <table class="vt">
           <tbody>

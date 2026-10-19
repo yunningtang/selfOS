@@ -1,36 +1,21 @@
-import { defineConfig, loadEnv, type Plugin } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
-import { readFileSync } from 'node:fs'
-import { createRequire } from 'node:module'
-import { dirname, join } from 'node:path'
 
-const require = createRequire(import.meta.url)
-
-/** swisseph-wasm loads its .wasm/.data from <base>/wasm/; emit them there. */
-function swissEphemerisAssets(): Plugin {
-  const dir = join(dirname(require.resolve('swisseph-wasm/package.json')), 'wasm')
-  return {
-    name: 'swiss-ephemeris-assets',
-    apply: 'build',
-    generateBundle() {
-      for (const f of ['swisseph.wasm', 'swisseph.data'])
-        this.emitFile({ type: 'asset', fileName: `wasm/${f}`, source: readFileSync(join(dir, f)) })
-    },
-  }
-}
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
     base: env.VITE_BASE || '/',
-    plugins: [vue(), swissEphemerisAssets()],
-    optimizeDeps: { exclude: ['swisseph-wasm'] },
+    // 八字 + 紫微 only: the MIT solar backend, no Swiss Ephemeris assets in this build.
+    plugins: [vue()],
     resolve: {
       alias: {
         // The standalone site reuses the selfOS component library and stores directly.
         '@': fileURLToPath(new URL('../../frontend/src', import.meta.url)),
         '~': fileURLToPath(new URL('./src', import.meta.url)),
+        // Keep the AGPL Swiss Ephemeris out of this build entirely (only the MIT solar backend is used).
+        'swisseph-wasm': fileURLToPath(new URL('./src/stubs/swisseph.ts', import.meta.url)),
       },
     },
     server: { port: 3100, fs: { allow: ['../..'] } },
@@ -41,7 +26,7 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
-            if (id.includes('node_modules/swisseph-wasm')) return 'swisseph'
+            if (id.includes('node_modules/astronomy-engine')) return 'astro'
             if (/node_modules\/(iztro|lunar-lite|lunar-typescript|i18next|dayjs)\//.test(id)) return 'ziwei'
           },
         },

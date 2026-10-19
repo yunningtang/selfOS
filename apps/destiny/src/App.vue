@@ -17,7 +17,7 @@ const { t, isEn, locale } = useI18n()
       <RouterLink to="/" class="brand">
         <span class="mark" aria-hidden="true" />
         <span class="word">{{ isEn ? 'Destiny' : '命盘' }}</span>
-        <span class="sub t-faint">{{ isEn ? '八字 · 紫微 · 占星 · Jyotish' : 'BaZi · Zi Wei · Western · Jyotish' }}</span>
+        <span class="sub t-faint">{{ isEn ? '八字 · 紫微斗数' : 'BaZi · Zi Wei Dou Shu' }}</span>
       </RouterLink>
       <nav class="links" :aria-label="t('导航')">
         <RouterLink to="/chart">{{ t('排盘') }}</RouterLink>

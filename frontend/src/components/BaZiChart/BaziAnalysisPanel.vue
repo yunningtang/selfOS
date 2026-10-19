@@ -2,6 +2,7 @@
 import { useI18n } from '@/i18n'
 import { computed, ref } from 'vue'
 import LqCollapse from '@/components/ui/LqCollapse.vue'
+import PaywallCard from '@/components/paywall/PaywallCard.vue'
 import { ELEMENTS } from '@/data/lexicon'
 import { ELEMENT_ZH } from '@selfos/destiny-core/bazi/tables'
 import { analyseBazi, PILLAR_ZH, KEYS } from '@selfos/destiny-core/bazi/analysis'
@@ -10,13 +11,16 @@ import { VERDICT_EN } from '@selfos/destiny-core/bazi/verdicts.en'
 import type { BaziChart, FiveElement } from '@/types'
 const { t, isEn } = useI18n()
 
-const props = defineProps<{ chart: BaziChart }>()
+const props = defineProps<{ chart: BaziChart; locked?: boolean }>()
 const el = (e: FiveElement) => ELEMENTS[e].token
 const analysis = computed(() => analyseBazi(props.chart))
 const verdicts = computed(() => computeVerdicts(props.chart, analysis.value))
 const topics = computed(() => Array.from(new Set(verdicts.value.map((v) => v.topic))))
 const topic = ref<string>('全部')
-const shown = computed(() => (topic.value === '全部' ? verdicts.value : verdicts.value.filter((v) => v.topic === topic.value)))
+const FREE_ROWS = 12
+const allShown = computed(() => (topic.value === '全部' ? verdicts.value : verdicts.value.filter((v) => v.topic === topic.value)))
+const shown = computed(() => (props.locked ? allShown.value.slice(0, FREE_ROWS) : allShown.value))
+const hidden = computed(() => allShown.value.length - shown.value.length)
 const tagClass = (v: Verdict) => (v.tag && ['吉', '贵', '富', '佳'].includes(v.tag) ? 'good' : v.tag && ['忌', '凶'].includes(v.tag) ? 'bad' : 'plain')
 const rowsFor = (k: string) => analysis.value.elementRows.filter((r) => r.pillar === k)
 const pillarGz = (k: string) => { const p = props.chart.pillars.find((x) => x.key === k)!; return p.stemChar + p.branchChar }
@@ -54,9 +58,10 @@ const verdictClass = (v: string) => (/太旺|过旺|从强/.test(v) ? 'hot' : /�
           </tbody>
         </table>
       </div>
+      <PaywallCard v-if="locked" compact :title="`${t('还有')} ${hidden} ${t('条断语、评分、喜用神与五行十神详表')}`" />
     </section>
 
-    <LqCollapse :title="t('命局分析评分')" :summary="`${t('总计')} ${analysis.totalScore} / 345`" open>
+    <LqCollapse v-if="!locked" :title="t('命局分析评分')" :summary="`${t('总计')} ${analysis.totalScore} / 345`" open>
       <div class="tw">
         <table class="st">
           <thead><tr><th>{{ t('命局分析') }}</th><th class="num">{{ t('得分范围') }}</th><th class="num">{{ t('实际得分') }}</th><th>{{ t('说明') }}</th></tr></thead>
@@ -68,7 +73,7 @@ const verdictClass = (v: string) => (/太旺|过旺|从强/.test(v) ? 'hot' : /�
       </div>
     </LqCollapse>
 
-    <LqCollapse :title="t('喜用神 · 忌神')" :summary="analysis.tiaohou.stems.length ? `${t('调候')} ${analysis.tiaohou.stems.join(' ')}` : ''" open>
+    <LqCollapse v-if="!locked" :title="t('喜用神 · 忌神')" :summary="analysis.tiaohou.stems.length ? `${t('调候')} ${analysis.tiaohou.stems.join(' ')}` : ''" open>
       <div class="tw">
         <table class="st">
           <thead><tr><th>{{ t('类型') }}</th><th>{{ t('喜用神') }}</th><th>{{ t('忌神') }}</th><th>{{ t('说明：为空表示没有') }}</th></tr></thead>
@@ -80,14 +85,14 @@ const verdictClass = (v: string) => (/太旺|过旺|从强/.test(v) ? 'hot' : /�
       <p class="t-sm t-muted pad">{{ t('可依喜用神后天调节：大运流年逢喜用神多顺，逢忌神多阻。甲年尾数 4、乙 5、丙 6、丁 7、戊 8、己 9、庚 0、辛 1、壬 2、癸 3（自立春起算）。') }}</p>
     </LqCollapse>
 
-    <LqCollapse :title="t('格局')" :summary="analysis.patterns.map((p) => p.name).join(' · ')">
+    <LqCollapse v-if="!locked" :title="t('格局')" :summary="analysis.patterns.map((p) => p.name).join(' · ')">
       <ul class="patterns">
         <li v-for="p in analysis.patterns" :key="p.name"><b>{{ p.name }}</b><span class="t-faint">{{ t(p.kind) }}</span><span class="t-muted">{{ p.note }}</span></li>
       </ul>
       <p v-if="analysis.tiaohou.stems.length" class="t-sm pad"><span class="t-muted">{{ chart.dayMaster.stemChar }}{{ t('日') }} {{ chart.classics.key[1] }}{{ t('月生，调候用神') }} {{ analysis.tiaohou.stems.join('、') }}。</span> {{ analysis.tiaohou.line }} <span class="t-muted">{{ analysis.tiaohou.text }}</span></p>
     </LqCollapse>
 
-    <LqCollapse :title="t('五行旺衰明细')" :summary="t('本命 · 同柱 · 月令 · 邻干 · 合化 · 近日主 · 通根 · 时坐')">
+    <LqCollapse v-if="!locked" :title="t('五行旺衰明细')" :summary="t('本命 · 同柱 · 月令 · 邻干 · 合化 · 近日主 · 通根 · 时坐')">
       <div class="tw">
         <table class="wt">
           <thead><tr><th>{{ t('五行旺衰') }}</th><th></th><th class="num">{{ t('本命包含') }}</th><th class="num">{{ t('同柱影响') }}</th><th class="num">{{ t('月令影响') }}</th><th class="num">{{ t('天干邻柱') }}</th><th class="num">{{ t('地支合化相生') }}</th><th class="num">{{ t('离日主近') }}</th><th class="num">{{ t('通根影响') }}</th><th class="num">{{ t('时坐影响') }}</th><th class="num">{{ t('总计') }}</th></tr></thead>
@@ -113,7 +118,7 @@ const verdictClass = (v: string) => (/太旺|过旺|从强/.test(v) ? 'hot' : /�
       <p class="t-sm t-muted pad">{{ t('本模型：天干 36，藏干本气 60、中气 30、余气 10；月令旺相休囚死分别 +40% / +20% / −15% / −30% / −45%；同柱、邻干、地支合冲、通根、时坐为固定分值修正。身旺身弱是绝对占比，实际需综合财官印食之间的相对强弱。') }}</p>
     </LqCollapse>
 
-    <LqCollapse :title="t('十神强弱')" :summary="t('数量 · 天透地藏 · 基础 · 月令 · 时柱 · 藏透根 · 特性')">
+    <LqCollapse v-if="!locked" :title="t('十神强弱')" :summary="t('数量 · 天透地藏 · 基础 · 月令 · 时柱 · 藏透根 · 特性')">
       <div class="tw">
         <table class="st">
           <thead><tr><th>{{ t('十神') }}</th><th class="num">{{ t('数量') }}</th><th>{{ t('天透地藏') }}</th><th class="num">{{ t('基础数值') }}</th><th class="num">{{ t('基础占比') }}</th><th class="num">{{ t('月柱影响') }}</th><th class="num">{{ t('时柱影响') }}</th><th class="num">{{ t('藏透、根') }}</th><th class="num">{{ t('十神特性') }}</th><th class="num">{{ t('综合数值') }}</th><th class="num">{{ t('综合占比') }}</th></tr></thead>

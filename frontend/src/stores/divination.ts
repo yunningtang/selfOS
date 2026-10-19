@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref, shallowRef, watch } from 'vue'
 import { graphApi } from '@/api'
-import { getSwe } from '@selfos/destiny-core/ephemeris'
+import { getSwe, getMitSolar, type SolarSource } from '@selfos/destiny-core/ephemeris'
 import { DEFAULT_BAZI_OPTIONS, annualPillars, computeBazi, monthlyPillars } from '@selfos/destiny-core/bazi'
 import { DEFAULT_WESTERN_SETTINGS, computeWestern, SIGNS } from '@selfos/destiny-core/western'
 import { DEFAULT_VEDIC_SETTINGS, computeVedic, GRAHA_IDS, RASHI } from '@selfos/destiny-core/vedic'
@@ -47,6 +47,19 @@ export const useDivinationStore = defineStore('divination', () => {
   watch(westernSettings, (v) => save(`${KEY}.western`, v), { deep: true })
   watch(vedicSettings, (v) => save(`${KEY}.vedic`, v), { deep: true })
 
+  /**
+   * Which systems to cast and which solar backend to use for 八字. The selfOS site casts all
+   * four on the Swiss Ephemeris; the standalone 八字 product casts 八字 + 紫微 on the MIT backend
+   * so it never loads (or depends on) Swiss Ephemeris.
+   */
+  const config = ref<{ systems: ('bazi' | 'ziwei' | 'western' | 'vedic')[]; solar: 'swiss' | 'mit' }>({ systems: ['bazi', 'ziwei', 'western', 'vedic'], solar: 'swiss' })
+  function configure(c: Partial<typeof config.value>) {
+    config.value = { ...config.value, ...c }
+  }
+  async function solarSource(): Promise<SolarSource> {
+    return config.value.solar === 'mit' ? getMitSolar() : getSwe()
+  }
+
   const bazi = shallowRef<BaziChart | null>(null)
   const western = shallowRef<WesternChart | null>(null)
   const vedic = shallowRef<VedicChart | null>(null)
@@ -83,17 +96,24 @@ export const useDivinationStore = defineStore('divination', () => {
     loading.value = true
     error.value = null
     try {
-      const swe = await getSwe()
+      const solar = await solarSource()
       engineReady.value = true
       const b = birth.value
-      const baziChart = computeBazi(swe, { ...inputCore.value, calendar: b.calendar, lunarLeap: b.lunarLeap, gender: b.gender }, baziOptions.value)
+      const baziChart = computeBazi(solar, { ...inputCore.value, calendar: b.calendar, lunarLeap: b.lunarLeap, gender: b.gender }, baziOptions.value)
       // Western and Vedic always take the civil solar date; convert lunar input through the BaZi result.
       const civil = baziChart.time.civil
       const solarInput = { ...inputCore.value, year: civil.year, month: civil.month, day: civil.day, hour: civil.hour, minute: civil.minute }
       bazi.value = baziChart
-      western.value = computeWestern(swe, solarInput, westernSettings.value)
-      vedic.value = computeVedic(swe, solarInput, vedicSettings.value)
-      ziwei.value = await computeZiwei({ year: civil.year, month: civil.month, day: civil.day, hour: civil.hour, minute: civil.minute, gender: b.gender })
+      const sys = config.value.systems
+      if (sys.includes('western') || sys.includes('vedic')) {
+        const swe = await getSwe()
+        western.value = sys.includes('western') ? computeWestern(swe, solarInput, westernSettings.value) : null
+        vedic.value = sys.includes('vedic') ? computeVedic(swe, solarInput, vedicSettings.value) : null
+      } else {
+        western.value = null
+        vedic.value = null
+      }
+      ziwei.value = sys.includes('ziwei') ? await computeZiwei({ year: civil.year, month: civil.month, day: civil.day, hour: civil.hour, minute: civil.minute, gender: b.gender }) : null
       // Default 大运 selection: the one running now
       const now = new Date().getFullYear()
       const cur = baziChart.luck.pillars.find((l) => l.startYear <= now && now <= l.endYear) ?? baziChart.luck.pillars[0]
@@ -124,8 +144,7 @@ export const useDivinationStore = defineStore('divination', () => {
   async function selectYear(year: number) {
     if (!bazi.value) return
     annualYear.value = year
-    const swe = await getSwe()
-    monthly.value = monthlyPillars(swe, bazi.value, year)
+    monthly.value = monthlyPillars(await solarSource(), bazi.value, year)
   }
 
   const summary = computed<InnateSummary | null>(() => {
@@ -172,7 +191,7 @@ export const useDivinationStore = defineStore('divination', () => {
 
   return {
     birth, baziOptions, westernSettings, vedicSettings,
-    ready, bazi, western, vedic, ziwei, loading, engineReady, error, injected,
+    config, configure, ready, bazi, western, vedic, ziwei, loading, engineReady, error, injected,
     luckIndex, annualYear, annual, monthly, summary,
     cast, commitProfile, selectLuck, selectYear, injectAsMemory,
   }

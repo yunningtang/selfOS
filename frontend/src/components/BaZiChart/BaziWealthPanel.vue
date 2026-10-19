@@ -3,13 +3,14 @@ import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import LqCollapse from '@/components/ui/LqCollapse.vue'
 import LqButton from '@/components/ui/LqButton.vue'
+import PaywallCard from '@/components/paywall/PaywallCard.vue'
 import { analyseBazi } from '@selfos/destiny-core/bazi/analysis'
 import { assessWealth, BANDS, CITY_TIERS, EDUCATIONS, FAMILIES, OCCUPATIONS, DEFAULT_CONTEXT, type RealityContext } from '@selfos/destiny-core/bazi/wealth'
 import { useDivinationStore } from '@/stores/divination'
 import { useI18n } from '@/i18n'
 import type { BaziChart } from '@/types'
 
-const props = defineProps<{ chart: BaziChart }>()
+const props = defineProps<{ chart: BaziChart; locked?: boolean }>()
 const emit = defineEmits<{ edit: [] }>()
 const { t } = useI18n()
 const { birth } = storeToRefs(useDivinationStore())
@@ -29,6 +30,8 @@ const levelPct = (l: number) => `${((l - 1) / 5) * 100}%`
   <div class="wealth cjk-prose">
     <p class="intro t-sm t-muted">{{ t('资产与学业判断把三件事放在一起看：你的现实起点（城市、家庭、学历、职业）、命局本身承载财富的能力、以及工作年龄段的运势。三部分各自打分并列出依据，相加后对应到家庭净资产的六个层级。它回答的是「命局与起点相称到什么程度、何时抬升」，不是一个精确数字。') }}</p>
 
+    <PaywallCard v-if="locked" :title="t('解锁资产与学业判断')" />
+    <template v-else>
     <section class="ctx lq-surface">
       <header class="ctx-head">
         <h3>{{ t('现实背景') }}</h3>
@@ -101,7 +104,8 @@ const levelPct = (l: number) => `${((l - 1) / 5) * 100}%`
       </div>
     </LqCollapse>
 
-    <p class="t-caption foot">{{ t('出生地与出生信息在上方档案中修改；现实背景只保存在本机。') }} <LqButton variant="ghost" size="sm" @click="emit('edit')">{{ t('修改出生信息') }}</LqButton></p>
+    </template>
+    <p v-if="!locked" class="t-caption foot">{{ t('出生地与出生信息在上方档案中修改；现实背景只保存在本机。') }} <LqButton variant="ghost" size="sm" @click="emit('edit')">{{ t('修改出生信息') }}</LqButton></p>
   </div>
 </template>
 

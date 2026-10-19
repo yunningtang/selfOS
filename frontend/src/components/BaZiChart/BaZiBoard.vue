@@ -7,6 +7,7 @@ import LqSegmented from '@/components/ui/LqSegmented.vue'
 import BaziAnalysisPanel from './BaziAnalysisPanel.vue'
 import BaziForecastPanel from './BaziForecastPanel.vue'
 import BaziWealthPanel from './BaziWealthPanel.vue'
+import { useLicense } from '@/composables/useLicense'
 import { ELEMENTS } from '@/data/lexicon'
 import { computeRelations, type LabelledPillar } from '@selfos/destiny-core/bazi/relations'
 import * as tables from '@selfos/destiny-core/bazi/tables'
@@ -16,7 +17,9 @@ import { useDivinationStore } from '@/stores/divination'
 import type { BaziChart, FiveElement, PillarKey } from '@/types'
 const { t } = useI18n()
 
-const props = defineProps<{ chart: BaziChart }>()
+const props = defineProps<{ chart: BaziChart; gate?: boolean }>()
+const lic = useLicense()
+const locked = computed(() => !!props.gate && !lic.pro.value)
 const emit = defineEmits<{ edit: [] }>()
 const mode = defineModel<'chart' | 'analysis' | 'forecast' | 'wealth'>('mode', { default: 'chart' })
 const store = useDivinationStore()
@@ -92,9 +95,9 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
       <LqSegmented v-model="mode" :options="[{ value: 'chart', label: t('排盘') }, { value: 'analysis', label: t('分析') }, { value: 'forecast', label: t('运势') }, { value: 'wealth', label: t('资产') }]" :label="t('八字视图')" size="sm" />
       <span class="t-caption">{{ mode === 'chart' ? t('四柱 · 大运流年 · 神煞 · 古籍') : mode === 'analysis' ? t('断语 · 评分 · 喜用神 · 五行与十神强弱') : mode === 'forecast' ? t('大运 · 流年 · 流月的大致预判') : t('现实起点 × 命局财力 × 运势 → 资产层级与学业') }}</span>
     </div>
-    <BaziAnalysisPanel v-if="mode === 'analysis'" :chart="chart" />
-    <BaziForecastPanel v-else-if="mode === 'forecast'" :chart="chart" />
-    <BaziWealthPanel v-else-if="mode === 'wealth'" :chart="chart" @edit="emit('edit')" />
+    <BaziAnalysisPanel v-if="mode === 'analysis'" :chart="chart" :locked="locked" />
+    <BaziForecastPanel v-else-if="mode === 'forecast'" :chart="chart" :locked="locked" />
+    <BaziWealthPanel v-else-if="mode === 'wealth'" :chart="chart" :locked="locked" @edit="emit('edit')" />
     <template v-else>
     <!-- Hero: the eight characters -->
     <div class="hero">

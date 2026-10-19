@@ -38,6 +38,9 @@ jobs:
         env:
           VITE_BASE: /${{ github.event.repository.name }}/destiny/
           VITE_DATA_MODE: demo
+          VITE_PAYWALL_URL: ${{ vars.PAYWALL_URL }}
+          VITE_LICENSE_JWK: ${{ vars.LICENSE_JWK }}
+          VITE_PRICE_LABEL: ${{ vars.PRICE_LABEL }}
       - run: mkdir -p frontend/dist/destiny && cp -r apps/destiny/dist/. frontend/dist/destiny/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

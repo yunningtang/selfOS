@@ -8,6 +8,12 @@ interface ImportMetaEnv {
   readonly VITE_BACKEND_URL?: string
   /** Public base path for builds served from a sub-path (e.g. `/selfOS/` on GitHub Pages). */
   readonly VITE_BASE?: string
+  /** Paywall worker base URL (services/paywall) */
+  readonly VITE_PAYWALL_URL?: string
+  /** Public ES256 JWK matching the worker's signing key */
+  readonly VITE_LICENSE_JWK?: string
+  /** Price text shown on the paywall card */
+  readonly VITE_PRICE_LABEL?: string
 }
 
 declare module '*.vue' {
