@@ -6,8 +6,8 @@ import SouthIndianChart from './SouthIndianChart.vue'
 import NorthIndianChart from './NorthIndianChart.vue'
 import DashaTree from './DashaTree.vue'
 import ShadbalaPanel from './ShadbalaPanel.vue'
-import { fmtDm, fmtDms } from '@/engines/western/chart'
-import { GRAHA_IDS, GRAHA_NAMES, RASHI, RELATION_NAMES, VARGA_LIST, type VargaD } from '@/engines/vedic/tables'
+import { fmtDm, fmtDms } from '@selfos/destiny-core/western/chart'
+import { GRAHA_IDS, GRAHA_NAMES, RASHI, RELATION_NAMES, VARGA_LIST, type VargaD } from '@selfos/destiny-core/vedic/tables'
 import type { VedicChart } from '@/types'
 
 const props = defineProps<{ chart: VedicChart }>()

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from '@/i18n'
 import { computed, ref, watch } from 'vue'
-import { MUTAGENS, type DecadalHoroscope, type YearlyHoroscope, type ZiweiChart, type ZiweiStar } from '@/engines/ziwei'
+import { MUTAGENS, type DecadalHoroscope, type YearlyHoroscope, type ZiweiChart, type ZiweiStar } from '@selfos/destiny-core/ziwei'
 const { t } = useI18n()
 
 const props = defineProps<{ chart: ZiweiChart }>()
@@ -43,7 +43,7 @@ const mut = (k: (typeof MUTAGENS)[number]) => props.chart.mutagen[k] ?? '—'
 </script>
 
 <template>
-  <div class="ziwei">
+  <div class="ziwei cjk-prose">
     <div class="board-wrap">
       <div class="board">
         <div v-for="p in chart.palaces" :key="p.index" class="palace" :class="{ soul: p.isSoul, body: p.isBody }" :style="{ gridRow: SLOT[p.branch][0], gridColumn: SLOT[p.branch][1] }">

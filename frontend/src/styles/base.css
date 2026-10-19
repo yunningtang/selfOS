@@ -156,6 +156,31 @@ canvas {
   /* CJK glyphs render from the system CJK sans; give them a little more air. */
   letter-spacing: 0.02em;
 }
+/* 中文排版：命盘与分析区域按中文习惯——中文字体优先、略放字距、更高行高、不用负字距。 */
+.cjk-prose {
+  font-family: var(--font-cjk);
+  letter-spacing: 0.03em;
+  line-height: 1.85;
+}
+.cjk-prose h1,
+.cjk-prose h2,
+.cjk-prose h3,
+.cjk-prose h4 {
+  letter-spacing: 0.02em;
+}
+.cjk-prose .t-num,
+.cjk-prose .tabular {
+  font-family: var(--font-sans);
+  letter-spacing: 0;
+}
+.cjk-prose table {
+  line-height: 1.75;
+}
+.cjk-prose p,
+.cjk-prose td,
+.cjk-prose dd {
+  text-wrap: pretty;
+}
 
 .visually-hidden {
   position: absolute !important;

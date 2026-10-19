@@ -3,10 +3,10 @@ import { useI18n } from '@/i18n'
 import { computed, ref } from 'vue'
 import LqCollapse from '@/components/ui/LqCollapse.vue'
 import { ELEMENTS } from '@/data/lexicon'
-import { ELEMENT_ZH } from '@/engines/bazi/tables'
-import { analyseBazi, PILLAR_ZH, KEYS } from '@/engines/bazi/analysis'
-import { computeVerdicts, type Verdict } from '@/engines/bazi/verdicts'
-import { VERDICT_EN } from '@/engines/bazi/verdicts.en'
+import { ELEMENT_ZH } from '@selfos/destiny-core/bazi/tables'
+import { analyseBazi, PILLAR_ZH, KEYS } from '@selfos/destiny-core/bazi/analysis'
+import { computeVerdicts, type Verdict } from '@selfos/destiny-core/bazi/verdicts'
+import { VERDICT_EN } from '@selfos/destiny-core/bazi/verdicts.en'
 import type { BaziChart, FiveElement } from '@/types'
 const { t, isEn } = useI18n()
 
@@ -25,7 +25,7 @@ const verdictClass = (v: string) => (/太旺|过旺|从强/.test(v) ? 'hot' : /�
 </script>
 
 <template>
-  <div class="an">
+  <div class="an cjk-prose">
     <blockquote class="overview">
       <p>{{ analysis.overview }}</p>
       <p class="t-muted">{{ analysis.relationsLine }}</p>
@@ -190,7 +190,7 @@ table {
 }
 th,
 td {
-  padding: 9px 10px;
+  padding: 12px 12px;
   border-top: 1px solid var(--hairline);
   text-align: left;
   vertical-align: top;
@@ -207,6 +207,10 @@ thead th {
   white-space: nowrap;
 }
 .vt td:first-child {
+  line-height: 1.9;
+  font-size: var(--fs-base);
+}
+.vt .basis {
   line-height: 1.7;
 }
 .vt .basis {

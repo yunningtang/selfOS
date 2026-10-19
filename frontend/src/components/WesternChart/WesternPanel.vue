@@ -3,8 +3,8 @@ import { useI18n } from '@/i18n'
 import { computed, ref } from 'vue'
 import ChartWheel from './ChartWheel.vue'
 import LqCollapse from '@/components/ui/LqCollapse.vue'
-import { fmtDm, fmtDms } from '@/engines/western/chart'
-import { ASPECTS, BODY_META, ELEMENT_ZH, HOUSE_ZH, MODALITY_ZH, SIGNS, type BodyId } from '@/engines/western/tables'
+import { fmtDm, fmtDms } from '@selfos/destiny-core/western/chart'
+import { ASPECTS, BODY_META, ELEMENT_ZH, HOUSE_ZH, MODALITY_ZH, SIGNS, type BodyId } from '@selfos/destiny-core/western/tables'
 import type { WesternChart } from '@/types'
 const { t, isEn } = useI18n()
 const houseLabel = (n: number) => (isEn.value ? `House ${n}` : `${n}宫`)

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { SIGNS, type BodyId } from '@/engines/western/tables'
-import { norm } from '@/engines/ephemeris/swe'
+import { SIGNS, type BodyId } from '@selfos/destiny-core/western/tables'
+import { norm } from '@selfos/destiny-core/ephemeris/swe'
 import type { WesternChart } from '@/types'
 
 /**

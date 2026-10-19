@@ -11,8 +11,8 @@ import BaZiBoard from '@/components/BaZiChart/BaZiBoard.vue'
 import WesternPanel from '@/components/WesternChart/WesternPanel.vue'
 import VedicPanel from '@/components/VedicChart/VedicPanel.vue'
 import ZiweiPanel from '@/components/ZiweiChart/ZiweiPanel.vue'
-import { HOUSE_SYSTEMS } from '@/engines/western/tables'
-import { AYANAMSAS } from '@/engines/vedic/chart'
+import { HOUSE_SYSTEMS } from '@selfos/destiny-core/western/tables'
+import { AYANAMSAS } from '@selfos/destiny-core/vedic/chart'
 import { useDivinationStore } from '@/stores/divination'
 const { t, isEn } = useI18n()
 

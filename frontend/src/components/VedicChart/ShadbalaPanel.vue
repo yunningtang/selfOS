@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { GRAHA_IDS, GRAHA_NAMES } from '@/engines/vedic/tables'
+import { GRAHA_IDS, GRAHA_NAMES } from '@selfos/destiny-core/vedic/tables'
 import type { VedicChart } from '@/types'
 
 const props = defineProps<{ chart: VedicChart }>()

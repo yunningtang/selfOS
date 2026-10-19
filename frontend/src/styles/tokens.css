@@ -24,6 +24,10 @@
     'HarmonyOS Sans SC', 'MiSans', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Noto Sans SC',
     'Noto Sans CJK SC', 'Source Han Sans SC', 'Segoe UI', system-ui, 'Noto Sans Hebrew', sans-serif;
 
+  /* CJK-first stack for 命理 content: 汉字 lead, Inter only for Latin digits. */
+  --font-cjk: 'PingFang SC', 'HarmonyOS Sans SC', 'MiSans', 'Microsoft YaHei UI', 'Microsoft YaHei',
+    'Noto Sans SC', 'Noto Sans CJK SC', 'Source Han Sans SC', 'Hiragino Sans GB', 'Inter Variable', system-ui, sans-serif;
+
   --fs-2xs: 0.6875rem; /* 11 */
   --fs-xs: 0.75rem; /* 12 */
   --fs-sm: 0.8125rem; /* 13 */

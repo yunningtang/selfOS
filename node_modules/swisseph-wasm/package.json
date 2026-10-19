@@ -1,0 +1,69 @@
+{
+  "name": "swisseph-wasm",
+  "version": "0.1.0",
+  "description": "High-precision Swiss Ephemeris WebAssembly library for astronomical calculations in JavaScript",
+  "type": "module",
+  "main": "src/swisseph.js",
+  "module": "src/swisseph.js",
+  "exports": {
+    ".": {
+      "import": "./src/swisseph.js",
+      "types": "./types/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/",
+    "wasm/",
+    "types/",
+    "examples/",
+    "DOCUMENTATION.md",
+    "QUICK_REFERENCE.md",
+    "README.md",
+    "llms.txt",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node tests/swisseph.test.js",
+    "prepublishOnly": "node tests/swisseph.test.js",
+    "demo": "python3 -m http.server 8000",
+    "docs": "echo 'Documentation available in DOCUMENTATION.md'",
+    "verify": "bash verification/run_verification.sh"
+  },
+  "keywords": [
+    "swiss-ephemeris",
+    "astronomy",
+    "astrology",
+    "ephemeris",
+    "webassembly",
+    "wasm",
+    "planetary-positions",
+    "astronomical-calculations",
+    "julian-day",
+    "sidereal",
+    "tropical",
+    "birth-chart",
+    "horoscope",
+    "celestial-mechanics"
+  ],
+  "author": {
+    "name": "prolaxu",
+    "url": "https://github.com/prolaxu"
+  },
+  "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prolaxu/swisseph-wasm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/prolaxu/swisseph-wasm/issues"
+  },
+  "homepage": "https://github.com/prolaxu/swisseph-wasm#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browser": {
+    "src/swisseph.js": "./src/swisseph.js"
+  }
+}

@@ -2,9 +2,13 @@
   "name": "selfos",
   "private": true,
   "license": "AGPL-3.0-or-later",
+  "workspaces": [
+    "frontend",
+    "packages/*"
+  ],
   "scripts": {
-    "setup:frontend": "npm --prefix frontend install",
-    "dev": "npm --prefix frontend run dev",
-    "build": "npm --prefix frontend run build"
+    "build": "npm run build -w frontend",
+    "dev": "npm run dev -w frontend",
+    "typecheck": "npm run typecheck -w frontend && npm run typecheck -w @selfos/destiny-core"
   }
 }

@@ -1,0 +1,60 @@
+{
+  "name": "@selfos/destiny-core",
+  "version": "0.1.0",
+  "description": "四柱八字 · 紫微斗数 · 西方占星 · Jyotish — chart engines and analysis, computed locally with the Swiss Ephemeris.",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./bazi/analysis": "./src/bazi/analysis.ts",
+    "./bazi/chart": "./src/bazi/chart.ts",
+    "./bazi/classics": "./src/bazi/classics.ts",
+    "./bazi": "./src/bazi/index.ts",
+    "./bazi/relations": "./src/bazi/relations.ts",
+    "./bazi/shensha": "./src/bazi/shensha.ts",
+    "./bazi/strength": "./src/bazi/strength.ts",
+    "./bazi/tables": "./src/bazi/tables.ts",
+    "./bazi/types": "./src/bazi/types.ts",
+    "./bazi/verdicts.en": "./src/bazi/verdicts.en.ts",
+    "./bazi/verdicts": "./src/bazi/verdicts.ts",
+    "./ephemeris": "./src/ephemeris/index.ts",
+    "./ephemeris/swe": "./src/ephemeris/swe.ts",
+    "./ephemeris/time": "./src/ephemeris/time.ts",
+    "./types": "./src/types.ts",
+    "./vedic/chart": "./src/vedic/chart.ts",
+    "./vedic": "./src/vedic/index.ts",
+    "./vedic/shadbala": "./src/vedic/shadbala.ts",
+    "./vedic/tables": "./src/vedic/tables.ts",
+    "./vedic/vargas": "./src/vedic/vargas.ts",
+    "./western/chart": "./src/western/chart.ts",
+    "./western": "./src/western/index.ts",
+    "./western/tables": "./src/western/tables.ts",
+    "./ziwei": "./src/ziwei/index.ts"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "verify:bazi": "tsx scripts/bazi.mts",
+    "verify:western": "tsx scripts/western.mts",
+    "verify:vedic": "tsx scripts/vedic.mts",
+    "verify:analysis": "tsx scripts/analysis.mts"
+  },
+  "dependencies": {
+    "iztro": "^2.6.3",
+    "lunar-javascript": "^1.7.7",
+    "swisseph-wasm": "^0.1.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15",
+    "typescript": "~5.9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yunningtang/selfOS",
+    "directory": "packages/destiny-core"
+  }
+}

@@ -6,9 +6,9 @@ import LqCollapse from '@/components/ui/LqCollapse.vue'
 import LqSegmented from '@/components/ui/LqSegmented.vue'
 import BaziAnalysisPanel from './BaziAnalysisPanel.vue'
 import { ELEMENTS } from '@/data/lexicon'
-import { computeRelations, type LabelledPillar } from '@/engines/bazi/relations'
-import * as tables from '@/engines/bazi/tables'
-import { ELEMENT_ZH, HIDDEN_STEMS, STEMS, TEN_GOD_SHORT, tenGod, lifeStage } from '@/engines/bazi/tables'
+import { computeRelations, type LabelledPillar } from '@selfos/destiny-core/bazi/relations'
+import * as tables from '@selfos/destiny-core/bazi/tables'
+import { ELEMENT_ZH, HIDDEN_STEMS, STEMS, TEN_GOD_SHORT, tenGod, lifeStage } from '@selfos/destiny-core/bazi/tables'
 import { fmt1 } from '@/composables/format'
 import { useDivinationStore } from '@/stores/divination'
 import type { BaziChart, FiveElement, PillarKey } from '@/types'
@@ -84,7 +84,7 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
 </script>
 
 <template>
-  <div class="board">
+  <div class="board cjk-prose">
     <div class="mode">
       <LqSegmented v-model="mode" :options="[{ value: 'chart', label: t('排盘') }, { value: 'analysis', label: t('分析') }]" :label="t('八字视图')" size="sm" />
       <span class="t-caption">{{ mode === 'chart' ? t('四柱 · 大运流年 · 神煞 · 古籍') : t('断语 · 评分 · 喜用神 · 五行与十神强弱') }}</span>
@@ -289,6 +289,8 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
   color: var(--text-3);
 }
 .p-char {
+  font-family: var(--font-cjk);
+  letter-spacing: 0;
   font-size: 44px;
   line-height: 1.15;
   font-weight: 500;
@@ -477,6 +479,7 @@ button.cell:active {
   color: var(--text-3);
 }
 .c-gz {
+  letter-spacing: 0;
   font-size: 26px;
   line-height: 1.1;
   font-weight: var(--fw-medium);

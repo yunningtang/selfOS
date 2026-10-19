@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { subPeriods } from '@/engines/vedic/chart'
-import { GRAHA_NAMES } from '@/engines/vedic/tables'
-import { zoneOffsetAt } from '@/engines/ephemeris/time'
+import { subPeriods } from '@selfos/destiny-core/vedic/chart'
+import { GRAHA_NAMES } from '@selfos/destiny-core/vedic/tables'
+import { zoneOffsetAt } from '@selfos/destiny-core/ephemeris/time'
 import type { DashaPeriod, VedicChart } from '@/types'
 
 const props = defineProps<{ chart: VedicChart }>()

@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Swiss Ephemeris WASM — Playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html, body { height: 100%; }
+    #editor { min-height: 320px; }
+    .out-line { white-space: pre-wrap; word-break: break-word; }
+    .out-err { color: #f87171; }
+    .out-info { color: #93c5fd; }
+  </style>
+</head>
+<body class="h-full bg-slate-900 text-slate-100">
+  <div class="flex flex-col h-full">
+    <!-- header -->
+    <header class="px-4 py-3 border-b border-slate-700 flex items-center gap-3 flex-wrap">
+      <h1 class="font-semibold text-lg">🪐 Swiss Ephemeris <span class="text-slate-400">Playground</span></h1>
+      <span id="status" class="text-xs px-2 py-1 rounded bg-slate-700">loading…</span>
+      <div class="ml-auto flex items-center gap-2">
+        <select id="examples" class="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-sm">
+          <option value="">Load example…</option>
+        </select>
+        <button id="run" class="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 rounded px-4 py-1.5 text-sm font-medium" disabled>▶ Run <span class="opacity-60">(Ctrl+↵)</span></button>
+        <button id="clear" class="bg-slate-700 hover:bg-slate-600 rounded px-3 py-1.5 text-sm">Clear</button>
+      </div>
+    </header>
+
+    <!-- body: editor + output -->
+    <main class="flex-1 grid md:grid-cols-2 grid-rows-2 md:grid-rows-1 min-h-0">
+      <div id="editor" class="border-r border-slate-700"></div>
+      <div class="flex flex-col min-h-0">
+        <div class="px-3 py-1.5 text-xs uppercase tracking-wide text-slate-400 border-b border-slate-700">Output</div>
+        <div id="output" class="flex-1 overflow-auto p-3 font-mono text-sm leading-relaxed"></div>
+      </div>
+    </main>
+    <footer class="px-4 py-1.5 text-xs text-slate-500 border-t border-slate-700">
+      Tip: type <code class="text-slate-300">swisseph.</code> for autocomplete on the full API. <code class="text-slate-300">print(...)</code> writes to the Output panel.
+    </footer>
+  </div>
+
+  <!-- Load the WASM module (ES module) and expose it globally for the editor runtime. -->
+  <script type="module">
+    import SwissEph from '../src/swisseph.js';
+    (async () => {
+      try {
+        const swe = new SwissEph();
+        await swe.initSwissEph();
+        window.__swe = swe;
+        window.dispatchEvent(new CustomEvent('swe-ready', { detail: swe.version() }));
+      } catch (e) {
+        window.dispatchEvent(new CustomEvent('swe-error', { detail: String(e && e.message || e) }));
+      }
+    })();
+  </script>
+
+  <!-- Full Vedic birth-chart example (kept as text/plain to avoid escaping). -->
+  <script type="text/plain" id="ex-vedic">// Full Vedic (sidereal) birth chart — the parts Swiss Ephemeris computes directly.
+// Input: 2026-07-21 13:50:43, GMT-4, South Grafton MA (71W41'10", 42N12'10", 425 m)
+const tzHours = -4;
+const utHour = (13 + 50/60 + 43/3600) - tzHours;   // UT = local + 4h
+const lat = 42 + 12/60 + 10/3600, lon = -(71 + 41/60 + 10/3600);
+const jd = swisseph.julday(2026, 7, 21, utHour);
+swisseph.set_sid_mode(27, 0, 0);                    // SE_SIDM_TRUE_CITRA (JHora "Lahiri")
+const FL = swisseph.SEFLG_SWIEPH | swisseph.SEFLG_SIDEREAL;
+
+const SIGN = ['Ar','Ta','Ge','Cn','Le','Vi','Li','Sc','Sg','Cp','Aq','Pi'];
+const NAK = ['Aswi','Bhar','Krit','Rohi','Mrig','Ardr','Puna','Push','Asre','Magh','PPha','UPha','Hast','Chit','Swat','Visa','Anu','Jye','Mool','PSha','USha','Srav','Dhan','Sata','PBha','UBha','Reva'];
+const TITHI = ['Pratipada','Dwitiya','Tritiya','Chaturthi','Panchami','Shashthi','Saptami','Ashtami','Navami','Dashami','Ekadashi','Dwadashi','Trayodashi','Chaturdashi','Purnima/Amavasya'];
+const YOGA = ['Vishkambha','Priti','Ayushman','Saubhagya','Shobhana','Atiganda','Sukarma','Dhriti','Shula','Ganda','Vriddhi','Dhruva','Vyaghata','Harshana','Vajra','Siddhi','Vyatipata','Variyan','Parigha','Shiva','Siddha','Sadhya','Shubha','Shukla','Brahma','Indra','Vaidhriti'];
+const KAR = ['Bava','Balava','Kaulava','Taitila','Gara','Vanija','Vishti'];
+const WD = ['Monday (Mo)','Tuesday (Ma)','Wednesday (Me)','Thursday (Ju)','Friday (Ve)','Saturday (Sa)','Sunday (Su)'];
+
+const norm = x => ((x % 360) + 360) % 360;
+const fmtLon = l => { const w=l%30,d=Math.floor(w),mf=(w-d)*60,mi=Math.floor(mf),se=(mf-mi)*60;
+  return String(d).padStart(2)+' '+SIGN[Math.floor(l/30)]+' '+String(mi).padStart(2,'0')+"' "+se.toFixed(2).padStart(5,'0')+'"'; };
+const nak = l => { const i=Math.floor(l/(13+1/3)), pada=Math.floor((l%(13+1/3))/(10/3))+1; return {name:NAK[i%27],pada}; };
+const navamsa = l => SIGN[Math.floor(l/(10/3))%12];
+const hms = h => { h=((h%24)+24)%24; const H=Math.floor(h),m=Math.floor((h-H)*60),s=Math.round(((h-H)*60-m)*60); return H+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); };
+const sid = p => norm(swisseph.calc_ut(jd, p, FL)[0]);
+
+print('Natal Chart\n');
+print('Date:  July 21, 2026   Time: 13:50:43   TZ: 4:00 West of GMT');
+print("Place: 71 W 41' 10\", 42 N 12' 10\" (South Grafton, MA)   Alt: 425 m\n");
+
+const sunL = sid(swisseph.SE_SUN), moonL = sid(swisseph.SE_MOON);
+const diff = norm(moonL - sunL);
+const tno = Math.floor(diff/12), kIdx = Math.floor(diff/6);
+print('Tithi:         ' + (tno<15?'Sukla':'Krishna') + ' ' + TITHI[tno%15] + ' (' + ((1-(diff/12-tno))*100).toFixed(2) + '% left)');
+print('Vedic Weekday: ' + WD[swisseph.day_of_week(jd)]);
+const mnk = nak(moonL);
+print('Nakshatra:     ' + mnk.name + ' (pada ' + mnk.pada + ')');
+print('Yoga:          ' + YOGA[Math.floor(norm(sunL+moonL)/(13+1/3))]);
+print('Karana:        ' + (kIdx===0?'Kimstughna':kIdx>=58?['Shakuni','Chatushpada','Naga'][kIdx-58]:KAR[(kIdx-1)%7]));
+
+const RISE = swisseph.SE_CALC_RISE | swisseph.SE_BIT_DISC_CENTER | swisseph.SE_BIT_NO_REFRACTION;
+const SET  = swisseph.SE_CALC_SET  | swisseph.SE_BIT_DISC_CENTER | swisseph.SE_BIT_NO_REFRACTION;
+const toLocal = t => (t - Math.floor(t-0.5) - 0.5)*24 + tzHours;
+const rise = swisseph.rise_trans(jd-0.7, swisseph.SE_SUN, '', swisseph.SEFLG_SWIEPH, RISE, [lon,lat,425], 1013.25, 15);
+const sset = swisseph.rise_trans(jd-0.7, swisseph.SE_SUN, '', swisseph.SEFLG_SWIEPH, SET,  [lon,lat,425], 1013.25, 15);
+print('\nSunrise:       ' + hms(toLocal(rise[0])) + '   Sunset: ' + hms(toLocal(sset[0])));
+const a = swisseph.get_ayanamsa_ut(jd), ad=Math.floor(a), amf=(a-ad)*60, ami=Math.floor(amf), ase=(amf-ami)*60;
+print('Ayanamsa:      ' + ad + '-' + String(ami).padStart(2,'0') + '-' + ase.toFixed(2));
+print('Sidereal Time: ' + hms(swisseph.sidtime(jd) + lon/15));
+
+print('\nBody         Longitude          Nak  Pada Rasi Nav');
+const rahu = sid(swisseph.SE_MEAN_NODE), ketu = norm(rahu+180);
+const lag = swisseph.houses_ex(jd, swisseph.SEFLG_SIDEREAL, lat, lon, 'P').ascmc[0];
+const rows = [['Lagna',lag],['Sun',sunL],['Moon',moonL],['Mars',sid(swisseph.SE_MARS)],['Mercury',sid(swisseph.SE_MERCURY)],['Jupiter',sid(swisseph.SE_JUPITER)],['Venus',sid(swisseph.SE_VENUS)],['Saturn',sid(swisseph.SE_SATURN)],['Rahu',rahu],['Ketu',ketu]];
+for (const [n,l] of rows) { const k=nak(l); print(n.padEnd(11)+' '+fmtLon(l)+'  '+k.name.padEnd(4)+' '+String(k.pada).padEnd(4)+' '+SIGN[Math.floor(l/30)].padEnd(4)+' '+navamsa(l)); }
+
+print('\nChara Karakas (Jaimini, by degrees within sign):');
+const KL=['AK','AmK','BK','MK','PiK','PK','GK','DK'];
+const kb=[['Sun',sunL],['Moon',moonL],['Mars',sid(swisseph.SE_MARS)],['Mercury',sid(swisseph.SE_MERCURY)],['Jupiter',sid(swisseph.SE_JUPITER)],['Venus',sid(swisseph.SE_VENUS)],['Saturn',sid(swisseph.SE_SATURN)],['Rahu',rahu]];
+kb.map(([n,l])=>[n, n==='Rahu'?30-(l%30):l%30]).sort((x,y)=>y[1]-x[1]).forEach(([n],i)=>print(KL[i].padEnd(4)+' '+n));
+
+// print('\n--- Swiss Ephemeris provides the above (positions, Lagna, ayanamsa,');
+// print('sidereal time, rise/set). Dasas, divisional charts (D-1..D-144),');
+// print('Ashtakavarga, Shadbala, Vimshopaka and avasthas are separate jyotish');
+// print('computations layered on top of these ephemeris values.');
+</script>
+
+  <!-- Monaco editor (AMD loader from CDN). -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js"></script>
+  <script>
+    const EXAMPLES = {
+      'Birth chart (Sun / Moon / Asc)': `const jd = swisseph.julday(1990, 6, 15, 13.5);
+const flags = swisseph.SEFLG_SWIEPH | swisseph.SEFLG_SPEED;
+for (const p of [swisseph.SE_SUN, swisseph.SE_MOON, swisseph.SE_MERCURY, swisseph.SE_VENUS, swisseph.SE_MARS]) {
+  const pos = swisseph.calc(jd, p, flags);
+  print(swisseph.get_planet_name(p).padEnd(9), pos.longitude.toFixed(4) + '\\u00b0', 'speed', pos.longitudeSpeed.toFixed(4));
+}
+const h = swisseph.houses(jd, 40.7128, -74.0060, 'P');
+print('Ascendant', h.ascmc[0].toFixed(4) + '\\u00b0', '| MC', h.ascmc[1].toFixed(4) + '\\u00b0');`,
+
+      'House cusps (Placidus)': `const jd = swisseph.julday(2000, 1, 1, 12);
+const h = swisseph.houses(jd, 47.0, 8.0, 'P');
+print('System:', swisseph.house_name('P'));
+for (let i = 1; i <= 12; i++) print('House ' + i, h.cusps[i].toFixed(3) + '\\u00b0');`,
+
+      'Next solar eclipse': `const jd = swisseph.julday(2000, 1, 1, 0);
+const e = swisseph.sol_eclipse_when_glob(jd, swisseph.SEFLG_SWIEPH, 0, 0);
+const d = swisseph.revjul(e.tret[0], swisseph.SE_GREG_CAL);
+const type = e.retFlag & swisseph.SE_ECL_TOTAL ? 'Total'
+           : e.retFlag & swisseph.SE_ECL_ANNULAR ? 'Annular' : 'Partial';
+print('Next solar eclipse:', d.year + '-' + d.month + '-' + d.day, '(' + type + ')');
+const w = swisseph.sol_eclipse_where(e.tret[0], swisseph.SEFLG_SWIEPH);
+print('Greatest at lon/lat:', w.geopos[0].toFixed(2), w.geopos[1].toFixed(2));`,
+
+      'Fixed star + error handling': `const s = swisseph.fixstar('Aldebaran', swisseph.julday(2000,1,1,12), swisseph.SEFLG_SWIEPH);
+print('Aldebaran longitude:', s ? s[0].toFixed(4) + '\\u00b0' : 'error: ' + swisseph.getLastError());
+const bad = swisseph.fixstar('Nope', 2451545, swisseph.SEFLG_SWIEPH);
+print('Bad star:', bad, '| getLastError():', swisseph.getLastError());`,
+
+      'Sidereal (Lahiri ayanamsa)': `const jd = swisseph.julday(2000, 1, 1, 12);
+swisseph.set_sid_mode(swisseph.SE_SIDM_LAHIRI, 0, 0);
+print('Ayanamsa:', swisseph.get_ayanamsa(jd).toFixed(6) + '\\u00b0', '(' + swisseph.get_ayanamsa_name(swisseph.SE_SIDM_LAHIRI) + ')');
+const sun = swisseph.calc(jd, swisseph.SE_SUN, swisseph.SEFLG_SWIEPH | swisseph.SEFLG_SIDEREAL);
+print('Sidereal Sun:', sun.longitude.toFixed(4) + '\\u00b0');`,
+
+      'Sunrise (rise_trans)': `const jd = swisseph.julday(2024, 6, 21, 0);
+const tret = swisseph.rise_trans(jd, swisseph.SE_SUN, '', swisseph.SEFLG_SWIEPH, swisseph.SE_CALC_RISE, [8.0, 47.0, 400.0], 1013.25, 15.0);
+const d = swisseph.revjul(tret[0], swisseph.SE_GREG_CAL);
+print('Sunrise (UT):', d.hour.toFixed(4) + 'h on ' + d.year + '-' + d.month + '-' + d.day);`,
+    };
+
+    // The full Vedic birth chart lives in a text/plain block (no escaping needed).
+    const VEDIC = (document.getElementById('ex-vedic') || {}).textContent || '';
+    EXAMPLES['Full Vedic birth chart (sidereal)'] = VEDIC;
+    const DEFAULT_CODE = VEDIC;
+
+    const out = document.getElementById('output');
+    const statusEl = document.getElementById('status');
+    const runBtn = document.getElementById('run');
+
+    function write(cls, parts) {
+      const line = document.createElement('div');
+      line.className = 'out-line ' + (cls || '');
+      line.textContent = parts.map(fmt).join(' ');
+      out.appendChild(line);
+      out.scrollTop = out.scrollHeight;
+    }
+    function fmt(v) {
+      if (v instanceof Float64Array) return '[' + Array.from(v).map(n => +n.toFixed(6)).join(', ') + ']';
+      if (typeof v === 'object' && v !== null) { try { return JSON.stringify(v); } catch (e) { return String(v); } }
+      return String(v);
+    }
+    const api = {
+      print: (...a) => write('', a),
+      console: { log: (...a) => write('', a), error: (...a) => write('out-err', a), warn: (...a) => write('out-info', a) },
+    };
+
+    let editor;
+    const MONACO_BASE = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/';
+    // Language workers must load cross-origin; wrap them in a same-origin data-URL
+    // shim so completions/diagnostics work from the CDN.
+    window.MonacoEnvironment = {
+      getWorkerUrl: () => 'data:text/javascript;charset=utf-8,' + encodeURIComponent(
+        `self.MonacoEnvironment = { baseUrl: '${MONACO_BASE}' };\n` +
+        `importScripts('${MONACO_BASE}vs/base/worker/workerMain.js');`
+      ),
+    };
+    require.config({ paths: { vs: MONACO_BASE + 'vs' } });
+    require(['vs/editor/editor.main'], async () => {
+      // Feed Monaco our real type definitions so `swisseph.` autocompletes.
+      try {
+        let dts = await (await fetch('../types/index.d.ts')).text();
+        dts = dts.replace(/declare module 'swisseph-wasm'\s*\{/, '')  // drop module wrapper
+                 .replace(/\}\s*$/, '')                                // and its closing brace
+                 .replace(/export default /g, '')
+                 .replace(/export /g, '');
+        dts += `\ndeclare const swisseph: SwissEph;\ndeclare function print(...args: any[]): void;\n`;
+        monaco.languages.typescript.javascriptDefaults.addExtraLib(dts, 'ts:swisseph.d.ts');
+        monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({ noSemanticValidation: false, noSyntaxValidation: false });
+      } catch (e) { /* autocomplete is best-effort */ }
+
+      editor = monaco.editor.create(document.getElementById('editor'), {
+        value: DEFAULT_CODE,
+        language: 'javascript',
+        theme: 'vs-dark',
+        automaticLayout: true,
+        minimap: { enabled: false },
+        fontSize: 14,
+        scrollBeyondLastLine: false,
+      });
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, run);
+      window.monaco = monaco; window.__editor = editor; // for testing/debugging
+    });
+
+    function run() {
+      if (!window.__swe) return;
+      out.innerHTML = '';
+      const code = editor.getValue();
+      try {
+        const fn = new Function('swisseph', 'print', 'console', `return (async () => {\n${code}\n})();`);
+        Promise.resolve(fn(window.__swe, api.print, api.console))
+          .catch(err => write('out-err', ['Error:', err && err.message || err]));
+      } catch (err) {
+        write('out-err', ['Error:', err && err.message || err]);
+      }
+    }
+
+    document.getElementById('run').addEventListener('click', run);
+    document.getElementById('clear').addEventListener('click', () => { out.innerHTML = ''; });
+
+    const sel = document.getElementById('examples');
+    for (const name of Object.keys(EXAMPLES)) {
+      const o = document.createElement('option'); o.value = name; o.textContent = name; sel.appendChild(o);
+    }
+    sel.addEventListener('change', () => { if (sel.value && editor) { editor.setValue(EXAMPLES[sel.value]); sel.value = ''; } });
+
+    // Enable Run once the WASM module is ready.
+    window.addEventListener('swe-ready', (e) => {
+      statusEl.textContent = 'ready · swe ' + e.detail;
+      statusEl.className = 'text-xs px-2 py-1 rounded bg-emerald-700';
+      runBtn.disabled = false;
+    });
+    window.addEventListener('swe-error', (e) => {
+      statusEl.textContent = 'init failed';
+      statusEl.className = 'text-xs px-2 py-1 rounded bg-red-700';
+      write('out-err', ['Failed to init SwissEph:', e.detail]);
+    });
+  </script>
+</body>
+</html>

@@ -1,10 +1,11 @@
 /**
- * Divination types. Charts are computed in the browser by the engines in `@/engines`
+ * Divination types. Charts are computed in the browser by the engines in `@selfos/destiny-core`
  * (Swiss Ephemeris); these shared primitives are used across the app and the graph API.
  */
 
-export type FiveElement = 'wood' | 'fire' | 'earth' | 'metal' | 'water'
-export type PillarKey = 'year' | 'month' | 'day' | 'hour'
+import type { FiveElement } from '@selfos/destiny-core'
+
+export type { FiveElement, PillarKey } from '@selfos/destiny-core'
 
 /** Birth data entered by the user — the single source for all three chart systems. */
 export interface BirthProfile {
@@ -27,11 +28,11 @@ export interface BirthProfile {
   dst: 'auto' | 'ignore'
 }
 
-export type { BaziChart, BaziOptions, LuckPillar, AnnualPillar, MonthlyPillar, Pillar } from '@/engines/bazi/types'
-export type { WesternChart, WesternSettings, PlacedBody, Aspect, HouseCusp } from '@/engines/western/chart'
-export type { VedicChart, VedicSettings, Graha, DashaPeriod } from '@/engines/vedic/chart'
-export type { ShadbalaEntry } from '@/engines/vedic/shadbala'
-export type { ZiweiChart, ZiweiPalace, ZiweiStar } from '@/engines/ziwei'
+export type { BaziChart, BaziOptions, LuckPillar, AnnualPillar, MonthlyPillar, Pillar } from '@selfos/destiny-core/bazi/types'
+export type { WesternChart, WesternSettings, PlacedBody, Aspect, HouseCusp } from '@selfos/destiny-core/western/chart'
+export type { VedicChart, VedicSettings, Graha, DashaPeriod } from '@selfos/destiny-core/vedic/chart'
+export type { ShadbalaEntry } from '@selfos/destiny-core/vedic/shadbala'
+export type { ZiweiChart, ZiweiPalace, ZiweiStar } from '@selfos/destiny-core/ziwei'
 
 /** Compact innate-memory payload sent to POST /api/graph/inject-memory */
 export interface InnateSummary {

@@ -17,25 +17,22 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: package-lock.json
       - run: npm ci
       - name: Build
-        run: npm run build
+        run: npm run build -w frontend
         env:
           VITE_BASE: /${{ github.event.repository.name }}/
           # GitHub Pages is static hosting: there is no backend, so serve the demo data directly.
           VITE_DATA_MODE: demo
       # Pages has no SPA rewrite; serving index.html as 404.html lets deep links like /atlas load.
-      - run: cp dist/index.html dist/404.html
+      - run: cp frontend/dist/index.html frontend/dist/404.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
