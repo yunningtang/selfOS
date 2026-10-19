@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { useI18n } from '@/i18n'
 import { computed, ref } from 'vue'
 import ChartWheel from './ChartWheel.vue'
 import LqCollapse from '@/components/ui/LqCollapse.vue'
 import { fmtDm, fmtDms } from '@/engines/western/chart'
 import { ASPECTS, BODY_META, ELEMENT_ZH, HOUSE_ZH, MODALITY_ZH, SIGNS, type BodyId } from '@/engines/western/tables'
 import type { WesternChart } from '@/types'
+const { t, isEn } = useI18n()
+const houseLabel = (n: number) => (isEn.value ? `House ${n}` : `${n}宫`)
 
 const props = defineProps<{ chart: WesternChart }>()
 const highlight = ref<BodyId | null>(null)
@@ -31,71 +34,71 @@ const majorCount = computed(() => props.chart.aspects.filter((a) => a.def.major)
           <li v-for="b in big3" :key="b.id">
             <span class="b3-glyph">{{ b.glyph }}</span>
             <span class="b3-text">
-              <span class="t-label">{{ b.zh }}</span>
-              <span class="b3-sign">{{ SIGNS[b.sign].zh }} <span class="t-num t-muted">{{ fmtDm(b.signDeg) }}</span></span>
-              <span class="t-caption" v-if="b.id !== 'asc'">第 {{ b.house }} 宫 · {{ HOUSE_ZH[b.house - 1] }}</span>
-              <span class="t-caption" v-else>{{ chart.isDayChart ? '日生盘' : '夜生盘' }} · 月相 {{ chart.moonPhase.zh }}</span>
+              <span class="t-label">{{ t(b.zh) }}</span>
+              <span class="b3-sign">{{ t(SIGNS[b.sign].zh) }} <span class="t-num t-muted">{{ fmtDm(b.signDeg) }}</span></span>
+              <span class="t-caption" v-if="b.id !== 'asc'">{{ houseLabel(b.house) }} · {{ t(HOUSE_ZH[b.house - 1]) }}</span>
+              <span class="t-caption" v-else>{{ chart.isDayChart ? t('日生盘') : t('夜生盘') }} · {{ t('月相') }} {{ t(chart.moonPhase.zh) }}</span>
             </span>
           </li>
         </ul>
         <div class="tally">
           <div v-for="(ids, k) in chart.tally.elements" :key="k" class="t-row">
-            <span class="t-k">{{ ELEMENT_ZH[k] }}</span>
+            <span class="t-k">{{ t(ELEMENT_ZH[k]) }}</span>
             <span class="t-track"><span :style="{ width: `${(ids.length / total) * 100}%` }" /></span>
             <span class="t-num t-n">{{ ids.length }}</span>
             <span class="t-who">{{ glyphs(ids) }}</span>
           </div>
           <div class="t-sep" />
           <div v-for="(ids, k) in chart.tally.modalities" :key="k" class="t-row">
-            <span class="t-k">{{ MODALITY_ZH[k] }}</span>
+            <span class="t-k">{{ t(MODALITY_ZH[k]) }}</span>
             <span class="t-track"><span :style="{ width: `${(ids.length / total) * 100}%` }" /></span>
             <span class="t-num t-n">{{ ids.length }}</span>
             <span class="t-who">{{ glyphs(ids) }}</span>
           </div>
         </div>
-        <p class="t-caption">点选轮盘或表格中的星体，只显示它的相位。</p>
+        <p class="t-caption">{{ t('点选轮盘或表格中的星体，只显示它的相位。') }}</p>
       </div>
     </div>
 
     <div class="tables">
       <section class="block">
-        <h3 class="t-label">行星</h3>
+        <h3 class="t-label">{{ t('行星') }}</h3>
         <table>
           <tbody>
             <tr v-for="b in chart.bodies" :key="b.id" :class="{ hi: highlight === b.id }" @click="highlight = highlight === b.id ? null : b.id">
-              <th scope="row"><span class="glyph">{{ b.glyph }}</span>{{ b.zh }}</th>
-              <td><span class="glyph sign">{{ SIGNS[b.sign].glyph }}</span>{{ SIGNS[b.sign].zh }}</td>
+              <th scope="row"><span class="glyph">{{ b.glyph }}</span>{{ t(b.zh) }}</th>
+              <td><span class="glyph sign">{{ SIGNS[b.sign].glyph }}</span>{{ t(SIGNS[b.sign].zh) }}</td>
               <td class="r t-num">{{ fmtDms(b.signDeg) }}</td>
-              <td class="r t-num t-muted">{{ b.house }}宫</td>
-              <td class="t-muted tag"><span v-if="b.retrograde">℞</span> {{ b.dignity ? DIGNITY_ZH[b.dignity] : '' }}</td>
+              <td class="r t-num t-muted">{{ houseLabel(b.house) }}</td>
+              <td class="t-muted tag"><span v-if="b.retrograde">℞</span> {{ b.dignity ? t(DIGNITY_ZH[b.dignity]) : '' }}</td>
             </tr>
           </tbody>
         </table>
       </section>
       <section class="block">
-        <h3 class="t-label">宫位</h3>
+        <h3 class="t-label">{{ t('宫位') }}</h3>
         <table>
           <tbody>
             <tr v-for="h in chart.houses" :key="h.n">
-              <th scope="row"><span class="t-num hn">{{ h.n }}</span>{{ HOUSE_ZH[h.n - 1] }}</th>
-              <td><span class="glyph sign">{{ SIGNS[h.sign].glyph }}</span>{{ SIGNS[h.sign].zh }}</td>
+              <th scope="row"><span class="t-num hn">{{ h.n }}</span>{{ t(HOUSE_ZH[h.n - 1]) }}</th>
+              <td><span class="glyph sign">{{ SIGNS[h.sign].glyph }}</span>{{ t(SIGNS[h.sign].zh) }}</td>
               <td class="r t-num">{{ fmtDms(h.signDeg) }}</td>
-              <td class="t-muted"><span class="glyph">{{ BODY_META[h.ruler].glyph }}</span>{{ BODY_META[h.ruler].zh }}</td>
+              <td class="t-muted"><span class="glyph">{{ BODY_META[h.ruler].glyph }}</span>{{ t(BODY_META[h.ruler].zh) }}</td>
             </tr>
           </tbody>
         </table>
       </section>
     </div>
 
-    <LqCollapse :title="highlight ? `${BODY_META[highlight].zh}的相位` : '相位'" :summary="`主相位 ${majorCount} · 全部 ${chart.aspects.length}`">
+    <LqCollapse :title="highlight ? `${t(BODY_META[highlight].zh)}${t('的相位')}` : t('相位')" :summary="`${t('主相位')} ${majorCount} · ${t('全部')} ${chart.aspects.length}`">
       <div class="asp-wrap">
         <ul class="asp-list">
           <li v-for="(a, i) in shownAspects" :key="i">
-            <span class="glyph">{{ BODY_META[a.a].glyph }}</span><span>{{ BODY_META[a.a].zh }}</span>
+            <span class="glyph">{{ BODY_META[a.a].glyph }}</span><span>{{ t(BODY_META[a.a].zh) }}</span>
             <span class="asp" :class="a.def.tone">{{ a.def.glyph }}</span>
-            <span class="glyph">{{ BODY_META[a.b].glyph }}</span><span>{{ BODY_META[a.b].zh }}</span>
-            <span class="t-muted">{{ a.def.zh }}</span>
-            <span class="t-num t-faint">{{ a.orb.toFixed(2) }}° {{ a.applying ? '入' : '出' }}</span>
+            <span class="glyph">{{ BODY_META[a.b].glyph }}</span><span>{{ t(BODY_META[a.b].zh) }}</span>
+            <span class="t-muted">{{ t(a.def.zh) }}</span>
+            <span class="t-num t-faint">{{ a.orb.toFixed(2) }}° {{ a.applying ? t('入') : t('出') }}</span>
           </li>
         </ul>
         <div class="tw">
@@ -114,11 +117,11 @@ const majorCount = computed(() => props.chart.aspects.filter((a) => a.def.major)
       </div>
     </LqCollapse>
 
-    <LqCollapse title="相位设定">
+    <LqCollapse :title="t('相位设定')">
       <ul class="orbs">
-        <li v-for="a in ASPECTS" :key="a.id"><span class="asp" :class="a.tone">{{ a.glyph }}</span> {{ a.zh }} <span class="t-num t-muted">{{ a.angle }}° ± {{ chart.settings.orbs?.[a.id] ?? a.orb }}°</span></li>
+        <li v-for="a in ASPECTS" :key="a.id"><span class="asp" :class="a.tone">{{ a.glyph }}</span> {{ t(a.zh) }} <span class="t-num t-muted">{{ a.angle }}° ± {{ chart.settings.orbs?.[a.id] ?? a.orb }}°</span></li>
       </ul>
-      <p class="t-caption">日月相位容许度 +{{ chart.settings.luminaryBonus }}°；交点、福点、上升、天顶只取主相位，容许度不超过 5°。东 {{ chart.tally.hemispheres.east }} 西 {{ chart.tally.hemispheres.west }} · 南 {{ chart.tally.hemispheres.south }} 北 {{ chart.tally.hemispheres.north }} · 阳 {{ chart.tally.polarity.positive.length }} 阴 {{ chart.tally.polarity.negative.length }}。</p>
+      <p class="t-caption">{{ t('日月相位容许度') }} +{{ chart.settings.luminaryBonus }}°；{{ t('交点、福点、上升、天顶只取主相位，容许度不超过 5°。') }} {{ t('东') }} {{ chart.tally.hemispheres.east }} {{ t('西') }} {{ chart.tally.hemispheres.west }} · {{ t('南') }} {{ chart.tally.hemispheres.south }} {{ t('北') }} {{ chart.tally.hemispheres.north }} · {{ t('阳') }} {{ chart.tally.polarity.positive.length }} {{ t('阴') }} {{ chart.tally.polarity.negative.length }}</p>
     </LqCollapse>
   </div>
 </template>

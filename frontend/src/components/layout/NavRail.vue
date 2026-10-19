@@ -4,6 +4,9 @@ import { routes } from '@/router'
 import { FOUR_WORLDS } from '@/data/lexicon'
 import LqIcon from '@/components/ui/LqIcon.vue'
 import PreferenceControls from './PreferenceControls.vue'
+import { useI18n } from '@/i18n'
+
+const { t, isEn } = useI18n()
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: [] }>()
@@ -14,7 +17,7 @@ const groups = computed(() => {
     { key: 'home', label: '', items: items.filter((r) => !r.meta!.world) },
     ...FOUR_WORLDS.map((w) => ({
       key: w.key,
-      label: `${w.name} · ${w.zh}`,
+      label: isEn.value ? `${w.name} · ${w.zh}` : `${w.zh} · ${w.name}`,
       items: items.filter((r) => r.meta!.world === w.key),
     })),
   ]
@@ -56,7 +59,7 @@ watch(
             <li v-for="r in g.items" :key="String(r.name)">
               <RouterLink :to="r.path" class="link" :title="`${r.meta!.zh ?? ''} ${r.meta!.title}`" @click="emit('close')">
                 <LqIcon :name="r.meta!.icon" />
-                <span class="text">{{ r.meta!.zh ?? r.meta!.title }}<span class="en">{{ r.meta!.zh ? r.meta!.title : '' }}</span></span>
+                <span class="text">{{ isEn ? r.meta!.title : (r.meta!.zh ?? r.meta!.title) }}<span class="en">{{ r.meta!.zh ? (isEn ? r.meta!.zh : r.meta!.title) : '' }}</span></span>
               </RouterLink>
             </li>
           </ul>
@@ -65,7 +68,7 @@ watch(
 
       <a class="source" href="https://github.com/yunningtang/selfOS" target="_blank" rel="noopener" title="Source code (AGPL-3.0)">
         <LqIcon name="file" :size="16" />
-        <span class="text">Source · AGPL-3.0</span>
+        <span class="text">{{ t('源码') }} · AGPL-3.0</span>
       </a>
       <PreferenceControls class="prefs" />
     </nav>

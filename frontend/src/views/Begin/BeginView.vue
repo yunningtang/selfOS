@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from '@/i18n'
 import { useRouter } from 'vue-router'
 import BirthWizard from '@/components/celestial/BirthWizard.vue'
 import { useDivinationStore } from '@/stores/divination'
+const { t } = useI18n()
 
 const router = useRouter()
 const div = useDivinationStore()
@@ -13,9 +15,9 @@ function done() {
 <template>
   <section class="begin" aria-labelledby="begin-title">
     <header class="intro">
-      <p class="t-label eyebrow">第一步 · 出生信息</p>
-      <h1 id="begin-title">输入你的出生时刻</h1>
-      <p class="lede">一个时刻，四套命盘：八字、紫微斗数、西方占星与 Jyotish 都从这里算起。全部在本地计算，不上传任何数据。</p>
+      <p class="t-label eyebrow">{{ t('第一步 · 出生信息') }}</p>
+      <h1 id="begin-title">{{ t('输入你的出生时刻') }}</h1>
+      <p class="lede">{{ t('一个时刻，四套命盘：八字、紫微斗数、西方占星与 Jyotish 都从这里算起。全部在本地计算，不上传任何数据。') }}</p>
     </header>
     <div class="card lq-glass">
       <BirthWizard :mode="div.ready ? 'edit' : 'onboard'" @done="done" @cancel="router.push('/celestial')" />

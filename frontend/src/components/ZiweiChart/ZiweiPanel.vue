@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from '@/i18n'
 import { computed, ref, watch } from 'vue'
 import { MUTAGENS, type DecadalHoroscope, type YearlyHoroscope, type ZiweiChart, type ZiweiStar } from '@/engines/ziwei'
+const { t } = useI18n()
 
 const props = defineProps<{ chart: ZiweiChart }>()
 const thisYear = new Date().getFullYear()
@@ -62,7 +64,7 @@ const mut = (k: (typeof MUTAGENS)[number]) => props.chart.mutagen[k] ?? '—'
             <span v-for="s in flowStars(p.index)" :key="s.scope + s.name">{{ s.name }}</span>
           </p>
           <div class="foot">
-            <span class="pname">{{ p.name }}<em v-if="p.isSoul">命</em><em v-if="p.isBody">身</em><em v-if="p.isOrigin" class="origin">来因</em></span>
+            <span class="pname">{{ p.name }}<em v-if="p.isSoul">{{ t('命') }}</em><em v-if="p.isBody">{{ t('身') }}</em><em v-if="p.isOrigin" class="origin">{{ t('来因') }}</em></span>
             <span class="overlay">
               <span class="ov d">{{ decadal.palaceNames[p.index] }}</span>
               <span v-if="yearly" class="ov y">{{ yearly.palaceNames[p.index] }}</span>
@@ -72,22 +74,22 @@ const mut = (k: (typeof MUTAGENS)[number]) => props.chart.mutagen[k] ?? '—'
         </div>
 
         <div class="centre">
-          <p class="c-title"><b>{{ chart.fiveElementsClass }}</b><span class="t-muted">{{ chart.gender }}命 · 属{{ chart.zodiac }} · {{ chart.sign }}</span></p>
+          <p class="c-title"><b>{{ chart.fiveElementsClass }}</b><span class="t-muted">{{ t(chart.gender + '命') }} · {{ t('属') }}{{ chart.zodiac }} · {{ chart.sign }}</span></p>
           <dl class="c-facts">
-            <div><dt>公历</dt><dd class="t-num">{{ chart.solarDate }} {{ chart.time }}<span class="t-faint">（{{ chart.timeRange }}）</span></dd></div>
-            <div><dt>农历</dt><dd>{{ chart.lunarDate }}</dd></div>
-            <div><dt>四柱</dt><dd>{{ chart.chineseDate }}</dd></div>
-            <div><dt>命身</dt><dd>命宫 {{ chart.soulBranch }} · 身宫 {{ chart.bodyBranch }}</dd></div>
-            <div><dt>命主</dt><dd>{{ chart.soul }} · 身主 {{ chart.body }}</dd></div>
-            <div><dt>命宫主星</dt><dd>{{ soulPalace?.majorStars.map((s) => s.name).join(' ') || '空宫（借对宫）' }}</dd></div>
+            <div><dt>{{ t('公历') }}</dt><dd class="t-num">{{ chart.solarDate }} {{ chart.time }}<span class="t-faint">（{{ chart.timeRange }}）</span></dd></div>
+            <div><dt>{{ t('农历') }}</dt><dd>{{ chart.lunarDate }}</dd></div>
+            <div><dt>{{ t('四柱') }}</dt><dd>{{ chart.chineseDate }}</dd></div>
+            <div><dt>{{ t('命身') }}</dt><dd>命宫 {{ chart.soulBranch }} · 身宫 {{ chart.bodyBranch }}</dd></div>
+            <div><dt>{{ t('命主') }}</dt><dd>{{ chart.soul }} · 身主 {{ chart.body }}</dd></div>
+            <div><dt>{{ t('命宫主星') }}</dt><dd>{{ soulPalace?.majorStars.map((s) => s.name).join(' ') || t('空宫（借对宫）') }}</dd></div>
           </dl>
-          <p class="hua"><span class="t-muted">本命四化</span>
+          <p class="hua"><span class="t-muted">{{ t('本命四化') }}</span>
             <span v-for="k in MUTAGENS" :key="k" class="hua-chip" :data-m="k"><i>{{ k }}</i>{{ mut(k) }}</span>
           </p>
-          <p class="hua"><span class="t-muted">大限 {{ decadal.heavenlyStem }}{{ decadal.earthlyBranch }}</span>
+          <p class="hua"><span class="t-muted">{{ t('大限') }} {{ decadal.heavenlyStem }}{{ decadal.earthlyBranch }}</span>
             <span v-for="(n, i) in decadal.mutagen" :key="n" class="hua-chip" :data-m="MUTAGENS[i]"><i>{{ MUTAGENS[i] }}</i>{{ n }}</span>
           </p>
-          <p v-if="yearly" class="hua"><span class="t-muted">流年 {{ yearly.heavenlyStem }}{{ yearly.earthlyBranch }}</span>
+          <p v-if="yearly" class="hua"><span class="t-muted">{{ t('流年') }} {{ yearly.heavenlyStem }}{{ yearly.earthlyBranch }}</span>
             <span v-for="(n, i) in yearly.mutagen" :key="n" class="hua-chip" :data-m="MUTAGENS[i]"><i>{{ MUTAGENS[i] }}</i>{{ n }}</span>
           </p>
         </div>
@@ -95,7 +97,7 @@ const mut = (k: (typeof MUTAGENS)[number]) => props.chart.mutagen[k] ?? '—'
     </div>
 
     <section class="timeline">
-      <header class="tl-head"><h3>大限 · 流年</h3><p class="t-caption">点选大限与流年，盘面叠加运限宫名与流曜（运禄、流羊…），四化以「限」「年」标注。</p></header>
+      <header class="tl-head"><h3>{{ t('大限 · 流年') }}</h3><p class="t-caption">{{ t('点选大限与流年，盘面叠加运限宫名与流曜（运禄、流羊…），四化以「限」「年」标注。') }}</p></header>
       <ol class="strip">
         <li v-for="(d, i) in chart.decadals" :key="i">
           <button type="button" class="cell" :class="{ on: i === decadalIdx, now: d.yearRange[0] <= thisYear && thisYear <= d.yearRange[1] }" @click="decadalIdx = i">
@@ -114,7 +116,7 @@ const mut = (k: (typeof MUTAGENS)[number]) => props.chart.mutagen[k] ?? '—'
             <span class="c-gz">{{ y.heavenlyStem }}</span>
             <span class="c-gz">{{ y.earthlyBranch }}</span>
             <span class="c-sub">{{ y.palaceNames[chart.palaces.findIndex((p) => p.isSoul)] }}</span>
-            <span class="c-sub t-num t-faint">{{ y.age }}岁</span>
+            <span class="c-sub t-num t-faint">{{ y.age }}{{ t('岁') }}</span>
           </button>
         </li>
       </ol>

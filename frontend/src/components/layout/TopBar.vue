@@ -5,11 +5,14 @@ import { dataSource } from '@/api'
 import { useUiStore } from '@/stores/ui'
 import LqButton from '@/components/ui/LqButton.vue'
 import PipelineTrack from './PipelineTrack.vue'
+import { useI18n } from '@/i18n'
+
+const { t, isEn, locale } = useI18n()
 
 const emit = defineEmits<{ menu: [] }>()
 const route = useRoute()
 const ui = useUiStore()
-const title = computed(() => route.meta.zh ?? route.meta.title)
+const title = computed(() => (isEn.value ? route.meta.title : (route.meta.zh ?? route.meta.title)))
 
 function cycleTheme() {
   ui.themePref = ui.theme === 'dark' ? 'light' : 'dark'
@@ -33,11 +36,12 @@ function toggleMotion() {
         v-if="dataSource.usingDemo"
         class="demo"
         tabindex="0"
-        title="未连接 selfOS 后端，图谱、记忆与议会内容为内置示例；命盘全部由本地计算，是真实结果。"
+        :title="t('未连接 selfOS 后端，图谱、记忆与议会内容为内置示例；命盘全部由本地计算，是真实结果。')"
       >
         <span class="pip" aria-hidden="true" />
-        示例数据
+        {{ t('示例数据') }}
       </span>
+      <button type="button" class="lang" :aria-label="t('切换语言')" @click="locale = isEn ? 'zh' : 'en'">{{ isEn ? '中文' : 'EN' }}</button>
       <LqButton
         class="quick"
         variant="quiet"
@@ -128,5 +132,20 @@ function toggleMotion() {
   .end {
     margin-left: auto;
   }
+}
+.lang {
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hairline-2);
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+}
+.lang:hover {
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--hairline-3);
 }
 </style>

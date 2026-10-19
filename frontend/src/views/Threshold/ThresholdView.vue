@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from '@/i18n'
 import { computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import LiquidOrb from '@/components/ambient/LiquidOrb.vue'
@@ -9,6 +10,7 @@ import { useGraphStore } from '@/stores/graph'
 import { useSimulationStore } from '@/stores/simulation'
 import { useReportStore } from '@/stores/report'
 import { useDivinationStore } from '@/stores/divination'
+const { t, isEn } = useI18n()
 
 const graph = useGraphStore()
 const sim = useSimulationStore()
@@ -20,15 +22,15 @@ const { ready, birth, bazi } = storeToRefs(div)
 onMounted(() => graph.loadMemories())
 
 const status = computed(() => ({
-  atzilut: build.value ? `图谱中有 ${build.value.entities} 个实体` : intent.value ? '已设定意图' : '尚未播种',
-  beria: ready.value ? `已有命盘${bazi.value ? ' · ' + bazi.value.pillars.map((p) => p.stemChar + p.branchChar).join(' ') : ''}` : '尚未输入出生信息',
-  yetzirah: sim.status?.state === 'running' ? `第 ${sim.status.round} / ${sim.status.totalRounds} 轮` : sim.status?.state === 'complete' ? '上次推演已完成' : '议会静默中',
-  assiya: reports.reports.length ? `${reports.reports.length} 份报告` : '还没有报告',
+  atzilut: build.value ? `${build.value.entities} ${t('个实体在图谱中')}` : intent.value ? t('已设定意图') : t('尚未播种'),
+  beria: ready.value ? `${t('已有命盘')}${bazi.value ? ' · ' + bazi.value.pillars.map((p) => p.stemChar + p.branchChar).join(' ') : ''}` : t('尚未输入出生信息'),
+  yetzirah: sim.status?.state === 'running' ? `${t('第')} ${sim.status.round} / ${sim.status.totalRounds} ${t('轮')}` : sim.status?.state === 'complete' ? t('上次推演已完成') : t('议会静默中'),
+  assiya: reports.reports.length ? `${reports.reports.length} ${t('份报告')}` : t('还没有报告'),
 }))
 const pad = (n: number) => String(n).padStart(2, '0')
 const profileLine = computed(() => {
   const b = birth.value
-  return `${b.name ? b.name + ' · ' : ''}${b.calendar === 'lunar' ? '农历 ' : ''}${b.year}-${pad(b.month)}-${pad(b.day)} ${pad(b.hour)}:${pad(b.minute)} · ${b.place || `${b.latitude}, ${b.longitude}`}`
+  return `${b.name ? b.name + ' · ' : ''}${b.calendar === 'lunar' ? t('农历') + ' ' : ''}${b.year}-${pad(b.month)}-${pad(b.day)} ${pad(b.hour)}:${pad(b.minute)} · ${b.place || `${b.latitude}, ${b.longitude}`}`
 })
 
 const STEPS = [
@@ -49,44 +51,44 @@ const STEPS = [
         <span class="orbit o3 ambient-anim"><LiquidOrb :material="{ base: '#6E6790', depth: '#1C1A2A', variant: 'diffuse' }" :size="34" :intensity="0.5" /></span>
       </div>
       <div class="words">
-        <p class="t-label eyebrow">selfOS · 内在心灵的数字加速器</p>
-        <h1 id="th-title">内在世界的观测台</h1>
-        <p class="lede">把记忆、原型与先天命理放进同一个活的结构里：不只看见你「是什么」，更看见「为什么」。</p>
-        <p class="quote t-muted">An observatory for the inner world. 理解「为什么」比知道「是什么」更有决策价值。</p>
+        <p class="t-label eyebrow">{{ t('selfOS · 内在心灵的数字加速器') }}</p>
+        <h1 id="th-title">{{ t('内在世界的观测台') }}</h1>
+        <p class="lede">{{ t('把记忆、原型与先天命理放进同一个活的结构里：不只看见你「是什么」，更看见「为什么」。') }}</p>
+        <p class="quote t-muted">{{ t('An observatory for the inner world. 理解「为什么」比知道「是什么」更有决策价值。') }}</p>
         <div class="cta">
           <template v-if="ready">
-            <RouterLink to="/celestial" custom v-slot="{ navigate }"><LqButton variant="primary" icon="celestial" @click="navigate">查看我的命盘</LqButton></RouterLink>
-            <RouterLink to="/begin" custom v-slot="{ navigate }"><LqButton variant="ghost" @click="navigate">修改出生信息</LqButton></RouterLink>
+            <RouterLink to="/celestial" custom v-slot="{ navigate }"><LqButton variant="primary" icon="celestial" @click="navigate">{{ t('查看我的命盘') }}</LqButton></RouterLink>
+            <RouterLink to="/begin" custom v-slot="{ navigate }"><LqButton variant="ghost" @click="navigate">{{ t('修改出生信息') }}</LqButton></RouterLink>
           </template>
           <template v-else>
-            <RouterLink to="/begin" custom v-slot="{ navigate }"><LqButton variant="primary" icon="celestial" @click="navigate">开始：输入出生信息</LqButton></RouterLink>
-            <RouterLink to="/atlas" custom v-slot="{ navigate }"><LqButton variant="ghost" @click="navigate">先看看示例图谱</LqButton></RouterLink>
+            <RouterLink to="/begin" custom v-slot="{ navigate }"><LqButton variant="primary" icon="celestial" @click="navigate">{{ t('开始：输入出生信息') }}</LqButton></RouterLink>
+            <RouterLink to="/atlas" custom v-slot="{ navigate }"><LqButton variant="ghost" @click="navigate">{{ t('先看看示例图谱') }}</LqButton></RouterLink>
           </template>
         </div>
         <p v-if="ready" class="t-caption t-num profile">{{ profileLine }}</p>
       </div>
     </div>
 
-    <ol class="steps" aria-label="使用步骤">
+    <ol class="steps" :aria-label="t('使用步骤')">
       <li v-for="(s, i) in STEPS" :key="s.n" class="step lq-surface" :class="{ done: ready && i === 0 }">
         <RouterLink :to="s.to">
           <span class="s-n t-num">{{ s.n }}</span>
-          <span class="s-title">{{ s.title }}</span>
-          <span class="s-text">{{ s.text }}</span>
+          <span class="s-title">{{ t(s.title) }}</span>
+          <span class="s-text">{{ t(s.text) }}</span>
         </RouterLink>
       </li>
     </ol>
 
-    <nav class="worlds" aria-label="四界">
-      <p class="t-label worlds-label">四界 · 从意志到显化</p>
+    <nav class="worlds" :aria-label="t('四界')">
+      <p class="t-label worlds-label">{{ t('四界 · 从意志到显化') }}</p>
       <div class="cards">
         <RouterLink v-for="(w, i) in FOUR_WORLDS" :key="w.key" :to="w.route" class="world lq-glass">
           <span class="w-top">
             <span class="t-num idx">{{ i + 1 }}</span>
-            <span class="t-label">{{ w.theme }}</span>
+            <span class="t-label">{{ t(w.theme) }}</span>
           </span>
-          <span class="w-name">{{ w.zh }} <span class="en">{{ w.name }}</span></span>
-          <span class="w-action">{{ w.action }}</span>
+          <span class="w-name">{{ isEn ? w.name : w.zh }} <span class="en">{{ isEn ? w.zh : w.name }}</span></span>
+          <span class="w-action">{{ t(w.action) }}</span>
           <span class="w-status t-sm t-num">{{ status[w.key] }}</span>
           <LqIcon class="arrow" name="chevron" :size="18" />
         </RouterLink>

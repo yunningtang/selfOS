@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { routes } from '@/router'
 import LqIcon from '@/components/ui/LqIcon.vue'
+import { useI18n } from '@/i18n'
+
+const { isEn } = useI18n()
 
 const items = routes.filter((r) => r.meta?.primary)
 </script>
@@ -9,7 +12,7 @@ const items = routes.filter((r) => r.meta?.primary)
   <nav class="tabbar lq-glass" aria-label="Core interfaces">
     <RouterLink v-for="r in items" :key="String(r.name)" :to="r.path" class="tab">
       <LqIcon :name="r.meta!.icon" :size="22" />
-      <span>{{ r.meta!.zh ?? r.meta!.title }}</span>
+      <span>{{ isEn ? r.meta!.title.split(' ').slice(-1)[0] : (r.meta!.zh ?? r.meta!.title) }}</span>
     </RouterLink>
   </nav>
 </template>

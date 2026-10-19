@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from '@/i18n'
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import LqCollapse from '@/components/ui/LqCollapse.vue'
@@ -11,6 +12,7 @@ import { ELEMENT_ZH, HIDDEN_STEMS, STEMS, TEN_GOD_SHORT, tenGod, lifeStage } fro
 import { fmt1 } from '@/composables/format'
 import { useDivinationStore } from '@/stores/divination'
 import type { BaziChart, FiveElement, PillarKey } from '@/types'
+const { t } = useI18n()
 
 const props = defineProps<{ chart: BaziChart }>()
 const store = useDivinationStore()
@@ -62,7 +64,7 @@ const columns = computed<Column[]>(() => {
       stemElement: tables.STEM_ELEMENT[s], branchElement: tables.BRANCH_ELEMENT[b], shensha: [], transit: true,
     })
   }
-  if (selectedLuck.value) extra('luck', '大运', `${selectedLuck.value.startAge}岁起`, selectedLuck.value.sexagenary)
+  if (selectedLuck.value) extra('luck', '大运', `${selectedLuck.value.startAge}${t('岁起')}`, selectedLuck.value.sexagenary)
   if (selectedAnnual.value) extra('annual', '流年', `${selectedAnnual.value.year}`, selectedAnnual.value.sexagenary)
   return cols
 })
@@ -70,8 +72,8 @@ const columns = computed<Column[]>(() => {
 const transitRelations = computed(() => {
   const c = props.chart
   const pillars: LabelledPillar[] = c.pillars.map((p) => ({ key: p.key, label: PILLAR_ZH[p.key], stem: p.stem, branch: p.branch }))
-  if (selectedLuck.value) pillars.push({ key: 'luck', label: '大运', stem: selectedLuck.value.sexagenary % 10, branch: selectedLuck.value.sexagenary % 12 })
-  if (selectedAnnual.value) pillars.push({ key: 'annual', label: '流年', stem: selectedAnnual.value.sexagenary % 10, branch: selectedAnnual.value.sexagenary % 12 })
+  if (selectedLuck.value) pillars.push({ key: 'luck', label: t('大运'), stem: selectedLuck.value.sexagenary % 10, branch: selectedLuck.value.sexagenary % 12 })
+  if (selectedAnnual.value) pillars.push({ key: 'annual', label: t('流年'), stem: selectedAnnual.value.sexagenary % 10, branch: selectedAnnual.value.sexagenary % 12 })
   return computeRelations(pillars).filter((r) => r.members.some((m) => m === 'luck' || m === 'annual'))
 })
 const label = (k: string) => ({ year: '年', month: '月', day: '日', hour: '时', luck: '运', annual: '流' })[k] ?? k
@@ -84,8 +86,8 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
 <template>
   <div class="board">
     <div class="mode">
-      <LqSegmented v-model="mode" :options="[{ value: 'chart', label: '排盘' }, { value: 'analysis', label: '分析' }]" label="八字视图" size="sm" />
-      <span class="t-caption">{{ mode === 'chart' ? '四柱 · 大运流年 · 神煞 · 古籍' : '断语 · 评分 · 喜用神 · 五行与十神强弱' }}</span>
+      <LqSegmented v-model="mode" :options="[{ value: 'chart', label: t('排盘') }, { value: 'analysis', label: t('分析') }]" :label="t('八字视图')" size="sm" />
+      <span class="t-caption">{{ mode === 'chart' ? t('四柱 · 大运流年 · 神煞 · 古籍') : t('断语 · 评分 · 喜用神 · 五行与十神强弱') }}</span>
     </div>
     <BaziAnalysisPanel v-if="mode === 'analysis'" :chart="chart" />
     <template v-else>
@@ -93,20 +95,20 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
     <div class="hero">
       <ol class="pillars" :class="{ wide: columns.length > 4 }">
         <li v-for="c in columns" :key="c.key" class="pillar" :class="{ day: c.key === 'day', transit: c.transit }">
-          <span class="p-label">{{ c.label }}<span v-if="c.sub" class="t-faint"> · {{ c.sub }}</span></span>
-          <span class="p-god">{{ c.stemTenGod }}</span>
+          <span class="p-label">{{ t(c.label) }}<span v-if="c.sub" class="t-faint"> · {{ c.sub }}</span></span>
+          <span class="p-god">{{ t(c.stemTenGod) }}</span>
           <span class="p-char" :style="{ '--tone': el(c.stemElement) }">{{ c.stemChar }}</span>
           <span class="p-char" :style="{ '--tone': el(c.branchElement) }">{{ c.branchChar }}</span>
           <span class="p-hidden">
             <span v-for="h in c.hidden" :key="h.stemChar"><b :style="{ color: el(h.element) }">{{ h.stemChar }}</b>{{ TEN_GOD_SHORT[h.tenGod] }}</span>
           </span>
-          <span class="p-foot">{{ c.lifeStage }}<template v-if="c.kongWang"> · 空亡</template></span>
+          <span class="p-foot">{{ c.lifeStage }}<template v-if="c.kongWang"> {{ t('· 空亡') }}</template></span>
         </li>
       </ol>
       <div class="essence">
         <p class="dm">
           <span class="dm-char" :style="{ '--tone': el(chart.dayMaster.element) }">{{ chart.dayMaster.stemChar }}</span>
-          <span class="dm-text"><b>{{ ELEMENT_ZH[chart.dayMaster.element] }}命 · {{ chart.strength.verdict }}</b><span class="t-muted">{{ chart.strength.pattern }} · 同党 {{ fmt1(chart.strength.selfParty) }}%</span></span>
+          <span class="dm-text"><b>{{ t(ELEMENT_ZH[chart.dayMaster.element] + '命') }} · {{ t(chart.strength.verdict) }}</b><span class="t-muted">{{ t(chart.strength.pattern) }} · {{ t('同党') }} {{ fmt1(chart.strength.selfParty) }}%</span></span>
         </p>
         <ul class="wx">
           <li v-for="k in ELS" :key="k">
@@ -116,8 +118,8 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
             <span class="t-faint wx-s">{{ chart.strength.season[k] }}</span>
           </li>
         </ul>
-        <p class="t-sm"><span class="t-muted">喜用</span> {{ elZh(chart.strength.favourable) }} <span class="t-faint">·</span> <span class="t-muted">忌</span> {{ elZh(chart.strength.unfavourable) }} <span class="t-faint">·</span> {{ chart.strength.support.ling ? '得令' : '失令' }} {{ chart.strength.support.di ? '得地' : '失地' }} {{ chart.strength.support.shi ? '得势' : '失势' }}</p>
-        <p v-if="chart.classics.tiaoHou.levels.length" class="t-sm tiaohou"><span class="t-muted">调候</span>
+        <p class="t-sm"><span class="t-muted">{{ t('喜用') }}</span> {{ elZh(chart.strength.favourable) }} <span class="t-faint">·</span> <span class="t-muted">{{ t('忌') }}</span> {{ elZh(chart.strength.unfavourable) }} <span class="t-faint">·</span> {{ chart.strength.support.ling ? t('得令') : t('失令') }} {{ chart.strength.support.di ? t('得地') : t('失地') }} {{ chart.strength.support.shi ? t('得势') : t('失势') }}</p>
+        <p v-if="chart.classics.tiaoHou.levels.length" class="t-sm tiaohou"><span class="t-muted">{{ t('调候') }}</span>
           <template v-for="(lv, i) in chart.classics.tiaoHou.levels" :key="i">
             <span v-if="i" class="t-faint">›</span>
             <b v-for="st in lv" :key="st" class="th-stem" :style="{ color: el(stemEl(st)) }">{{ st }}</b>
@@ -130,29 +132,29 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
 
     <!-- Facts -->
     <dl class="facts">
-      <div><dt>公历</dt><dd class="t-num">{{ chart.time.civil.year }}-{{ String(chart.time.civil.month).padStart(2, '0') }}-{{ String(chart.time.civil.day).padStart(2, '0') }} {{ String(chart.time.civil.hour).padStart(2, '0') }}:{{ String(chart.time.civil.minute).padStart(2, '0') }}<span v-if="chart.time.dst" class="t-faint"> 夏令时</span></dd></div>
-      <div><dt>农历</dt><dd>{{ chart.lunar.text }} · 属{{ chart.lunar.animal }} · {{ chart.sunSign }}</dd></div>
-      <div><dt>真太阳时</dt><dd class="t-num">{{ chart.time.trueSolar.slice(11, 16) }} <span class="t-faint">较标准时 {{ chart.time.solarCorrectionMinutes > 0 ? '+' : '' }}{{ chart.time.solarCorrectionMinutes }} 分</span></dd></div>
-      <div><dt>节气</dt><dd class="t-num">{{ chart.terms.previous.name }} {{ chart.terms.previous.at.slice(5, 16) }} <span class="t-faint">→</span> {{ chart.terms.next.name }} {{ chart.terms.next.at.slice(5, 16) }}</dd></div>
-      <div><dt>起运</dt><dd class="t-num">{{ chart.luck.startAge.years }}岁{{ chart.luck.startAge.months }}月{{ chart.luck.startAge.days }}天 · {{ chart.luck.startDate }} · {{ chart.luck.forward ? '顺行' : '逆行' }}</dd></div>
-      <div><dt>宫位</dt><dd>命宫 {{ chart.palaces.mingGong }} · 身宫 {{ chart.palaces.shenGong }} · 胎元 {{ chart.palaces.taiYuan }} · 胎息 {{ chart.palaces.taiXi }}</dd></div>
-      <div><dt>空亡</dt><dd>日柱 {{ chart.kongWang.day }} · 年柱 {{ chart.kongWang.year }}</dd></div>
-      <div><dt>关系</dt><dd>
+      <div><dt>{{ t('公历') }}</dt><dd class="t-num">{{ chart.time.civil.year }}-{{ String(chart.time.civil.month).padStart(2, '0') }}-{{ String(chart.time.civil.day).padStart(2, '0') }} {{ String(chart.time.civil.hour).padStart(2, '0') }}:{{ String(chart.time.civil.minute).padStart(2, '0') }}<span v-if="chart.time.dst" class="t-faint"> {{ t('夏令时') }}</span></dd></div>
+      <div><dt>{{ t('农历') }}</dt><dd>{{ chart.lunar.text }} · 属{{ chart.lunar.animal }} · {{ chart.sunSign }}</dd></div>
+      <div><dt>{{ t('真太阳时') }}</dt><dd class="t-num">{{ chart.time.trueSolar.slice(11, 16) }} <span class="t-faint">较标准时 {{ chart.time.solarCorrectionMinutes > 0 ? '+' : '' }}{{ chart.time.solarCorrectionMinutes }} 分</span></dd></div>
+      <div><dt>{{ t('节气') }}</dt><dd class="t-num">{{ chart.terms.previous.name }} {{ chart.terms.previous.at.slice(5, 16) }} <span class="t-faint">→</span> {{ chart.terms.next.name }} {{ chart.terms.next.at.slice(5, 16) }}</dd></div>
+      <div><dt>{{ t('起运') }}</dt><dd class="t-num">{{ chart.luck.startAge.years }}岁{{ chart.luck.startAge.months }}月{{ chart.luck.startAge.days }}天 · {{ chart.luck.startDate }} · {{ chart.luck.forward ? t('顺行') : t('逆行') }}</dd></div>
+      <div><dt>{{ t('宫位') }}</dt><dd>命宫 {{ chart.palaces.mingGong }} · 身宫 {{ chart.palaces.shenGong }} · 胎元 {{ chart.palaces.taiYuan }} · 胎息 {{ chart.palaces.taiXi }}</dd></div>
+      <div><dt>{{ t('空亡') }}</dt><dd>日柱 {{ chart.kongWang.day }} · 年柱 {{ chart.kongWang.year }}</dd></div>
+      <div><dt>{{ t('关系') }}</dt><dd>
         <template v-if="chart.relations.length"><span v-for="(r, i) in chart.relations" :key="i" class="rel" :class="r.tone">{{ r.members.map(label).join('') }}{{ r.note }}</span></template>
-        <span v-else class="t-muted">四柱之间无合冲刑害</span>
+        <span v-else class="t-muted">{{ t('四柱之间无合冲刑害') }}</span>
       </dd></div>
     </dl>
 
     <!-- Timeline -->
     <section class="timeline">
       <header class="tl-head">
-        <h3>大运 · 流年 · 流月</h3>
+        <h3>{{ t('大运 · 流年 · 流月') }}</h3>
         <p v-if="transitRelations.length" class="t-sm"><span v-for="(r, i) in transitRelations" :key="i" class="rel" :class="r.tone">{{ r.members.map(label).join('') }}{{ r.note }}</span></p>
       </header>
       <ol class="strip">
         <li v-for="l in chart.luck.pillars" :key="l.index">
           <button type="button" class="cell" :class="{ on: l.index === luckIndex, now: l.startYear <= thisYear && thisYear <= l.endYear }" @click="store.selectLuck(l.index)">
-            <span class="c-top t-num">{{ l.startAge }}<span class="t-faint">岁</span></span>
+            <span class="c-top t-num">{{ l.startAge }}<span class="t-faint">{{ t('岁') }}</span></span>
             <span class="c-god">{{ TEN_GOD_SHORT[l.stemTenGod] }}</span>
             <span class="c-gz" :style="{ color: el(tables.STEM_ELEMENT[l.sexagenary % 10]) }">{{ l.stemChar }}</span>
             <span class="c-gz" :style="{ color: el(tables.BRANCH_ELEMENT[l.sexagenary % 12]) }">{{ l.branchChar }}</span>
@@ -167,7 +169,7 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
             <span class="c-god">{{ TEN_GOD_SHORT[a.stemTenGod] }}</span>
             <span class="c-gz" :style="{ color: el(tables.STEM_ELEMENT[a.sexagenary % 10]) }">{{ a.stemChar }}</span>
             <span class="c-gz" :style="{ color: el(tables.BRANCH_ELEMENT[a.sexagenary % 12]) }">{{ a.branchChar }}</span>
-            <span class="c-sub">{{ TEN_GOD_SHORT[a.branchMainTenGod] }} · {{ a.nominalAge }}虚岁</span>
+            <span class="c-sub">{{ TEN_GOD_SHORT[a.branchMainTenGod] }} · {{ a.nominalAge }}{{ t('虚岁') }}</span>
           </button>
         </li>
       </ol>
@@ -185,56 +187,56 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
     </section>
 
     <!-- Detail -->
-    <LqCollapse title="四柱详表" summary="藏干 · 星运 · 自坐 · 纳音 · 神煞">
+    <LqCollapse :title="t('四柱详表')" :summary="t('藏干 · 星运 · 自坐 · 纳音 · 神煞')">
       <div class="tw">
         <table class="detail">
           <thead><tr><th></th><th v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }">{{ c.label }}</th></tr></thead>
           <tbody>
-            <tr><th>干支</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }"><b :style="{ color: el(c.stemElement) }">{{ c.stemChar }}</b><b :style="{ color: el(c.branchElement) }">{{ c.branchChar }}</b></td></tr>
-            <tr><th>主星</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }">{{ c.stemTenGod }}</td></tr>
-            <tr><th>藏干</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }"><span v-for="h in c.hidden" :key="h.stemChar" class="hs"><b :style="{ color: el(h.element) }">{{ h.stemChar }}</b><span class="t-muted">{{ h.tenGod }}</span></span></td></tr>
-            <tr><th>星运</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }">{{ c.lifeStage }}</td></tr>
-            <tr><th>自坐</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }" class="t-muted">{{ c.selfSeat }}</td></tr>
-            <tr><th>空亡</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }">{{ c.kongWang ? '空亡' : '—' }}</td></tr>
-            <tr><th>纳音</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }" class="t-muted">{{ c.naYin }}</td></tr>
-            <tr><th>神煞</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }" class="ss">{{ c.shensha.join('、') || '—' }}</td></tr>
+            <tr><th>{{ t('干支') }}</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }"><b :style="{ color: el(c.stemElement) }">{{ c.stemChar }}</b><b :style="{ color: el(c.branchElement) }">{{ c.branchChar }}</b></td></tr>
+            <tr><th>{{ t('主星') }}</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }">{{ t(c.stemTenGod) }}</td></tr>
+            <tr><th>{{ t('藏干') }}</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }"><span v-for="h in c.hidden" :key="h.stemChar" class="hs"><b :style="{ color: el(h.element) }">{{ h.stemChar }}</b><span class="t-muted">{{ t(h.tenGod) }}</span></span></td></tr>
+            <tr><th>{{ t('星运') }}</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }">{{ c.lifeStage }}</td></tr>
+            <tr><th>{{ t('自坐') }}</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }" class="t-muted">{{ c.selfSeat }}</td></tr>
+            <tr><th>{{ t('空亡') }}</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }">{{ c.kongWang ? t('空亡') : '—' }}</td></tr>
+            <tr><th>{{ t('纳音') }}</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }" class="t-muted">{{ c.naYin }}</td></tr>
+            <tr><th>{{ t('神煞') }}</th><td v-for="c in columns" :key="c.key" :class="{ day: c.key === 'day' }" class="ss">{{ c.shensha.join('、') || '—' }}</td></tr>
           </tbody>
         </table>
       </div>
     </LqCollapse>
 
-    <LqCollapse title="神煞" :summary="`吉 ${shenshaBy('auspicious').length} · 凶 ${shenshaBy('inauspicious').length} · 中性 ${shenshaBy('neutral').length}`">
+    <LqCollapse :title="t('神煞')" :summary="`吉 ${shenshaBy('auspicious').length} · 凶 ${shenshaBy('inauspicious').length} · 中性 ${shenshaBy('neutral').length}`">
       <div class="ss-groups">
         <div v-for="k in ['auspicious', 'inauspicious', 'neutral']" :key="k" class="ss-group">
-          <h4 class="t-label">{{ k === 'auspicious' ? '吉神' : k === 'inauspicious' ? '凶煞' : '中性' }}</h4>
+          <h4 class="t-label">{{ k === 'auspicious' ? t('吉神') : k === 'inauspicious' ? t('凶煞') : t('中性') }}</h4>
           <ul>
-            <li v-for="s in shenshaBy(k)" :key="s.name"><b>{{ s.name }}</b><span class="t-faint">{{ s.pillars.map(label).join('') }}柱</span><span class="t-muted">{{ s.note }}</span></li>
+            <li v-for="s in shenshaBy(k)" :key="s.name"><b>{{ s.name }}</b><span class="t-faint">{{ s.pillars.map(label).join('') }}{{ t('柱') }}</span><span class="t-muted">{{ s.note }}</span></li>
           </ul>
         </div>
       </div>
     </LqCollapse>
 
-    <LqCollapse title="古籍参考" :summary="`${chart.classics.key} · 调候 · 金不换 · 格局选用 · 司令`">
+    <LqCollapse :title="t('古籍参考')" :summary="`${chart.classics.key} · 调候 · 金不换 · 格局选用 · 司令`">
       <dl class="classics">
-        <div v-if="chart.classics.tiaoHou.levels.length"><dt>调候用神</dt><dd>
-          <template v-for="(lv, i) in chart.classics.tiaoHou.levels" :key="i"><span class="t-faint">{{ ['首选', '次选', '再次'][i] ?? `第${i + 1}` }}</span> <b v-for="st in lv" :key="st" class="th-stem" :style="{ color: el(stemEl(st)) }">{{ st }}</b> </template>
+        <div v-if="chart.classics.tiaoHou.levels.length"><dt>{{ t('调候用神') }}</dt><dd>
+          <template v-for="(lv, i) in chart.classics.tiaoHou.levels" :key="i"><span class="t-faint">{{ t(['首选', '次选', '再次'][i] ?? `第${i + 1}`) }}</span> <b v-for="st in lv" :key="st" class="th-stem" :style="{ color: el(stemEl(st)) }">{{ st }}</b> </template>
           <span v-if="chart.classics.tiaoHou.note" class="t-muted">{{ chart.classics.tiaoHou.note }}</span>
-          <span class="t-faint">— 《穷通宝鉴》以日干配月令取调候，与扶抑用神并观。</span>
+          <span class="t-faint">{{ t('— 《穷通宝鉴》以日干配月令取调候，与扶抑用神并观。') }}</span>
         </dd></div>
-        <div v-if="chart.classics.jinBuHuan"><dt>金不换大运</dt><dd>
+        <div v-if="chart.classics.jinBuHuan"><dt>{{ t('金不换大运') }}</dt><dd>
           <span>{{ chart.classics.jinBuHuan.tiaohou }}</span>
-          <span v-if="chart.classics.jinBuHuan.luck" class="t-muted"> · 大运 {{ chart.classics.jinBuHuan.luck }}</span>
+          <span v-if="chart.classics.jinBuHuan.luck" class="t-muted"> · {{ t('大运') }} {{ chart.classics.jinBuHuan.luck }}</span>
           <span v-if="chart.classics.jinBuHuan.note" class="t-muted"> · {{ chart.classics.jinBuHuan.note }}</span>
         </dd></div>
-        <div v-if="chart.classics.geJu.length"><dt>格局选用</dt><dd class="geju">
+        <div v-if="chart.classics.geJu.length"><dt>{{ t('格局选用') }}</dt><dd class="geju">
           <span v-for="g in chart.classics.geJu" :key="g.name" class="ge" :class="{ good: /佳|贵|富/.test(g.verdict), bad: /无用|贫|夭|疾|弱|孤|凶|非|不佳/.test(g.verdict) }"><span class="t-muted">{{ g.name }}</span>{{ g.verdict }}</span>
         </dd></div>
-        <div v-if="chart.classics.siLing"><dt>月令司令</dt><dd class="t-muted">{{ chart.classics.siLing }}</dd></div>
+        <div v-if="chart.classics.siLing"><dt>{{ t('月令司令') }}</dt><dd class="t-muted">{{ chart.classics.siLing }}</dd></div>
       </dl>
     </LqCollapse>
 
-    <LqCollapse title="旺衰算法说明">
-      <p class="t-sm t-muted algo">每字按位置加权（年干 1.0、月干 1.2、日干 1.0、时干 1.0；年支 1.0、月支 1.6、日支 1.2、时支 1.0），地支取藏干本气 1.0、中气 0.5、余气 0.3，再乘以月令旺相休囚死系数（1.3 / 1.15 / 0.9 / 0.75 / 0.6）。同党为日主与生我之五行；≥55% 为身强，≤45% 为身弱，其余中和。喜用按扶抑法给出，仅作参考，取用仍需结合调候与通关。</p>
+    <LqCollapse :title="t('旺衰算法说明')">
+      <p class="t-sm t-muted algo">{{ t('每字按位置加权（年干 1.0、月干 1.2、日干 1.0、时干 1.0；年支 1.0、月支 1.6、日支 1.2、时支 1.0），地支取藏干本气 1.0、中气 0.5、余气 0.3，再乘以月令旺相休囚死系数（1.3 / 1.15 / 0.9 / 0.75 / 0.6）。同党为日主与生我之五行；≥55% 为身强，≤45% 为身弱，其余中和。喜用按扶抑法给出，仅作参考，取用仍需结合调候与通关。') }}</p>
     </LqCollapse>
     </template>
   </div>

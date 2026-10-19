@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from '@/i18n'
 import { computed, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -13,6 +14,7 @@ import ZiweiPanel from '@/components/ZiweiChart/ZiweiPanel.vue'
 import { HOUSE_SYSTEMS } from '@/engines/western/tables'
 import { AYANAMSAS } from '@/engines/vedic/chart'
 import { useDivinationStore } from '@/stores/divination'
+const { t, isEn } = useI18n()
 
 const div = useDivinationStore()
 const { birth, ready, westernSettings, vedicSettings, bazi, western, vedic, ziwei, loading, error, injected } = storeToRefs(div)
@@ -36,13 +38,13 @@ async function inject() {
 const pad = (n: number) => String(n).padStart(2, '0')
 const profileLine = computed(() => {
   const b = birth.value
-  return `${b.calendar === 'lunar' ? '农历 ' : ''}${b.year} 年 ${b.month} 月 ${b.day} 日 ${pad(b.hour)}:${pad(b.minute)}`
+  return `${b.calendar === 'lunar' ? t('农历') + ' ' : ''}${b.year}-${pad(b.month)}-${pad(b.day)} ${pad(b.hour)}:${pad(b.minute)}`
 })
 const tabMeta = computed(() => {
   if (!bazi.value) return ''
-  if (system.value === 'bazi') return `${bazi.value.options.trueSolarTime ? '真太阳时' : '标准时'} ${bazi.value.time.trueSolar.slice(11, 16)} · 晚子时${bazi.value.options.lateZi === 'next-day' ? '换日' : '不换日'}`
-  if (system.value === 'ziwei') return ziwei.value ? `${ziwei.value.fiveElementsClass} · 命主${ziwei.value.soul} · 身主${ziwei.value.body} · 按出生地钟表时 ${ziwei.value.time}` : ''
-  if (system.value === 'western') return `${HOUSE_SYSTEMS.find((h) => h.code === westernSettings.value.houseSystem)?.zh}宫位制 · ${westernSettings.value.nodeType === 'true' ? '真' : '平'}交点`
+  if (system.value === 'bazi') return `${bazi.value.options.trueSolarTime ? t('真太阳时') : t('标准时')} ${bazi.value.time.trueSolar.slice(11, 16)} · ${t('晚子时')}${isEn.value ? ' ' : ''}${bazi.value.options.lateZi === 'next-day' ? t('换日') : t('不换日')}`
+  if (system.value === 'ziwei') return ziwei.value ? `${ziwei.value.fiveElementsClass} · ${t('命主')} ${ziwei.value.soul} · ${t('身主')} ${ziwei.value.body} · ${t('按出生地钟表时')} ${ziwei.value.time}` : ''
+  if (system.value === 'western') return `${isEn.value ? HOUSE_SYSTEMS.find((h) => h.code === westernSettings.value.houseSystem)?.en : HOUSE_SYSTEMS.find((h) => h.code === westernSettings.value.houseSystem)?.zh + t('宫位制')} · ${westernSettings.value.nodeType === 'true' ? t('真交点') : t('平交点')}`
   return `${AYANAMSAS[vedicSettings.value.ayanamsa].name} · ${vedicSettings.value.nodeType} node`
 })
 </script>
@@ -50,13 +52,13 @@ const tabMeta = computed(() => {
 <template>
   <section class="celestial" aria-labelledby="cel-title">
     <div class="atmo ambient-anim" aria-hidden="true" />
-    <PageHeader title="Celestial Engine" zh="排盘与先天记忆" world="Beria · 创造界" lede="一个出生时刻，四套体系。八字、紫微斗数、西方占星与 Jyotish 皆在本地精算——先天参数，而非宿命。" />
+    <PageHeader title="Celestial Engine" :zh="t('排盘与先天记忆')" :world="t('Beria · 创造界')" :lede="t('一个出生时刻，四套体系。八字、紫微斗数、西方占星与 Jyotish 皆在本地精算——先天参数，而非宿命。')" />
 
     <!-- No profile yet: onboarding inline -->
     <div v-if="!ready" class="profile lq-glass onboard">
       <div class="onboard-head">
-        <h2>先输入出生信息</h2>
-        <p class="t-muted">四步完成，之后随时可改。排盘全部在本地进行。</p>
+        <h2>{{ t('先输入出生信息') }}</h2>
+        <p class="t-muted">{{ t('四步完成，之后随时可改。排盘全部在本地进行。') }}</p>
       </div>
       <BirthWizard mode="onboard" @done="editing = false" />
     </div>
@@ -65,14 +67,14 @@ const tabMeta = computed(() => {
     <div v-else class="profile lq-glass" :class="{ editing }">
       <div v-if="!editing" class="summary">
         <div class="who">
-          <span class="name">{{ birth.name || '出生档案' }}</span>
+          <span class="name">{{ birth.name || t('出生档案') }}</span>
           <span class="meta t-num">{{ profileLine }} · {{ birth.place || `${birth.latitude}, ${birth.longitude}` }}</span>
-          <span v-if="bazi" class="meta t-faint t-num">{{ bazi.time.zoneLabel }} · UTC {{ bazi.time.utc.slice(0, 16) }}<template v-if="bazi.time.dst"> · 已按夏令时换算</template></span>
+          <span v-if="bazi" class="meta t-faint t-num">{{ bazi.time.zoneLabel }} · UTC {{ bazi.time.utc.slice(0, 16) }}<template v-if="bazi.time.dst"> {{ t('· 已按夏令时换算') }}</template></span>
         </div>
         <div class="row-wrap">
-          <span v-if="injected !== null" class="t-sm t-muted" role="status"><span class="t-num">{{ injected }}</span> 条先天锚点已写入图谱</span>
-          <LqButton variant="ghost" size="sm" icon="layers" :loading="injecting" :disabled="!bazi" @click="inject">写入先天记忆</LqButton>
-          <LqButton variant="secondary" size="sm" @click="editing = true">修改出生信息</LqButton>
+          <span v-if="injected !== null" class="t-sm t-muted" role="status"><span class="t-num">{{ injected }}</span> {{ t('条先天锚点已写入图谱') }}</span>
+          <LqButton variant="ghost" size="sm" icon="layers" :loading="injecting" :disabled="!bazi" @click="inject">{{ t('写入先天记忆') }}</LqButton>
+          <LqButton variant="secondary" size="sm" @click="editing = true">{{ t('修改出生信息') }}</LqButton>
         </div>
       </div>
       <div v-else class="form-wrap">
@@ -84,26 +86,26 @@ const tabMeta = computed(() => {
 
     <template v-if="ready">
       <div class="tabs">
-        <LqSegmented v-model="system" :options="[{ value: 'bazi', label: '八字' }, { value: 'ziwei', label: '紫微' }, { value: 'western', label: '占星' }, { value: 'vedic', label: 'Jyotish' }]" label="排盘体系" />
+        <LqSegmented v-model="system" :options="[{ value: 'bazi', label: t('八字') }, { value: 'ziwei', label: t('紫微') }, { value: 'western', label: t('占星') }, { value: 'vedic', label: 'Jyotish' }]" :label="t('排盘体系')" />
         <p class="t-caption">{{ tabMeta }}</p>
       </div>
 
       <Transition name="fade" mode="out-in">
         <div v-if="system === 'bazi'" key="bazi" class="panel">
           <BaZiBoard v-if="bazi" :chart="bazi" />
-          <p v-else class="t-muted pad">{{ loading ? '正在加载星历并排盘…' : '尚未排盘。' }}</p>
+          <p v-else class="t-muted pad">{{ loading ? t('正在加载星历并排盘…') : t('尚未排盘。') }}</p>
         </div>
         <div v-else-if="system === 'ziwei'" key="ziwei" class="panel">
           <ZiweiPanel v-if="ziwei" :chart="ziwei" />
-          <p v-else class="t-muted pad">{{ loading ? '排盘中…' : '尚未排盘。' }}</p>
+          <p v-else class="t-muted pad">{{ loading ? t('排盘中…') : t('尚未排盘。') }}</p>
         </div>
         <div v-else-if="system === 'western'" key="western" class="panel">
           <WesternPanel v-if="western" :chart="western" />
-          <p v-else class="t-muted pad">{{ loading ? '排盘中…' : '尚未排盘。' }}</p>
+          <p v-else class="t-muted pad">{{ loading ? t('排盘中…') : t('尚未排盘。') }}</p>
         </div>
         <div v-else key="vedic" class="panel">
           <VedicPanel v-if="vedic" :chart="vedic" />
-          <p v-else class="t-muted pad">{{ loading ? 'Casting…' : 'Not cast yet.' }}</p>
+          <p v-else class="t-muted pad">{{ loading ? t('排盘中…') : t('尚未排盘。') }}</p>
         </div>
       </Transition>
     </template>

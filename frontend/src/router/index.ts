@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { locale } from '@/i18n'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -37,5 +38,6 @@ export const router = createRouter({
 })
 
 router.afterEach((to) => {
-  document.title = to.meta.title === 'Threshold' ? 'selfOS · 内在世界的观测台' : `${to.meta.zh ?? to.meta.title} · selfOS`
+  const en = locale.value === 'en'
+  document.title = to.meta.title === 'Threshold' ? (en ? 'selfOS · An observatory for the inner world' : 'selfOS · 内在世界的观测台') : `${en ? to.meta.title : (to.meta.zh ?? to.meta.title)} · selfOS`
 })

@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from '@/i18n'
+
 defineProps<{ title: string; zh?: string; world?: string; lede?: string }>()
+const { isEn } = useI18n()
 </script>
 
 <template>
@@ -7,7 +10,7 @@ defineProps<{ title: string; zh?: string; world?: string; lede?: string }>()
     <div class="titles">
       <p v-if="world" class="world t-label">{{ world }}</p>
       <h1>
-        <template v-if="zh">{{ zh }}<span class="zh">{{ title }}</span></template>
+        <template v-if="zh">{{ isEn ? title : zh }}<span class="zh">{{ isEn ? zh : title }}</span></template>
         <template v-else>{{ title }}</template>
       </h1>
       <p v-if="lede" class="lede">{{ lede }}</p>
