@@ -28,7 +28,8 @@ watch(bazi, (v) => {
 })
 
 async function cast() {
-  await div.cast()
+  if (!bazi.value) await div.cast()
+  editing.value = false
 }
 async function inject() {
   injecting.value = true
@@ -91,7 +92,7 @@ const tabMeta = computed(() => {
             </div>
           </template>
           <template #actions>
-            <LqButton v-if="bazi" variant="quiet" @click="editing = false">取消</LqButton>
+            <span v-if="bazi" class="t-caption">修改会即时重新排盘</span>
             <span v-if="injected !== null" class="t-sm t-muted" role="status"><span class="t-num">{{ injected }}</span> 条先天锚点已写入图谱</span>
           </template>
         </BirthForm>

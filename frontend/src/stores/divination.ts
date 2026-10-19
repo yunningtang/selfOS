@@ -61,6 +61,18 @@ export const useDivinationStore = defineStore('divination', () => {
     return { year: b.year, month: b.month, day: b.day, hour: b.hour, minute: b.minute, timeZone: b.timeZone, longitude: b.longitude, latitude: b.latitude, place: b.place, ignoreDst: b.dst === 'ignore' }
   })
 
+  // Recompute live once a chart exists: edits to the profile or settings re-cast after a short pause.
+  let recastTimer: number | undefined
+  watch(
+    [birth, baziOptions, westernSettings, vedicSettings],
+    () => {
+      if (!bazi.value) return
+      window.clearTimeout(recastTimer)
+      recastTimer = window.setTimeout(() => cast(), 350)
+    },
+    { deep: true },
+  )
+
   async function cast() {
     loading.value = true
     error.value = null

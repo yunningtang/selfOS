@@ -172,7 +172,7 @@ const offsetNote = computed(() => {
     <div class="col side">
       <slot name="options" />
       <div class="actions">
-        <LqButton type="submit" variant="primary" icon="celestial" :loading="loading">排盘</LqButton>
+        <LqButton type="submit" variant="primary" icon="celestial" :loading="loading">完成</LqButton>
         <slot name="actions" />
       </div>
     </div>
