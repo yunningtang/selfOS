@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import LqButton from '@/components/ui/LqButton.vue'
-import LqField from '@/components/ui/LqField.vue'
 import LqSegmented from '@/components/ui/LqSegmented.vue'
 import Notice from '@/components/ui/Notice.vue'
 import BirthForm from '@/components/celestial/BirthForm.vue'
 import BaZiBoard from '@/components/BaZiChart/BaZiBoard.vue'
-import ChartWheel from '@/components/WesternChart/ChartWheel.vue'
-import WesternTables from '@/components/WesternChart/WesternTables.vue'
+import WesternPanel from '@/components/WesternChart/WesternPanel.vue'
 import VedicPanel from '@/components/VedicChart/VedicPanel.vue'
-import { HOUSE_SYSTEMS, type BodyId } from '@/engines/western/tables'
+import { HOUSE_SYSTEMS } from '@/engines/western/tables'
 import { AYANAMSAS } from '@/engines/vedic/chart'
 import { useDivinationStore } from '@/stores/divination'
 
@@ -19,13 +17,19 @@ const div = useDivinationStore()
 const { birth, baziOptions, westernSettings, vedicSettings, bazi, western, vedic, loading, error, injected } = storeToRefs(div)
 
 const system = ref<'bazi' | 'western' | 'vedic'>('bazi')
-const highlight = ref<BodyId | null>(null)
+const editing = ref(false)
 const injecting = ref(false)
 
 onMounted(() => {
   if (!bazi.value) div.cast()
 })
+watch(bazi, (v) => {
+  if (v) editing.value = false
+})
 
+async function cast() {
+  await div.cast()
+}
 async function inject() {
   injecting.value = true
   try {
@@ -34,120 +38,85 @@ async function inject() {
     injecting.value = false
   }
 }
+const profileLine = computed(() => {
+  const b = birth.value
+  const d = `${b.year}年${b.month}月${b.day}日 ${String(b.hour).padStart(2, '0')}:${String(b.minute).padStart(2, '0')}`
+  return `${b.calendar === 'lunar' ? '农历 ' : ''}${d}`
+})
+const tabMeta = computed(() => {
+  if (!bazi.value) return ''
+  if (system.value === 'bazi') return `${bazi.value.options.trueSolarTime ? '真太阳时' : '标准时'} ${bazi.value.time.trueSolar.slice(11, 16)} · 晚子时${bazi.value.options.lateZi === 'next-day' ? '换日' : '不换日'}`
+  if (system.value === 'western') return `${HOUSE_SYSTEMS.find((h) => h.code === westernSettings.value.houseSystem)?.zh}宫位制 · ${westernSettings.value.nodeType === 'true' ? '真' : '平'}交点`
+  return `${AYANAMSAS[vedicSettings.value.ayanamsa].name} · ${vedicSettings.value.nodeType} node`
+})
 </script>
 
 <template>
   <section class="celestial" aria-labelledby="cel-title">
     <div class="atmo ambient-anim" aria-hidden="true" />
-    <PageHeader
-      title="Celestial Engine"
-      zh="八字 · 占星 · Jyotish"
-      world="Beria · 先天记忆"
-      lede="Three systems cast from one birth moment with the Swiss Ephemeris. Innate parameters for the council — precise, inspectable, never fate."
-    />
+    <PageHeader title="Celestial Engine" zh="先天记忆" world="Beria · 创造界" lede="一个出生时刻，三套体系。八字、西方占星与 Jyotish 皆由瑞士星历在本地精算——先天参数，而非宿命。" />
 
-    <BirthForm v-model="birth" :loading="loading" @cast="div.cast()">
-      <template #options>
-        <div class="options">
-          <div class="opt" role="group" aria-label="八字选项">
-            <h4 class="t-label">八字选项</h4>
-            <LqField label="时间标准">
-              <LqSegmented
-                v-model="baziOptions.trueSolarTime"
-                :options="[{ value: true as any, label: '真太阳时' }, { value: false as any, label: '标准时' }]"
-                label="Time standard"
-                size="sm"
-              />
-            </LqField>
-            <LqField label="晚子时（23:00 后）">
-              <LqSegmented
-                v-model="baziOptions.lateZi"
-                :options="[{ value: 'next-day', label: '换日' }, { value: 'same-day', label: '不换日' }]"
-                label="Late 子时 rule"
-                size="sm"
-              />
-            </LqField>
-          </div>
-          <div class="opt" role="group" aria-label="占星选项">
-            <h4 class="t-label">占星选项</h4>
-            <LqField label="宫位制" for="o-house">
-              <select id="o-house" v-model="westernSettings.houseSystem" class="lq-input">
-                <option v-for="h in HOUSE_SYSTEMS" :key="h.code" :value="h.code">{{ h.zh }} {{ h.en }}</option>
-              </select>
-            </LqField>
-            <LqField label="交点">
-              <LqSegmented v-model="westernSettings.nodeType" :options="[{ value: 'true', label: '真交点' }, { value: 'mean', label: '平交点' }]" label="Node type" size="sm" />
-            </LqField>
-            <label class="check"><input v-model="westernSettings.asteroids" type="checkbox" /> 四大小行星</label>
-            <label class="check"><input v-model="westernSettings.modernRulers" type="checkbox" /> 现代守护星</label>
-          </div>
-          <div class="opt" role="group" aria-label="Jyotish options">
-            <h4 class="t-label">Jyotish options</h4>
-            <LqField label="Ayanamsa" for="o-ay">
-              <select id="o-ay" v-model="vedicSettings.ayanamsa" class="lq-input">
-                <option v-for="(a, k) in AYANAMSAS" :key="k" :value="k">{{ a.name }}</option>
-              </select>
-            </LqField>
-            <LqField label="Nodes">
-              <LqSegmented v-model="vedicSettings.nodeType" :options="[{ value: 'true', label: 'True' }, { value: 'mean', label: 'Mean' }]" label="Node type" size="sm" />
-            </LqField>
-            <LqField label="Dasha year">
-              <LqSegmented
-                v-model="vedicSettings.dashaYearDays"
-                :options="[{ value: 365.25 as any, label: '365.25' }, { value: 360 as any, label: '360' }, { value: 365.2564 as any, label: 'Sidereal' }]"
-                label="Dasha year length"
-                size="sm"
-              />
-            </LqField>
-            <LqField label="Bhava chalit">
-              <LqSegmented v-model="vedicSettings.chalit" :options="[{ value: 'sripati', label: 'Sripati' }, { value: 'kp', label: 'KP' }]" label="Chalit" size="sm" />
-            </LqField>
-          </div>
+    <!-- Profile card: collapsed once a chart exists -->
+    <div class="profile lq-glass" :class="{ editing }">
+      <div v-if="!editing && bazi" class="summary">
+        <div class="who">
+          <span class="name">{{ birth.name || '出生档案' }}</span>
+          <span class="meta t-num">{{ profileLine }} · {{ birth.place || `${birth.latitude}, ${birth.longitude}` }}</span>
+          <span class="meta t-faint t-num">{{ bazi.time.zoneLabel }} · UTC {{ bazi.time.utc.slice(0, 16) }}</span>
         </div>
-      </template>
-      <template #actions>
-        <LqButton variant="ghost" icon="layers" :loading="injecting" :disabled="!bazi" @click="inject">Anchor as innate memory</LqButton>
-        <span v-if="injected !== null" class="t-sm t-muted" role="status"><span class="t-num">{{ injected }}</span> innate anchors written to the graph.</span>
-      </template>
-    </BirthForm>
+        <div class="row-wrap">
+          <LqButton variant="ghost" size="sm" icon="layers" :loading="injecting" @click="inject">写入先天记忆</LqButton>
+          <LqButton variant="secondary" size="sm" @click="editing = true">修改出生信息</LqButton>
+        </div>
+      </div>
+      <div v-else class="form-wrap">
+        <BirthForm v-model="birth" :loading="loading" @cast="cast">
+          <template #options>
+            <div class="opts">
+              <h3 class="t-label">排盘设定</h3>
+              <div class="opt-row"><span class="lbl">八字时间标准</span>
+                <LqSegmented v-model="baziOptions.trueSolarTime" :options="[{ value: true as any, label: '真太阳时' }, { value: false as any, label: '标准时' }]" label="八字时间标准" size="sm" /></div>
+              <div class="opt-row"><span class="lbl">晚子时</span>
+                <LqSegmented v-model="baziOptions.lateZi" :options="[{ value: 'next-day', label: '换日' }, { value: 'same-day', label: '不换日' }]" label="晚子时" size="sm" /></div>
+              <div class="opt-row"><span class="lbl">占星宫位制</span>
+                <select v-model="westernSettings.houseSystem" class="lq-input" aria-label="宫位制"><option v-for="h in HOUSE_SYSTEMS" :key="h.code" :value="h.code">{{ h.zh }} · {{ h.en }}</option></select></div>
+              <div class="opt-row"><span class="lbl">交点</span>
+                <LqSegmented v-model="westernSettings.nodeType" :options="[{ value: 'true', label: '真交点' }, { value: 'mean', label: '平交点' }]" label="交点" size="sm" /></div>
+              <div class="opt-row"><span class="lbl">Ayanamsa</span>
+                <select v-model="vedicSettings.ayanamsa" class="lq-input" aria-label="Ayanamsa"><option v-for="(a, k) in AYANAMSAS" :key="k" :value="k">{{ a.name }}</option></select></div>
+              <div class="opt-row"><span class="lbl">Dasha 年长</span>
+                <LqSegmented v-model="vedicSettings.dashaYearDays" :options="[{ value: 365.25 as any, label: '365.25' }, { value: 360 as any, label: '360' }, { value: 365.2564 as any, label: '恒星年' }]" label="Dasha year" size="sm" /></div>
+              <label class="check"><input v-model="westernSettings.asteroids" type="checkbox" /> 加入四大小行星</label>
+              <label class="check"><input v-model="westernSettings.modernRulers" type="checkbox" /> 现代守护星</label>
+            </div>
+          </template>
+          <template #actions>
+            <LqButton v-if="bazi" variant="quiet" @click="editing = false">取消</LqButton>
+            <span v-if="injected !== null" class="t-sm t-muted" role="status"><span class="t-num">{{ injected }}</span> 条先天锚点已写入图谱</span>
+          </template>
+        </BirthForm>
+      </div>
+    </div>
 
     <Notice v-if="error" tone="error">{{ error }}</Notice>
 
     <div class="tabs">
-      <LqSegmented
-        v-model="system"
-        :options="[{ value: 'bazi', label: '八字 BaZi' }, { value: 'western', label: '占星 Western' }, { value: 'vedic', label: 'Jyotish' }]"
-        label="Chart system"
-      />
-      <p v-if="bazi" class="t-caption stamp">
-        {{ bazi.time.zoneLabel }} · UTC {{ bazi.time.utc.slice(0, 16) }} · Swiss Ephemeris 2.10
-      </p>
+      <LqSegmented v-model="system" :options="[{ value: 'bazi', label: '八字' }, { value: 'western', label: '占星' }, { value: 'vedic', label: 'Jyotish' }]" label="排盘体系" />
+      <p class="t-caption">{{ tabMeta }}</p>
     </div>
 
     <Transition name="fade" mode="out-in">
-      <div v-if="system === 'bazi'" key="bazi" class="panel lq-surface pad-lg">
+      <div v-if="system === 'bazi'" key="bazi" class="panel">
         <BaZiBoard v-if="bazi" :chart="bazi" />
-        <p v-else class="t-muted">{{ loading ? '正在加载星历并排盘…' : '填写出生信息后排盘。' }}</p>
+        <p v-else class="t-muted pad">{{ loading ? '正在加载星历并排盘…' : '填写出生信息后排盘。' }}</p>
       </div>
-
-      <div v-else-if="system === 'western'" key="western" class="panel lq-surface pad-lg">
-        <template v-if="western">
-          <div class="w-top">
-            <div class="wheel-col">
-              <ChartWheel :chart="western" :highlight="highlight" @select="highlight = $event" />
-              <p class="t-caption">
-                {{ HOUSE_SYSTEMS.find((h) => h.code === western!.settings.houseSystem)?.zh }}宫位制 · {{ western.isDayChart ? '日生盘' : '夜生盘' }} · 点选星体以聚焦其相位
-              </p>
-            </div>
-            <WesternTables :chart="western" :highlight="highlight" @select="highlight = $event" />
-          </div>
-        </template>
-        <p v-else class="t-muted">{{ loading ? 'Casting…' : 'Enter birth data and cast.' }}</p>
+      <div v-else-if="system === 'western'" key="western" class="panel">
+        <WesternPanel v-if="western" :chart="western" />
+        <p v-else class="t-muted pad">{{ loading ? '排盘中…' : '填写出生信息后排盘。' }}</p>
       </div>
-
-      <div v-else key="vedic" class="panel lq-surface pad-lg">
+      <div v-else key="vedic" class="panel">
         <VedicPanel v-if="vedic" :chart="vedic" />
-        <p v-else class="t-muted">{{ loading ? 'Casting…' : 'Enter birth data and cast.' }}</p>
+        <p v-else class="t-muted pad">{{ loading ? 'Casting…' : 'Enter birth data and cast.' }}</p>
       </div>
     </Transition>
   </section>
@@ -177,23 +146,43 @@ async function inject() {
     lq-breathe 11s var(--ease-in-out) infinite;
   pointer-events: none;
 }
-.options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--sp-4);
-  padding-top: var(--sp-4);
-  border-top: 1px solid var(--hairline);
+.profile {
+  border-radius: var(--r-xl);
 }
-.opt {
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-6);
+}
+.who {
+  display: grid;
+  gap: 2px;
+}
+.name {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
+}
+.meta {
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+.form-wrap {
+  padding: var(--sp-6) var(--sp-7) var(--sp-7);
+}
+.opts {
   display: grid;
   gap: var(--sp-3);
-  align-content: start;
-  padding: var(--sp-3) var(--sp-4) var(--sp-4);
-  border-radius: var(--r-md);
-  background: var(--surface-sunken);
 }
-.opt :deep(.seg) {
-  justify-self: start;
+.opt-row {
+  display: grid;
+  gap: 6px;
+}
+.lbl {
+  font-size: var(--fs-xs);
+  color: var(--text-2);
 }
 .check {
   display: inline-flex;
@@ -209,29 +198,14 @@ async function inject() {
   gap: var(--sp-3);
 }
 .panel {
-  display: grid;
-  gap: var(--sp-4);
+  min-width: 0;
 }
-.w-top {
-  display: grid;
-  grid-template-columns: minmax(300px, 460px) minmax(0, 1fr);
-  gap: var(--sp-7);
-  align-items: start;
-}
-.wheel-col {
-  display: grid;
-  gap: var(--sp-3);
-  position: sticky;
-  top: var(--sp-4);
-}
-@media (max-width: 1180px) {
-  .w-top {
-    grid-template-columns: 1fr;
+@media (max-width: 640px) {
+  .form-wrap {
+    padding: var(--sp-5) var(--sp-4);
   }
-  .wheel-col {
-    position: static;
-    max-width: 560px;
-    margin: 0 auto;
+  .summary {
+    padding: var(--sp-4);
   }
 }
 </style>

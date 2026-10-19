@@ -69,10 +69,10 @@ const aspectLines = computed(() =>
       const B = props.chart.bodies.find((b) => b.id === a.b)!
       const p1 = pt(A.lon, R * 0.4), p2 = pt(B.lon, R * 0.4)
       const dim = props.highlight && a.a !== props.highlight && a.b !== props.highlight
-      return { a, p1, p2, dim, w: 0.4 + a.strength * 0.8 }
+      return { a, p1, p2, dim, w: 0.25 + a.strength * 0.55 }
     }),
 )
-const elementTone: Record<string, string> = { fire: 'var(--el-fire)', earth: 'var(--el-earth)', air: 'var(--c-pearl)', water: 'var(--el-water)' }
+const elementTone: Record<string, string> = { fire: 'var(--clay-ink)', earth: 'var(--el-earth)', air: 'var(--accent-ink)', water: 'var(--mist-ink)' }
 </script>
 
 <template>
@@ -84,8 +84,8 @@ const elementTone: Record<string, string> = { fire: 'var(--el-fire)', earth: 'va
     <circle :r="R * 0.4" class="disc" />
 
     <g class="signs">
-      <path v-for="s in signSegments" :key="s.i" :d="s.d" :style="{ fill: elementTone[s.s.element] }" />
-      <text v-for="s in signSegments" :key="'t' + s.i" :x="s.mid.x" :y="s.mid.y" class="sign-glyph" text-anchor="middle" dominant-baseline="central">{{ s.s.glyph }}</text>
+      <path v-for="s in signSegments" :key="s.i" :d="s.d" />
+      <text v-for="s in signSegments" :key="'t' + s.i" :x="s.mid.x" :y="s.mid.y" class="sign-glyph" :style="{ fill: elementTone[s.s.element] }" text-anchor="middle" dominant-baseline="central">{{ s.s.glyph }}</text>
     </g>
     <g class="ticks">
       <line v-for="(t, i) in ticks" :key="i" :x1="t.x1" :y1="t.y1" :x2="t.x2" :y2="t.y2" :class="{ major: t.major }" />
@@ -134,8 +134,8 @@ const elementTone: Record<string, string> = { fire: 'var(--el-fire)', earth: 'va
 }
 .ring-out {
   fill: var(--surface);
-  stroke: var(--hairline-3);
-  stroke-width: 0.5;
+  stroke: var(--hairline-2);
+  stroke-width: 0.4;
 }
 .ring {
   fill: none;
@@ -152,16 +152,13 @@ const elementTone: Record<string, string> = { fire: 'var(--el-fire)', earth: 'va
   stroke: none;
 }
 .signs path {
-  fill-opacity: 0.16;
-  stroke: var(--hairline-3);
-  stroke-width: 0.4;
-}
-:root[data-theme='light'] .signs path {
-  fill-opacity: 0.22;
+  fill: var(--surface-sunken);
+  stroke: var(--hairline-2);
+  stroke-width: 0.3;
 }
 .sign-glyph {
-  font-size: 7px;
-  fill: var(--text);
+  font-size: 6.5px;
+  opacity: 0.9;
 }
 .ticks line {
   stroke: var(--hairline-3);
@@ -185,7 +182,7 @@ const elementTone: Record<string, string> = { fire: 'var(--el-fire)', earth: 'va
 }
 .aspects line {
   stroke-linecap: round;
-  opacity: 0.85;
+  opacity: 0.55;
   transition: opacity var(--dur-fast);
 }
 .aspects line.harmony {
