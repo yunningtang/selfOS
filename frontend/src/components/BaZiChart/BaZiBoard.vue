@@ -5,6 +5,7 @@ import { storeToRefs } from 'pinia'
 import LqCollapse from '@/components/ui/LqCollapse.vue'
 import LqSegmented from '@/components/ui/LqSegmented.vue'
 import BaziAnalysisPanel from './BaziAnalysisPanel.vue'
+import BaziForecastPanel from './BaziForecastPanel.vue'
 import { ELEMENTS } from '@/data/lexicon'
 import { computeRelations, type LabelledPillar } from '@selfos/destiny-core/bazi/relations'
 import * as tables from '@selfos/destiny-core/bazi/tables'
@@ -79,17 +80,18 @@ const transitRelations = computed(() => {
 const label = (k: string) => ({ year: '年', month: '月', day: '日', hour: '时', luck: '运', annual: '流' })[k] ?? k
 const shenshaBy = (kind: string) => props.chart.shensha.filter((s) => s.kind === kind)
 const ELS: FiveElement[] = ['wood', 'fire', 'earth', 'metal', 'water']
-const mode = ref<'chart' | 'analysis'>('chart')
+const mode = ref<'chart' | 'analysis' | 'forecast'>('chart')
 const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof STEMS)[number])]
 </script>
 
 <template>
   <div class="board cjk-prose">
     <div class="mode">
-      <LqSegmented v-model="mode" :options="[{ value: 'chart', label: t('排盘') }, { value: 'analysis', label: t('分析') }]" :label="t('八字视图')" size="sm" />
-      <span class="t-caption">{{ mode === 'chart' ? t('四柱 · 大运流年 · 神煞 · 古籍') : t('断语 · 评分 · 喜用神 · 五行与十神强弱') }}</span>
+      <LqSegmented v-model="mode" :options="[{ value: 'chart', label: t('排盘') }, { value: 'analysis', label: t('分析') }, { value: 'forecast', label: t('运势') }]" :label="t('八字视图')" size="sm" />
+      <span class="t-caption">{{ mode === 'chart' ? t('四柱 · 大运流年 · 神煞 · 古籍') : mode === 'analysis' ? t('断语 · 评分 · 喜用神 · 五行与十神强弱') : t('大运 · 流年 · 流月的大致预判') }}</span>
     </div>
     <BaziAnalysisPanel v-if="mode === 'analysis'" :chart="chart" />
+    <BaziForecastPanel v-else-if="mode === 'forecast'" :chart="chart" />
     <template v-else>
     <!-- Hero: the eight characters -->
     <div class="hero">

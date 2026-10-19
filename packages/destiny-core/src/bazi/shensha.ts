@@ -23,10 +23,10 @@ export interface NatalForShenSha {
 }
 
 const KEYS: PillarKey[] = ['year', 'month', 'day', 'hour']
-const trineGroup = (b: number) => [8, 0, 4].includes(b) ? 0 : [2, 6, 10].includes(b) ? 1 : [5, 9, 1].includes(b) ? 2 : 3 // 申子辰 寅午戌 巳酉丑 亥卯未
+export const trineGroup = (b: number) => [8, 0, 4].includes(b) ? 0 : [2, 6, 10].includes(b) ? 1 : [5, 9, 1].includes(b) ? 2 : 3 // 申子辰 寅午戌 巳酉丑 亥卯未
 
 // Stars keyed from the 三合 group of the year branch and the day branch.
-const TRINE_STARS: [string, number[], string, ShenShaHit['kind']][] = [
+export const TRINE_STARS: [string, number[], string, ShenShaHit['kind']][] = [
   ['驿马', [2, 8, 11, 5], '主奔波迁动、远行出外', 'neutral'],
   ['桃花', [9, 3, 6, 0], '咸池，主情欲人缘、艺术魅力', 'neutral'],
   ['华盖', [4, 10, 1, 7], '主孤高聪慧，近宗教艺术', 'neutral'],
@@ -37,7 +37,7 @@ const TRINE_STARS: [string, number[], string, ShenShaHit['kind']][] = [
 ]
 
 // Stars keyed from the day stem (also checked from the year stem for 贵人).
-const STEM_STARS: [string, number[][], string, ShenShaHit['kind']][] = [
+export const STEM_STARS: [string, number[][], string, ShenShaHit['kind']][] = [
   ['天乙贵人', [[1, 7], [0, 8], [11, 9], [11, 9], [1, 7], [0, 8], [1, 7], [6, 2], [3, 5], [3, 5]], '最吉之神，逢凶化吉，得贵人扶助', 'auspicious'],
   ['太极贵人', [[0, 6], [0, 6], [3, 9], [3, 9], [4, 10, 1, 7], [4, 10, 1, 7], [2, 11], [2, 11], [5, 8], [5, 8]], '主聪明好学，精于玄理', 'auspicious'],
   ['文昌贵人', [[5], [6], [8], [9], [8], [9], [11], [0], [2], [3]], '主文才学业、聪慧', 'auspicious'],

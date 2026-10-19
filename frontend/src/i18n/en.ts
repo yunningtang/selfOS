@@ -213,4 +213,7 @@ export const EN: Record<string, string> = {
   '八字 · 四柱、大运流年流月、神煞、调候、古籍': 'BaZi · pillars, luck periods, stars, climate gods, classics', '紫微斗数 · 十二宫、四化、大限流年': 'Zi Wei Dou Shu · twelve palaces, transformations, decades and years',
   '西方占星 · 九种宫位制、相位、庙旺': 'Western · nine house systems, aspects, dignities', 'Jyotish · 十六分盘、Dasha、Shadbala': 'Jyotish · sixteen vargas, dasha, shadbala',
   '排盘全部在你的浏览器本地完成，出生信息只保存在本机。': 'Charts are computed in your browser; birth data stays on this device.',
+  // ---- forecast
+  '运势': 'Outlook', '大运 · 流年 · 流月的大致预判': 'Rough outlook by luck pillar, year and month', '预判': 'Outlook', '推断依据': 'Basis', '依据': 'basis', '流月': 'Months',
+  '大吉': 'Very good', '小吉': 'Good-ish', '平': 'Neutral', '小忌': 'Caution', '以下为规则推导的大致预判：按大运、流年、流月的干支与命局的喜忌、太岁、冲合刑害、伏吟反吟、神煞给出倾向与评级，供参考而非定论。点选大运与流年查看依据。': 'A rough, rule-derived outlook: each luck pillar, year and month is rated by how its stem and branch meet the chart (useful or taboo elements, Tai Sui, clashes and combinations, repeats and reversals, stars). Guidance, not verdicts. Click a period to see the basis.',
 }
