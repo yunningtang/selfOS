@@ -20,7 +20,7 @@ function write(key: string, value: string) {
 }
 
 export const useUiStore = defineStore('ui', () => {
-  const themePref = ref<ThemePref>(read('selfos.theme', 'system'))
+  const themePref = ref<ThemePref>(read('selfos.theme', 'light'))
   const motionPref = ref<MotionPref>(read('selfos.motion', 'system'))
 
   const darkQuery = window.matchMedia('(prefers-color-scheme: dark)')

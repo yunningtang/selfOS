@@ -74,7 +74,7 @@ const { t, isEn, locale } = useI18n()
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff, var(--c-lavender) 55%, var(--c-ink));
+  background: radial-gradient(circle at 35% 30%, #fff, var(--accent) 55%, var(--c-ink));
 }
 .word {
   font-weight: var(--fw-medium);

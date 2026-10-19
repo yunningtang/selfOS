@@ -21,7 +21,7 @@ const SYSTEMS = ['八字 · 四柱、大运流年流月、神煞、调候、古�
 <template>
   <section class="home">
     <div class="hero">
-      <div class="orb" aria-hidden="true"><LiquidOrb :material="{ base: '#E7EAF3', depth: '#8C80CC', variant: 'liquid' }" :size="180" :intensity="0.65" /></div>
+      <div class="orb" aria-hidden="true"><LiquidOrb :material="{ base: '#EAF0FF', depth: '#4D6BFE', variant: 'liquid' }" :size="180" :intensity="0.65" /></div>
       <div class="words">
         <p class="t-label eyebrow">{{ t('命盘 · 本地计算 · 不上传') }}</p>
         <h1>{{ t('一个出生时刻，四套命盘') }}</h1>

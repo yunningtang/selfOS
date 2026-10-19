@@ -6,16 +6,18 @@
 
 :root {
   /* ── Palette (fixed, theme-independent) ───────────────────────────── */
-  --c-lavender: #b5a9e8;
-  --c-mist: #a8c8e0;
-  --c-pearl: #e7eaf3;
-  --c-sage: #a2cdbb;
+  /* Brand blue family, in the spirit of DeepSeek's site: one saturated blue, soft sky tints,
+     white space and quiet greys. Names are kept so components stay untouched. */
+  --c-lavender: #6e89ff; /* primary blue (dark theme) */
+  --c-mist: #8fb8f5; /* sky */
+  --c-pearl: #e8eefb; /* ice */
+  --c-sage: #5fc4b4; /* teal, for harmony / success */
   /* Two supporting hues, desaturated to sit inside the palette:
      clay marks tension / fire, sand marks earth. Used sparingly. */
   --c-clay: #d9b2a6;
   --c-sand: #d3c6a6;
-  --c-slate: #8fa0b8;
-  --c-ink: #4a4566;
+  --c-slate: #8a97b3;
+  --c-ink: #1f2a5a;
 
   /* ── Typography ───────────────────────────────────────────────────── */
   /* Latin from the bundled Inter; CJK from the best system sans on each platform (declared
@@ -108,39 +110,39 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --bg: #0b0d12;
-  --bg-deep: #07080c;
-  --surface: #151821;
-  --surface-2: #1a1e29;
-  --surface-3: #222736;
-  --surface-sunken: #10131a;
+  --bg: #0b1020;
+  --bg-deep: #070b17;
+  --surface: #121a2e;
+  --surface-2: #16203a;
+  --surface-3: #1b2744;
+  --surface-sunken: #0e1527;
 
-  --text: #f1f2f4;
-  --text-2: #959aa8;
-  --text-3: #6f7484;
-  --text-on-accent: #11131a;
+  --text: #eef2fa;
+  --text-2: #9aa6c0;
+  --text-3: #6d7995;
+  --text-on-accent: #ffffff;
 
-  --accent: var(--c-lavender);
-  --accent-ink: #c6bdf0;
-  --accent-soft: rgba(181, 169, 232, 0.14);
+  --accent: #6e89ff;
+  --accent-ink: #a9baff;
+  --accent-soft: rgba(110, 137, 255, 0.16);
   --mist-ink: #b9d4e8;
   --sage-ink: #b2d8c8;
   --clay-ink: #e2c0b5;
 
-  --hairline: rgba(231, 234, 243, 0.07);
-  --hairline-2: rgba(231, 234, 243, 0.12);
-  --hairline-3: rgba(231, 234, 243, 0.2);
+  --hairline: rgba(232, 238, 251, 0.08);
+  --hairline-2: rgba(232, 238, 251, 0.13);
+  --hairline-3: rgba(232, 238, 251, 0.22);
 
-  --focus: var(--c-mist);
+  --focus: #8fb8f5;
 
   /* Glass membrane */
-  --glass-top: rgba(28, 32, 44, 0.66);
-  --glass-bottom: rgba(17, 20, 28, 0.74);
-  --glass-edge: rgba(231, 234, 243, 0.09);
-  --glass-highlight: rgba(255, 255, 255, 0.07);
-  --glass-iris-a: rgba(181, 169, 232, 0.38);
-  --glass-iris-b: rgba(168, 200, 224, 0.32);
-  --glass-iris-c: rgba(162, 205, 187, 0.26);
+  --glass-top: rgba(22, 32, 58, 0.7);
+  --glass-bottom: rgba(14, 21, 39, 0.78);
+  --glass-edge: rgba(232, 238, 251, 0.09);
+  --glass-highlight: rgba(255, 255, 255, 0.06);
+  --glass-iris-a: rgba(110, 137, 255, 0.34);
+  --glass-iris-b: rgba(143, 184, 245, 0.26);
+  --glass-iris-c: rgba(95, 196, 180, 0.18);
   --glass-sheen: rgba(255, 255, 255, 0.05);
   --glass-blur: 22px;
 
@@ -149,10 +151,10 @@
   --shadow-orb: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
 
   /* Atmosphere */
-  --atmo-a: rgba(181, 169, 232, 0.16);
-  --atmo-b: rgba(168, 200, 224, 0.12);
-  --atmo-c: rgba(162, 205, 187, 0.09);
-  --atmo-vignette: rgba(4, 5, 8, 0.72);
+  --atmo-a: rgba(110, 137, 255, 0.16);
+  --atmo-b: rgba(143, 184, 245, 0.12);
+  --atmo-c: rgba(95, 196, 180, 0.07);
+  --atmo-vignette: rgba(5, 8, 20, 0.72);
 
   /* Data / semantic */
   --el-wood: var(--c-sage);
@@ -176,58 +178,59 @@
   color-scheme: light;
 
   /* Pearl and sand need more body to read on a pale ground. */
-  --c-pearl: #c4c9da;
+  --c-lavender: #4d6bfe; /* primary blue (light theme) */
+  --c-pearl: #c7d3ea;
   --c-sand: #c7b68c;
 
-  --bg: #f5f6f8;
-  --bg-deep: #eceef2;
+  --bg: #ffffff;
+  --bg-deep: #f5f7fb;
   --surface: #ffffff;
-  --surface-2: #f9fafb;
-  --surface-3: #eff1f4;
-  --surface-sunken: #eef0f3;
+  --surface-2: #f7f9fc;
+  --surface-3: #eef2fa;
+  --surface-sunken: #f3f5f9;
 
-  --text: #20232b;
-  --text-2: #777d89;
-  --text-3: #9aa0ab;
+  --text: #1a1d26;
+  --text-2: #5c6372;
+  --text-3: #8b93a3;
   --text-on-accent: #ffffff;
 
-  --accent: #8b7fd0;
-  --accent-ink: #5f53a8;
-  --accent-soft: rgba(139, 127, 208, 0.12);
-  --mist-ink: #3f6f93;
-  --sage-ink: #3e7a62;
+  --accent: #4d6bfe;
+  --accent-ink: #3b55d9;
+  --accent-soft: rgba(77, 107, 254, 0.1);
+  --mist-ink: #2f6fd1;
+  --sage-ink: #2e8a7c;
   --clay-ink: #9a5e4f;
 
-  --hairline: rgba(32, 35, 43, 0.07);
-  --hairline-2: rgba(32, 35, 43, 0.11);
-  --hairline-3: rgba(32, 35, 43, 0.18);
+  --hairline: rgba(26, 29, 38, 0.08);
+  --hairline-2: rgba(26, 29, 38, 0.12);
+  --hairline-3: rgba(26, 29, 38, 0.2);
 
-  --focus: #5a8db3;
+  --focus: #4d6bfe;
 
-  --glass-top: rgba(255, 255, 255, 0.72);
-  --glass-bottom: rgba(246, 247, 250, 0.8);
-  --glass-edge: rgba(32, 35, 43, 0.07);
-  --glass-highlight: rgba(255, 255, 255, 0.9);
-  --glass-iris-a: rgba(139, 127, 208, 0.32);
-  --glass-iris-b: rgba(90, 141, 179, 0.24);
-  --glass-iris-c: rgba(78, 138, 112, 0.2);
-  --glass-sheen: rgba(255, 255, 255, 0.55);
-  --glass-blur: 20px;
+  --glass-top: rgba(255, 255, 255, 0.86);
+  --glass-bottom: rgba(250, 251, 254, 0.9);
+  --glass-edge: rgba(26, 29, 38, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.95);
+  --glass-iris-a: rgba(77, 107, 254, 0.22);
+  --glass-iris-b: rgba(143, 184, 245, 0.2);
+  --glass-iris-c: rgba(95, 196, 180, 0.12);
+  --glass-sheen: rgba(255, 255, 255, 0.5);
+  --glass-blur: 18px;
 
-  --shadow-1: 0 1px 2px rgba(32, 35, 43, 0.06);
-  --shadow-float: 0 24px 60px -28px rgba(40, 44, 70, 0.28), 0 2px 8px -2px rgba(40, 44, 70, 0.08);
-  --shadow-orb: 0 18px 40px -18px rgba(60, 60, 110, 0.35);
+  --shadow-1: 0 1px 2px rgba(26, 29, 38, 0.05);
+  --shadow-float: 0 20px 48px -28px rgba(37, 56, 120, 0.22), 0 2px 8px -2px rgba(37, 56, 120, 0.06);
+  --shadow-orb: 0 18px 40px -18px rgba(37, 56, 120, 0.3);
 
-  --atmo-a: rgba(181, 169, 232, 0.28);
-  --atmo-b: rgba(168, 200, 224, 0.26);
-  --atmo-c: rgba(162, 205, 187, 0.2);
-  --atmo-vignette: rgba(245, 246, 248, 0);
+  --atmo-a: rgba(77, 107, 254, 0.14);
+  --atmo-b: rgba(143, 184, 245, 0.18);
+  --atmo-c: rgba(95, 196, 180, 0.1);
+  --atmo-vignette: rgba(255, 255, 255, 0);
 
-  --el-wood: #6fae94;
-  --el-fire: #c98f7f;
+  --el-wood: #5fb48f;
+  --el-fire: #d98a79;
   --el-earth: #b8a57a;
   --el-metal: #9aa3b8;
-  --el-water: #6f9fc4;
+  --el-water: #4d8fe0;
   --wx-wood: #3f9a5f;
   --wx-fire: #d4503b;
   --wx-earth: #a07a3a;

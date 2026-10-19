@@ -116,10 +116,10 @@ watch(
   border-radius: 50%;
   background:
     radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.9) 0 8%, transparent 30%),
-    radial-gradient(circle at 40% 38%, var(--c-pearl), var(--c-lavender) 55%, #3b3f5c 100%);
+    radial-gradient(circle at 40% 38%, var(--c-pearl), var(--accent) 55%, #1f2a5a 100%);
   box-shadow:
     inset -3px -4px 8px rgba(0, 0, 0, 0.3),
-    0 0 18px rgba(181, 169, 232, 0.45);
+    0 0 18px rgba(77, 107, 254, 0.45);
   animation:
     lq-morph 14s var(--ease-in-out) infinite,
     lq-breathe var(--dur-breathe) var(--ease-in-out) infinite;

@@ -81,23 +81,23 @@ withDefaults(
 .v-primary {
   color: var(--text-on-accent);
   background:
-    radial-gradient(120% 140% at 20% 0%, rgba(255, 255, 255, 0.55), transparent 50%),
-    linear-gradient(135deg, var(--c-pearl), var(--c-lavender) 55%, var(--c-mist));
+    radial-gradient(120% 140% at 20% 0%, rgba(255, 255, 255, 0.22), transparent 50%),
+    linear-gradient(135deg, #7d95ff, var(--accent) 60%, #5a7bff);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
-    0 6px 20px -8px rgba(181, 169, 232, 0.6);
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+    0 6px 20px -8px rgba(110, 137, 255, 0.6);
 }
 :root[data-theme='light'] .v-primary {
   color: #fff;
   background:
-    radial-gradient(120% 140% at 20% 0%, rgba(255, 255, 255, 0.35), transparent 50%),
-    linear-gradient(135deg, #8b7fd0, #6f8fc0);
+    radial-gradient(120% 140% at 20% 0%, rgba(255, 255, 255, 0.22), transparent 50%),
+    linear-gradient(135deg, #5c79ff, #4d6bfe 60%, #3f5de8);
 }
 .v-primary:hover:not(:disabled) {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 10px 28px -10px rgba(181, 169, 232, 0.8);
+    0 10px 28px -10px rgba(77, 107, 254, 0.7);
 }
 
 .v-secondary {

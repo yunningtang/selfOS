@@ -45,10 +45,10 @@ const STEPS = [
   <section class="threshold" aria-labelledby="th-title">
     <div class="hero">
       <div class="orb-wrap" aria-hidden="true">
-        <LiquidOrb :material="{ base: '#E7EAF3', depth: '#8C80CC', variant: 'liquid' }" :size="220" :intensity="0.65" />
-        <span class="orbit o1 ambient-anim"><LiquidOrb :material="{ base: '#A8C8E0', depth: '#4D6A88', variant: 'liquid' }" :size="26" :intensity="0.4" /></span>
-        <span class="orbit o2 ambient-anim"><LiquidOrb :material="{ base: '#A2CDBB', depth: '#4E7E6A', variant: 'liquid' }" :size="18" :intensity="0.4" /></span>
-        <span class="orbit o3 ambient-anim"><LiquidOrb :material="{ base: '#6E6790', depth: '#1C1A2A', variant: 'diffuse' }" :size="34" :intensity="0.5" /></span>
+        <LiquidOrb :material="{ base: '#EAF0FF', depth: '#4D6BFE', variant: 'liquid' }" :size="220" :intensity="0.65" />
+        <span class="orbit o1 ambient-anim"><LiquidOrb :material="{ base: '#8FB8F5', depth: '#2F6FD1', variant: 'liquid' }" :size="26" :intensity="0.4" /></span>
+        <span class="orbit o2 ambient-anim"><LiquidOrb :material="{ base: '#5FC4B4', depth: '#2E8A7C', variant: 'liquid' }" :size="18" :intensity="0.4" /></span>
+        <span class="orbit o3 ambient-anim"><LiquidOrb :material="{ base: '#5B6CC5', depth: '#1F2A5A', variant: 'diffuse' }" :size="34" :intensity="0.5" /></span>
       </div>
       <div class="words">
         <p class="t-label eyebrow">{{ t('selfOS · 内在心灵的数字加速器') }}</p>

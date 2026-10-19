@@ -81,7 +81,7 @@ const style = computed(() => ({
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
-    rgba(181, 169, 232, 0.4) 60deg,
+    rgba(110, 137, 255, 0.4) 60deg,
     transparent 120deg,
     rgba(168, 200, 224, 0.4) 190deg,
     transparent 250deg,
