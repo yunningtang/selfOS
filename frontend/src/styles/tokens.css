@@ -1,0 +1,222 @@
+/*
+ * selfOS — Liquid Consciousness design tokens.
+ * Every colour, radius, space, duration and easing used in the app is defined here.
+ * Components consume the semantic tokens (--bg, --text, --accent…), never raw hex.
+ */
+
+:root {
+  /* ── Palette (fixed, theme-independent) ───────────────────────────── */
+  --c-lavender: #b5a9e8;
+  --c-mist: #a8c8e0;
+  --c-pearl: #e7eaf3;
+  --c-sage: #a2cdbb;
+  /* Two supporting hues, desaturated to sit inside the palette:
+     clay marks tension / fire, sand marks earth. Used sparingly. */
+  --c-clay: #d9b2a6;
+  --c-sand: #d3c6a6;
+  --c-slate: #8fa0b8;
+  --c-ink: #4a4566;
+
+  /* ── Typography ───────────────────────────────────────────────────── */
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'SF Pro Text', 'Segoe UI',
+    'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', 'Noto Sans CJK SC', 'Microsoft YaHei',
+    'Noto Sans Hebrew', sans-serif;
+
+  --fs-2xs: 0.6875rem; /* 11 */
+  --fs-xs: 0.75rem; /* 12 */
+  --fs-sm: 0.8125rem; /* 13 */
+  --fs-base: 0.9375rem; /* 15 */
+  --fs-md: 1.0625rem; /* 17 */
+  --fs-lg: 1.25rem; /* 20 */
+  --fs-xl: 1.5rem; /* 24 */
+  --fs-2xl: 1.875rem; /* 30 */
+
+  --lh-tight: 1.25;
+  --lh-snug: 1.4;
+  --lh-body: 1.6;
+  --lh-read: 1.75;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+
+  --tracking-label: 0.01em;
+
+  /* ── Space (4px base) ─────────────────────────────────────────────── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 32px;
+  --sp-8: 40px;
+  --sp-9: 56px;
+  --sp-10: 80px;
+
+  /* ── Radii ────────────────────────────────────────────────────────── */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  /* ── Layout ───────────────────────────────────────────────────────── */
+  --rail-w: 232px;
+  --rail-w-compact: 76px;
+  --topbar-h: 60px;
+  --tabbar-h: 64px;
+  --content-max: 1360px;
+  --read-max: 68ch;
+
+  /* ── Motion ───────────────────────────────────────────────────────── */
+  --dur-instant: 90ms;
+  --dur-fast: 160ms;
+  --dur-base: 260ms;
+  --dur-slow: 520ms;
+  --dur-breathe: 7s;
+  --dur-morph: 22s;
+  --dur-drift: 60s;
+
+  --ease-out: cubic-bezier(0.22, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-fluid: cubic-bezier(0.45, 0.05, 0.25, 1);
+  /* Gentle under-damped spring (≈ stiffness 170, damping 22). */
+  --ease-spring: linear(
+    0, 0.062 2.4%, 0.231 5.1%, 0.469 8.3%, 0.67 11.4%, 0.89 16.3%, 1.01 21.6%, 1.05 26%,
+    1.045 31.6%, 1.012 41%, 0.996 52%, 1
+  );
+
+  /* ── Z layers ─────────────────────────────────────────────────────── */
+  --z-ambient: 0;
+  --z-content: 1;
+  --z-float: 10;
+  --z-nav: 20;
+  --z-overlay: 40;
+  --z-toast: 60;
+}
+
+/* ── Dark (default) ─────────────────────────────────────────────────── */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0b0d12;
+  --bg-deep: #07080c;
+  --surface: #151821;
+  --surface-2: #1a1e29;
+  --surface-3: #222736;
+  --surface-sunken: #10131a;
+
+  --text: #f1f2f4;
+  --text-2: #959aa8;
+  --text-3: #6f7484;
+  --text-on-accent: #11131a;
+
+  --accent: var(--c-lavender);
+  --accent-ink: #c6bdf0;
+  --accent-soft: rgba(181, 169, 232, 0.14);
+  --mist-ink: #b9d4e8;
+  --sage-ink: #b2d8c8;
+  --clay-ink: #e2c0b5;
+
+  --hairline: rgba(231, 234, 243, 0.07);
+  --hairline-2: rgba(231, 234, 243, 0.12);
+  --hairline-3: rgba(231, 234, 243, 0.2);
+
+  --focus: var(--c-mist);
+
+  /* Glass membrane */
+  --glass-top: rgba(28, 32, 44, 0.66);
+  --glass-bottom: rgba(17, 20, 28, 0.74);
+  --glass-edge: rgba(231, 234, 243, 0.09);
+  --glass-highlight: rgba(255, 255, 255, 0.07);
+  --glass-iris-a: rgba(181, 169, 232, 0.38);
+  --glass-iris-b: rgba(168, 200, 224, 0.32);
+  --glass-iris-c: rgba(162, 205, 187, 0.26);
+  --glass-sheen: rgba(255, 255, 255, 0.05);
+  --glass-blur: 22px;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-float: 0 24px 64px -24px rgba(0, 0, 0, 0.7), 0 2px 8px -2px rgba(0, 0, 0, 0.35);
+  --shadow-orb: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+
+  /* Atmosphere */
+  --atmo-a: rgba(181, 169, 232, 0.16);
+  --atmo-b: rgba(168, 200, 224, 0.12);
+  --atmo-c: rgba(162, 205, 187, 0.09);
+  --atmo-vignette: rgba(4, 5, 8, 0.72);
+
+  /* Data / semantic */
+  --el-wood: var(--c-sage);
+  --el-fire: var(--c-clay);
+  --el-earth: var(--c-sand);
+  --el-metal: var(--c-pearl);
+  --el-water: var(--c-mist);
+  --tension: var(--c-clay);
+  --harmony: var(--c-sage);
+  --danger-ink: #e6b3aa;
+}
+
+/* ── Light ──────────────────────────────────────────────────────────── */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  /* Pearl and sand need more body to read on a pale ground. */
+  --c-pearl: #c4c9da;
+  --c-sand: #c7b68c;
+
+  --bg: #f5f6f8;
+  --bg-deep: #eceef2;
+  --surface: #ffffff;
+  --surface-2: #f9fafb;
+  --surface-3: #eff1f4;
+  --surface-sunken: #eef0f3;
+
+  --text: #20232b;
+  --text-2: #777d89;
+  --text-3: #9aa0ab;
+  --text-on-accent: #ffffff;
+
+  --accent: #8b7fd0;
+  --accent-ink: #5f53a8;
+  --accent-soft: rgba(139, 127, 208, 0.12);
+  --mist-ink: #3f6f93;
+  --sage-ink: #3e7a62;
+  --clay-ink: #9a5e4f;
+
+  --hairline: rgba(32, 35, 43, 0.07);
+  --hairline-2: rgba(32, 35, 43, 0.11);
+  --hairline-3: rgba(32, 35, 43, 0.18);
+
+  --focus: #5a8db3;
+
+  --glass-top: rgba(255, 255, 255, 0.72);
+  --glass-bottom: rgba(246, 247, 250, 0.8);
+  --glass-edge: rgba(32, 35, 43, 0.07);
+  --glass-highlight: rgba(255, 255, 255, 0.9);
+  --glass-iris-a: rgba(139, 127, 208, 0.32);
+  --glass-iris-b: rgba(90, 141, 179, 0.24);
+  --glass-iris-c: rgba(78, 138, 112, 0.2);
+  --glass-sheen: rgba(255, 255, 255, 0.55);
+  --glass-blur: 20px;
+
+  --shadow-1: 0 1px 2px rgba(32, 35, 43, 0.06);
+  --shadow-float: 0 24px 60px -28px rgba(40, 44, 70, 0.28), 0 2px 8px -2px rgba(40, 44, 70, 0.08);
+  --shadow-orb: 0 18px 40px -18px rgba(60, 60, 110, 0.35);
+
+  --atmo-a: rgba(181, 169, 232, 0.28);
+  --atmo-b: rgba(168, 200, 224, 0.26);
+  --atmo-c: rgba(162, 205, 187, 0.2);
+  --atmo-vignette: rgba(245, 246, 248, 0);
+
+  --el-wood: #6fae94;
+  --el-fire: #c98f7f;
+  --el-earth: #b8a57a;
+  --el-metal: #9aa3b8;
+  --el-water: #6f9fc4;
+  --tension: #c98f7f;
+  --harmony: #6fae94;
+  --danger-ink: #a24f40;
+}
