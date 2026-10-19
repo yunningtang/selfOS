@@ -15,7 +15,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
 const profileLine = computed(() => `${birth.value.name ? birth.value.name + ' · ' : ''}${birth.value.year}-${pad(birth.value.month)}-${pad(birth.value.day)} ${pad(birth.value.hour)}:${pad(birth.value.minute)} · ${birth.value.place}`)
 const STEPS = [
   { n: '01', title: '输入出生时刻', text: '日期、时间、出生地。公历农历皆可，地点自动匹配经纬度与时区。' },
-  { n: '02', title: '排出四套命盘', text: '八字、紫微斗数、西方占星、Jyotish，由瑞士星历在本地精算。' },
+  { n: '02', title: '排出八字与紫微', text: '四柱、大运流年流月、紫微十二宫与四化，节气按天文计算到分钟。' },
   { n: '03', title: '阅读分析', text: '百余条断语、格局、喜用神、五行与十神强弱，每一条都标明推断依据。' },
 ]
 const SYSTEMS = ['八字 · 四柱、大运流年流月、神煞、调候、古籍', '紫微斗数 · 十二宫、四化、大限流年']

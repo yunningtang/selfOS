@@ -236,4 +236,5 @@ export const EN: Record<string, string> = {
   '八字与紫微斗数由同一个时刻算起，再给出百余条带依据的分析、逐年运势与现实校准的资产判断。': 'BaZi and Zi Wei Dou Shu from the same moment, then a hundred-odd readings with basis, year-by-year outlook and a reality-calibrated asset reading.',
   '免费': 'Free', '完整分析': 'Full analysis', '已解锁': 'Unlocked', '四柱排盘、大运流年流月': 'Four pillars, luck pillars, years and months', '紫微斗数十二宫与大限流年': 'Zi Wei twelve palaces, decades and years', '分析前 12 条断语': 'First 12 readings', '命盘要点与当前大运评级': 'Chart essentials and current luck rating',
   '全部约 100 条断语与推断依据': 'All ~100 readings with basis', '评分、喜用神、五行与十神详表': 'Scores, useful gods, element and ten-god tables', '运势：逐年、逐月预判与依据': 'Outlook: yearly and monthly, with basis', '资产与学业：现实背景校准与检查点': 'Assets and education: reality calibration and checkpoints', '本机永久解锁，邮箱跨设备恢复': 'Unlocked for good; restore by email on other devices',
+  '排出八字与紫微': 'Cast BaZi and Zi Wei', '四柱、大运流年流月、紫微十二宫与四化，节气按天文计算到分钟。': 'Four pillars, luck periods, Zi Wei palaces and transformations; solar terms computed astronomically to the minute.',
 }
