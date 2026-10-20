@@ -7,6 +7,7 @@ import LqSegmented from '@/components/ui/LqSegmented.vue'
 import BaziAnalysisPanel from './BaziAnalysisPanel.vue'
 import BaziForecastPanel from './BaziForecastPanel.vue'
 import BaziWealthPanel from './BaziWealthPanel.vue'
+import TimelineCell from './TimelineCell.vue'
 import { useLicense } from '@/composables/useLicense'
 import { analyseBazi } from '@selfos/destiny-core/bazi/analysis'
 import { ELEMENTS } from '@/data/lexicon'
@@ -161,39 +162,17 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
         <h3>{{ t('大运 · 流年 · 流月') }}</h3>
         <p v-if="transitRelations.length" class="t-sm"><span v-for="(r, i) in transitRelations" :key="i" class="rel" :class="r.tone">{{ r.members.map(label).join('') }}{{ r.note }}</span></p>
       </header>
-      <ol class="strip">
-        <li v-for="l in chart.luck.pillars" :key="l.index">
-          <button type="button" class="cell" :class="{ on: l.index === luckIndex, now: l.startYear <= thisYear && thisYear <= l.endYear }" @click="store.selectLuck(l.index)">
-            <span class="c-top t-num">{{ l.startAge }}<span class="t-faint">{{ t('岁') }}</span></span>
-            <span class="c-god">{{ TEN_GOD_SHORT[l.stemTenGod] }}</span>
-            <span class="c-gz" :style="{ color: el(tables.STEM_ELEMENT[l.sexagenary % 10]) }">{{ l.stemChar }}</span>
-            <span class="c-gz" :style="{ color: el(tables.BRANCH_ELEMENT[l.sexagenary % 12]) }">{{ l.branchChar }}</span>
-            <span class="c-sub">{{ TEN_GOD_SHORT[l.branchMainTenGod] }} · <span class="t-num">{{ l.startYear }}</span></span>
-          </button>
-        </li>
-      </ol>
-      <ol v-if="annual.length" class="strip nested">
-        <li v-for="a in annual" :key="a.year">
-          <button type="button" class="cell" :class="{ on: a.year === annualYear, now: a.year === thisYear }" @click="store.selectYear(a.year)">
-            <span class="c-top t-num">{{ a.year }}</span>
-            <span class="c-god">{{ TEN_GOD_SHORT[a.stemTenGod] }}</span>
-            <span class="c-gz" :style="{ color: el(tables.STEM_ELEMENT[a.sexagenary % 10]) }">{{ a.stemChar }}</span>
-            <span class="c-gz" :style="{ color: el(tables.BRANCH_ELEMENT[a.sexagenary % 12]) }">{{ a.branchChar }}</span>
-            <span class="c-sub">{{ TEN_GOD_SHORT[a.branchMainTenGod] }} · {{ a.nominalAge }}{{ t('虚岁') }}</span>
-          </button>
-        </li>
-      </ol>
-      <ol v-if="monthly.length" class="strip nested months">
-        <li v-for="m in monthly" :key="m.index">
-          <div class="cell static">
-            <span class="c-top">{{ m.term }} <span class="t-num t-faint">{{ m.startsAt.slice(5, 10) }}</span></span>
-            <span class="c-god">{{ TEN_GOD_SHORT[m.stemTenGod] }}</span>
-            <span class="c-gz" :style="{ color: el(tables.STEM_ELEMENT[m.sexagenary % 10]) }">{{ m.stemChar }}</span>
-            <span class="c-gz" :style="{ color: el(tables.BRANCH_ELEMENT[m.sexagenary % 12]) }">{{ m.branchChar }}</span>
-            <span class="c-sub">{{ TEN_GOD_SHORT[m.branchMainTenGod] }}</span>
-          </div>
-        </li>
-      </ol>
+      <div class="rail">
+        <div class="row">
+          <TimelineCell v-for="l in chart.luck.pillars" :key="l.index" :top="`${l.startAge}${t('岁')}`" :sexa="l.sexagenary" :day-master="chart.dayMaster.stem" :sub="String(l.startYear)" :on="l.index === luckIndex" :now="l.startYear <= thisYear && thisYear <= l.endYear" @click="store.selectLuck(l.index)" />
+        </div>
+        <div v-if="annual.length" class="row nested">
+          <TimelineCell v-for="a in annual" :key="a.year" :top="String(a.year)" :sexa="a.sexagenary" :day-master="chart.dayMaster.stem" :sub="`${a.nominalAge}${t('虚岁')}`" :on="a.year === annualYear" :now="a.year === thisYear" @click="store.selectYear(a.year)" />
+        </div>
+        <div v-if="monthly.length" class="row nested">
+          <TimelineCell v-for="m in monthly" :key="m.index" :top="`${m.term} ${m.startsAt.slice(5, 10)}`" :sexa="m.sexagenary" :day-master="chart.dayMaster.stem" static />
+        </div>
+      </div>
     </section>
 
     <!-- Detail -->
@@ -424,7 +403,7 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
 /* ── Timeline ─────────────────────────────────────────── */
 .timeline {
   display: grid;
-  gap: var(--sp-3);
+  gap: var(--sp-4);
 }
 .tl-head {
   display: flex;
@@ -435,74 +414,22 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
 }
 .tl-head h3 {
   font-size: var(--fs-md);
+  font-weight: 500;
 }
-.strip {
+.rail {
+  display: grid;
+  gap: var(--sp-2);
+}
+.row {
   display: flex;
-  gap: 6px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
 }
-.strip.nested {
-  padding-left: var(--sp-4);
+.row.nested {
+  margin-left: var(--sp-4);
   border-left: 2px solid var(--hairline-2);
 }
-.cell {
-  display: grid;
-  justify-items: center;
-  gap: 1px;
-  min-width: 76px;
-  padding: 10px 8px;
-  border: 0;
-  border-radius: var(--r-md);
-  background: var(--surface);
-  box-shadow: inset 0 0 0 1px var(--hairline);
-  color: var(--text);
-  transition: background-color var(--dur-fast), box-shadow var(--dur-fast), transform var(--dur-base) var(--ease-spring);
-}
-button.cell:hover {
-  box-shadow: inset 0 0 0 1px var(--hairline-3);
-}
-button.cell:active {
-  transform: scale(0.97);
-}
-.cell.on {
-  background: color-mix(in srgb, var(--c-lavender) 12%, var(--surface));
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c-lavender) 55%, transparent);
-}
-.cell.now .c-top::after {
-  content: '';
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  margin-left: 5px;
-  border-radius: 50%;
-  background: var(--c-sage);
-  vertical-align: middle;
-}
-.c-top {
-  font-size: var(--fs-2xs);
-  color: var(--text-2);
-  white-space: nowrap;
-}
-.c-god {
-  font-size: var(--fs-2xs);
-  color: var(--text-3);
-}
-.c-gz {
-  letter-spacing: 0;
-  font-size: 26px;
-  line-height: 1.1;
-  font-weight: var(--fw-medium);
-}
-.c-sub {
-  font-size: var(--fs-2xs);
-  color: var(--text-3);
-  white-space: nowrap;
-}
-.months .cell {
-  min-width: 68px;
-}
-
 /* ── Detail table ─────────────────────────────────────── */
 .tw {
   overflow-x: auto;

@@ -5,13 +5,12 @@ import LqButton from '@/components/ui/LqButton.vue'
 import LqCollapse from '@/components/ui/LqCollapse.vue'
 import LqSegmented from '@/components/ui/LqSegmented.vue'
 import PaywallCard from '@/components/paywall/PaywallCard.vue'
-import { ELEMENTS } from '@/data/lexicon'
-import { BRANCH_ELEMENT, STEM_ELEMENT, TEN_GOD_SHORT } from '@selfos/destiny-core/bazi/tables'
+import TimelineCell from './TimelineCell.vue'
 import { analyseBazi } from '@selfos/destiny-core/bazi/analysis'
 import { forecastLuck, forecastMonth, forecastYear, RATING_LABEL, type PeriodForecast, type Rating } from '@selfos/destiny-core/bazi/forecast'
 import { useDivinationStore } from '@/stores/divination'
 import { useI18n } from '@/i18n'
-import type { BaziChart, FiveElement } from '@/types'
+import type { BaziChart } from '@/types'
 
 /**
  * 运势: the same 大运 / 流年 / 流月 strips as the 排盘 timeline (same cells, same colours, same
@@ -23,7 +22,6 @@ const { t } = useI18n()
 const store = useDivinationStore()
 const { luckIndex, annualYear, annual, monthly } = storeToRefs(store)
 const thisYear = new Date().getFullYear()
-const el = (e: FiveElement) => ELEMENTS[e].token
 
 const analysis = computed(() => analyseBazi(props.chart))
 const lucks = computed(() => props.chart.luck.pillars.map((l) => ({ l, f: forecastLuck(props.chart, l, analysis.value) })))
@@ -67,8 +65,6 @@ function pickYear(y: number) { store.selectYear(y); focus.value = 'year' }
 const cls = (r: Rating) => (r >= 2 ? 'r3' : r === 1 ? 'r2' : r === 0 ? 'r1' : r === -1 ? 'r-1' : r === -2 ? 'r-2' : 'r-3')
 const label = (r: Rating) => t(RATING_LABEL[r])
 const tagClass = (tag?: string) => (tag && ['吉', '贵', '富', '佳'].includes(tag) ? 'good' : tag && ['忌', '凶'].includes(tag) ? 'bad' : 'plain')
-const stemEl = (sexa: number) => el(STEM_ELEMENT[sexa % 10])
-const branchEl = (sexa: number) => el(BRANCH_ELEMENT[sexa % 12])
 const detailTitle = computed(() => {
   if (!detail.value) return ''
   if (focus.value === 'luck' && selectedLuck.value) return `${selectedLuck.value.l.stemChar}${selectedLuck.value.l.branchChar}${t('大运')} · ${selectedLuck.value.f.label}`
@@ -90,44 +86,17 @@ const detailTitle = computed(() => {
 
     <section class="timeline">
       <h3>{{ t('大运') }} <span class="t-caption">{{ t('点选切换，评级为该段十年的综合倾向') }}</span></h3>
-      <ol class="strip">
-        <li v-for="{ l, f } in lucks" :key="l.index">
-          <button type="button" class="cell" :class="[cls(f.rating), { on: l.index === luckIndex, now: l.startYear <= thisYear && thisYear <= l.endYear, focus: focus === 'luck' && l.index === luckIndex }]" @click="pickLuck(l.index)">
-            <span class="c-top t-num">{{ l.startAge }}<span class="t-faint">{{ t('岁') }}</span></span>
-            <span class="c-god">{{ TEN_GOD_SHORT[l.stemTenGod] }}</span>
-            <span class="c-gz" :style="{ color: stemEl(l.sexagenary) }">{{ l.stemChar }}</span>
-            <span class="c-gz" :style="{ color: branchEl(l.sexagenary) }">{{ l.branchChar }}</span>
-            <span class="c-sub">{{ TEN_GOD_SHORT[l.branchMainTenGod] }} · <span class="t-num">{{ l.startYear }}</span></span>
-            <span class="badge">{{ label(f.rating) }}</span>
-          </button>
-        </li>
-      </ol>
+      <div class="row">
+        <TimelineCell v-for="{ l, f } in lucks" :key="l.index" :top="`${l.startAge}${t('岁')}`" :sexa="l.sexagenary" :day-master="chart.dayMaster.stem" :sub="String(l.startYear)" :on="l.index === luckIndex" :now="l.startYear <= thisYear && thisYear <= l.endYear" :focus="focus === 'luck' && l.index === luckIndex" :badge="label(f.rating)" :badge-class="cls(f.rating)" @click="pickLuck(l.index)" />
+      </div>
       <h3>{{ t('流年') }} <span class="t-caption t-num">{{ selectedLuck ? `${selectedLuck.l.startYear}–${selectedLuck.l.endYear}` : '' }}</span></h3>
-      <ol class="strip nested">
-        <li v-for="{ a, f } in years" :key="a.year">
-          <button type="button" class="cell" :class="[cls(f.rating), { on: a.year === annualYear, now: a.year === thisYear, focus: focus === 'year' && a.year === annualYear }]" @click="pickYear(a.year)">
-            <span class="c-top t-num">{{ a.year }}</span>
-            <span class="c-god">{{ TEN_GOD_SHORT[a.stemTenGod] }}</span>
-            <span class="c-gz" :style="{ color: stemEl(a.sexagenary) }">{{ a.stemChar }}</span>
-            <span class="c-gz" :style="{ color: branchEl(a.sexagenary) }">{{ a.branchChar }}</span>
-            <span class="c-sub">{{ TEN_GOD_SHORT[a.branchMainTenGod] }} · {{ a.nominalAge }}{{ t('虚岁') }}</span>
-            <span class="badge">{{ label(f.rating) }}</span>
-          </button>
-        </li>
-      </ol>
+      <div class="row nested">
+        <TimelineCell v-for="{ a, f } in years" :key="a.year" :top="String(a.year)" :sexa="a.sexagenary" :day-master="chart.dayMaster.stem" :sub="`${a.nominalAge}${t('虚岁')}`" :on="a.year === annualYear" :now="a.year === thisYear" :focus="focus === 'year' && a.year === annualYear" :badge="label(f.rating)" :badge-class="cls(f.rating)" @click="pickYear(a.year)" />
+      </div>
       <h3>{{ t('流月') }} <span class="t-caption">{{ t('点选查看该月依据') }}</span></h3>
-      <ol class="strip nested months">
-        <li v-for="{ m, f } in months" :key="m.index">
-          <button type="button" class="cell" :class="[cls(f.rating), { on: m.index === monthIndex, focus: focus === 'month' && m.index === monthIndex }]" @click="monthIndex = m.index">
-            <span class="c-top">{{ m.term }} <span class="t-num t-faint">{{ m.startsAt.slice(5, 10) }}</span></span>
-            <span class="c-god">{{ TEN_GOD_SHORT[m.stemTenGod] }}</span>
-            <span class="c-gz" :style="{ color: stemEl(m.sexagenary) }">{{ m.stemChar }}</span>
-            <span class="c-gz" :style="{ color: branchEl(m.sexagenary) }">{{ m.branchChar }}</span>
-            <span class="c-sub">{{ TEN_GOD_SHORT[m.branchMainTenGod] }}</span>
-            <span class="badge">{{ label(f.rating) }}</span>
-          </button>
-        </li>
-      </ol>
+      <div class="row nested">
+        <TimelineCell v-for="{ m, f } in months" :key="m.index" :top="`${m.term} ${m.startsAt.slice(5, 10)}`" :sexa="m.sexagenary" :day-master="chart.dayMaster.stem" :on="m.index === monthIndex" :focus="focus === 'month' && m.index === monthIndex" :badge="label(f.rating)" :badge-class="cls(f.rating)" @click="monthIndex = m.index" />
+      </div>
     </section>
 
     <PaywallCard v-if="locked" :title="t('解锁逐年、逐月预判与依据')" />
@@ -192,89 +161,24 @@ const detailTitle = computed(() => {
   font-size: var(--fs-md);
   font-weight: 500;
 }
-/* Same cells as the 排盘 timeline */
-.strip {
+.row {
   display: flex;
-  gap: 6px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
 }
-.strip.nested {
-  padding-left: var(--sp-4);
+.row.nested {
+  margin-left: var(--sp-4);
   border-left: 2px solid var(--hairline-2);
 }
-.cell {
-  --tone: var(--text-3);
-  display: grid;
-  justify-items: center;
-  gap: 1px;
-  min-width: 76px;
-  padding: 10px 8px 8px;
-  border: 0;
-  border-radius: var(--r-md);
-  background: var(--surface);
-  box-shadow: inset 0 0 0 1px var(--hairline);
-  color: var(--text);
-  transition: background-color var(--dur-fast), box-shadow var(--dur-fast), transform var(--dur-base) var(--ease-spring);
-}
-.cell:hover {
-  box-shadow: inset 0 0 0 1px var(--hairline-3);
-}
-.cell:active {
-  transform: scale(0.97);
-}
-.cell.on {
-  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 55%, transparent);
-}
-.cell.focus {
-  box-shadow: inset 0 0 0 2px var(--accent);
-}
-.cell.now .c-top::after {
-  content: '';
+.badge.inline {
   display: inline-block;
-  width: 5px;
-  height: 5px;
-  margin-left: 5px;
-  border-radius: 50%;
-  background: var(--c-sage);
-  vertical-align: middle;
-}
-.months .cell {
-  min-width: 88px;
-}
-.c-top {
-  font-size: var(--fs-2xs);
-  color: var(--text-2);
-  white-space: nowrap;
-}
-.c-god {
-  font-size: var(--fs-2xs);
-  color: var(--text-3);
-}
-.c-gz {
-  font-family: var(--font-cjk);
-  font-size: 26px;
-  line-height: 1.1;
-  font-weight: 500;
-  letter-spacing: 0;
-}
-.c-sub {
-  font-size: var(--fs-2xs);
-  color: var(--text-2);
-  white-space: nowrap;
-}
-.badge {
-  margin-top: 4px;
+  margin: 0 0 0 6px;
   padding: 1px 8px;
   border-radius: var(--r-pill);
   font-size: var(--fs-2xs);
   color: var(--text-on-accent);
   background: var(--tone);
-}
-.badge.inline {
-  display: inline-block;
-  margin: 0 0 0 6px;
   vertical-align: middle;
 }
 .r3 { --tone: var(--wx-wood); }
