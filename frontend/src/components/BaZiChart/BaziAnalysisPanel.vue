@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useI18n } from '@/i18n'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import LqCollapse from '@/components/ui/LqCollapse.vue'
+import LqSegmented from '@/components/ui/LqSegmented.vue'
+import PlainReading from './PlainReading.vue'
 import PaywallCard from '@/components/paywall/PaywallCard.vue'
 import { ELEMENTS } from '@/data/lexicon'
 import { ELEMENT_ZH } from '@selfos/destiny-core/bazi/tables'
@@ -15,6 +17,9 @@ const props = defineProps<{ chart: BaziChart; locked?: boolean }>()
 const el = (e: FiveElement) => ELEMENTS[e].token
 const analysis = computed(() => analyseBazi(props.chart))
 const verdicts = computed(() => computeVerdicts(props.chart, analysis.value))
+const VIEW_KEY = 'destiny.analysis.view'
+const view = ref<'plain' | 'pro'>((() => { try { return localStorage.getItem(VIEW_KEY) === 'pro' ? 'pro' : 'plain' } catch { return 'plain' } })())
+watch(view, (v) => { try { localStorage.setItem(VIEW_KEY, v) } catch { /* ignore */ } })
 const topics = computed(() => Array.from(new Set(verdicts.value.map((v) => v.topic))))
 const topic = ref<string>('全部')
 const FREE_ROWS = 12
@@ -34,6 +39,12 @@ const verdictClass = (v: string) => (/太旺|过旺|从强/.test(v) ? 'hot' : /�
 
 <template>
   <div class="an cjk-prose">
+    <div class="view">
+      <LqSegmented v-model="view" :options="[{ value: 'plain', label: t('通俗解读') }, { value: 'pro', label: t('专业断语') }]" :label="t('分析视图')" size="sm" />
+      <span class="t-caption">{{ view === 'plain' ? t('不懂八字也能看：性格、事业、感情、身体与当下阶段') : t('断语 · 评分 · 喜用神 · 五行与十神强弱') }}</span>
+    </div>
+    <PlainReading v-if="view === 'plain'" :chart="chart" :analysis="analysis" :verdicts="verdicts" />
+    <template v-else>
     <blockquote class="overview">
       <p>{{ analysis.overview }}</p>
       <p class="t-muted">{{ analysis.relationsLine }}</p>
@@ -143,6 +154,7 @@ const verdictClass = (v: string) => (/太旺|过旺|从强/.test(v) ? 'hot' : /�
         </table>
       </div>
     </LqCollapse>
+    </template>
   </div>
 </template>
 
@@ -150,6 +162,12 @@ const verdictClass = (v: string) => (/太旺|过旺|从强/.test(v) ? 'hot' : /�
 .an {
   display: grid;
   gap: var(--sp-5);
+}
+.view {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
 }
 .overview {
   display: grid;

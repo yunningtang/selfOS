@@ -1,5 +1,11 @@
 /** English renderings keyed by the Chinese source string. Anything missing falls back to Chinese. */
 export const EN: Record<string, string> = {
+  // ---- plain reading
+  '通俗解读': 'Plain reading', '专业断语': 'Expert readings', '分析视图': 'Analysis view',
+  '不懂八字也能看：性格、事业、感情、身体与当下阶段': 'No BaZi background needed: character, career, love, health and the current phase',
+  '通俗解读目前仅提供中文。': 'The plain reading is Chinese-only for now.',
+  '下面把传统命理的判断翻译成白话。它描述的是倾向和适合的环境，不是定数。': 'Below, the classical judgements are retold in everyday language. They describe tendencies and fitting environments, not fate.',
+  '收起名词解释': 'Hide glossary', '这些词是什么意思？': 'What do these terms mean?',
   // ---- navigation / chrome
   '入口': 'Threshold', '生命素材': 'Seed', '生命之树': 'Inner Atlas', '记忆之室': 'Memory Chamber', '排盘': 'Charts',
   '内在议会': 'Inner Council', '自性化报告': 'Reflection', '出生信息': 'Birth data',

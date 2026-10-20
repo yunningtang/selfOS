@@ -12,6 +12,7 @@
     "./bazi/chart": "./src/bazi/chart.ts",
     "./bazi/classics": "./src/bazi/classics.ts",
     "./bazi/forecast": "./src/bazi/forecast.ts",
+    "./bazi/plain": "./src/bazi/plain.ts",
     "./bazi/relations": "./src/bazi/relations.ts",
     "./bazi/shensha": "./src/bazi/shensha.ts",
     "./bazi/strength": "./src/bazi/strength.ts",
