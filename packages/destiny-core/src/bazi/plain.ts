@@ -194,12 +194,13 @@ export function plainReading(chart: BaziChart, analysis: BaziAnalysis, verdicts:
     key: 'helpers',
     title: '对你有帮助的东西',
     paras: [
-      `「喜用神」就是对你最有帮助的那几种能量；「忌神」是会给你添堵的。本盘按「${analysis.special.type ?? '平衡（扶抑）'}」的思路取用：喜${zh(eff.favourable)}，忌${zh(eff.unfavourable)}。把它们落到生活里大致是：`,
+      `「喜用神」就是对你最有帮助的那几种能量；「忌神」是会给你添堵的。本盘${eff.basis}：喜${zh(eff.favourable)}，忌${zh(eff.unfavourable)}。把它们落到生活里大致是：`,
     ],
     bullets: [
       ...eff.favourable.map((e) => `多亲近${ELEMENT_ZH[e]}：${ELEMENT_HELP[e].colour}，${ELEMENT_HELP[e].dir}，${ELEMENT_HELP[e].season}精神最好；行业偏${ELEMENT_HELP[e].fields}。`),
       ...eff.unfavourable.map((e) => `少被${ELEMENT_ZH[e]}牵着走：${ELEMENT_HELP[e].colour}不作主色，${ELEMENT_HELP[e].dir}不作长期定居首选。`),
-      ...(analysis.tiaohou.line ? [`再按出生季节的冷暖调节（古书叫「调候」）：${analysis.tiaohou.line}`] : []),
+      ...eff.notes.map((n) => `${n}。`),
+      ...(analysis.tiaohou.line && !eff.notes.some((n) => n.startsWith('调候')) ? [`再按出生季节的冷暖调节（古书叫「调候」）：${analysis.tiaohou.line}`] : []),
     ],
   }
 

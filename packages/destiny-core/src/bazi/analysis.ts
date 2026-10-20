@@ -100,7 +100,15 @@ export interface BaziAnalysis {
   /** The 从/专旺 judgement used for 喜忌 */
   special: { type: '从弱' | '专旺' | '从强' | null; follow?: string }
   /** The 喜忌 every other reading uses: 从格 / 专旺 override 扶抑 when present */
-  effective: { favourable: FiveElement[]; unfavourable: FiveElement[]; source: '从格' | '专旺' | '扶抑' }
+  effective: {
+    favourable: FiveElement[]
+    unfavourable: FiveElement[]
+    source: '从格' | '专旺' | '扶抑'
+    /** Human description of how the 喜忌 were reconciled, e.g. 扶抑为主，兼调候（壬）、通关（水） */
+    basis: string
+    /** One line per adjustment made on top of the base method */
+    notes: string[]
+  }
 }
 
 const roleOf = (dmEl: FiveElement, el: FiveElement): ElementRole =>
@@ -127,6 +135,9 @@ export const PATTERN_THRESHOLDS = {
   dominant: 62,
   /** …and the 官杀 share must stay below this, otherwise it is just 身强 */
   dominantOfficerMax: 8,
+  /** …and if two or more 食伤/财/官 stems are exposed, their party must stay below this share — otherwise the
+   *  leakage is real (印旺身强用食伤泄秀) and the chart is 扶抑, not 从强 */
+  dominantLeakMax: 20,
   /** 日主 share alone for a true 专旺 (曲直、炎上…); otherwise 从强 */
   pureDominant: 45,
   followSelfMax: 12,
@@ -278,10 +289,14 @@ export function analyseBazi(chart: BaziChart): BaziAnalysis {
   const T = PATTERN_THRESHOLDS
   const selfParty = pct(dmEl) + pct(motherEl)
   let special: BaziAnalysis['special'] = { type: null }
-  if (selfParty >= T.dominant && pct(ELEMENT_ORDER.find((e) => controls(e, dmEl))!) < T.dominantOfficerMax) {
+  const nonParty = 100 - selfParty
+  const exposedLeak = exposedSupport.filter((e) => e !== dmEl && e !== motherEl).length
+  if (selfParty >= T.dominant && pct(ELEMENT_ORDER.find((e) => controls(e, dmEl))!) < T.dominantOfficerMax && !(exposedLeak >= 2 && nonParty >= T.dominantLeakMax)) {
     const names: Record<FiveElement, string> = { wood: '曲直', fire: '炎上', earth: '稼穑', metal: '从革', water: '润下' }
     special = { type: pct(dmEl) >= T.pureDominant ? '专旺' : '从强' }
     patterns.push({ name: special.type === '专旺' ? `${names[dmEl]}格（专旺）` : '从强格', kind: '变格', note: '日主与印比得势，顺其旺势为用，忌官杀财星逆之。' })
+  } else if (selfParty >= T.dominant && exposedLeak >= 2) {
+    patterns.push({ name: '印比成党，食伤泄秀', kind: '组合', note: '印比虽占大半，但食伤财官两干以上透出而有力，不作从强；以克泄之神为用，忌再帮身。' })
   } else if (pct(dmEl) <= T.followSelfMax && pct(motherEl) <= T.followResourceMax && !dmRooted && !hasExposedResource && (!hasExposedPeer || elementSummary.filter((s) => s.role !== '日主' && s.role !== '印').sort((a, b) => b.value - a.value)[0]?.role === '食伤')) {
     const dominant = elementSummary.filter((s) => s.role !== '日主' && s.role !== '印').sort((a, b) => b.value - a.value)[0]
     const follow = dominant?.role === '食伤' ? '从儿格' : dominant?.role === '财' ? '从财格' : '从杀格'
@@ -390,10 +405,44 @@ export function analyseBazi(chart: BaziChart): BaziAnalysis {
   }
   const special2 = useGods.find((u) => u.type === '从格' || u.type === '专旺')
   const zh2el = (z: string) => ELEMENT_ORDER.find((e) => ELEMENT_ZH[e] === z)!
-  const effective: BaziAnalysis['effective'] = special2
-    ? { favourable: special2.favourable.map(zh2el), unfavourable: special2.unfavourable.map(zh2el), source: special2.type as '从格' | '专旺' }
-    : { favourable: st.favourable, unfavourable: st.unfavourable, source: '扶抑' }
-  useGods.push({ type: '总结', favourable: effective.favourable.map((e) => ELEMENT_ZH[e]), unfavourable: effective.unfavourable.map((e) => ELEMENT_ZH[e]), note: `本盘采用${effective.source}取用：喜${effective.favourable.map((e) => ELEMENT_ZH[e]).join('')}、忌${effective.unfavourable.map((e) => ELEMENT_ZH[e]).join('')}，运势与资产判断均以此为准。重要性：化气 > 专旺/从格 > 调候 > 扶抑 > 流通；多路用神相同者为真用神。` })
+  const effNotes: string[] = []
+  let effFav: FiveElement[], effUnfav: FiveElement[]
+  let effSource: '从格' | '专旺' | '扶抑'
+  if (special2) {
+    effFav = special2.favourable.map(zh2el); effUnfav = special2.unfavourable.map(zh2el); effSource = special2.type as '从格' | '专旺'
+  } else {
+    effFav = [...st.favourable]; effUnfav = [...st.unfavourable]; effSource = '扶抑'
+    const elOfStem = (ch: string) => STEM_ELEMENT[STEMS.indexOf(ch as (typeof STEMS)[number])]
+    // 调候为急: in the cold (亥子丑) and hot (巳午未) months the primary 调候 element is favourable regardless of 扶抑,
+    // unless it is the element already overwhelming the chart.
+    const urgent = [10, 11, 0, 4, 5, 6].includes(branches.month)
+    const primaryEls = Array.from(new Set(primary.map(elOfStem)))
+    for (const e of primaryEls) {
+      if (pct(e) >= 35) continue
+      const wasUnfav = effUnfav.includes(e)
+      if (urgent || st.verdict === '中和') {
+        effUnfav = effUnfav.filter((x) => x !== e)
+        if (!effFav.includes(e)) effFav.push(e)
+        effNotes.push(`调候（${primary.join('')}）：${ELEMENT_ZH[e]}${wasUnfav ? '由忌转喜，寒暖燥湿为急' : '与扶抑一致，为真用神'}`)
+      } else if (effFav.includes(e)) effNotes.push(`调候（${primary.join('')}）：与扶抑一致，${ELEMENT_ZH[e]}为真用神`)
+    }
+    // put the elements both methods agree on first
+    effFav.sort((a, b) => Number(primaryEls.includes(b)) - Number(primaryEls.includes(a)))
+    // 通关: two strong elements in direct conflict with the bridging element scarce → the bridge is favourable
+    for (const a of ELEMENT_ORDER) {
+      const b = ELEMENT_ORDER.find((x) => controls(a, x))!
+      const bridge = ELEMENT_ORDER.find((x) => generates(a, x))!
+      if (pct(a) >= 22 && pct(b) >= 22 && pct(bridge) < 10) {
+        const wasUnfav = effUnfav.includes(bridge)
+        effUnfav = effUnfav.filter((x) => x !== bridge)
+        if (!effFav.includes(bridge)) effFav.push(bridge)
+        effNotes.push(`通关：${ELEMENT_ZH[a]}${ELEMENT_ZH[b]}交战（${pct(a)}% / ${pct(b)}%）而${ELEMENT_ZH[bridge]}不足，取${ELEMENT_ZH[bridge]}通关${wasUnfav ? '，由忌转喜' : ''}`)
+      }
+    }
+  }
+  const effBasis = special2 ? `${effSource}取用` : effNotes.length ? `扶抑为主，兼${effNotes.map((n) => n.split('：')[0]).join('、')}` : '扶抑取用'
+  const effective: BaziAnalysis['effective'] = { favourable: effFav, unfavourable: effUnfav, source: effSource, basis: effBasis, notes: effNotes }
+  useGods.push({ type: '总结', favourable: effective.favourable.map((e) => ELEMENT_ZH[e]), unfavourable: effective.unfavourable.map((e) => ELEMENT_ZH[e]), note: `本盘${effBasis}：喜${effective.favourable.map((e) => ELEMENT_ZH[e]).join('')}、忌${effective.unfavourable.map((e) => ELEMENT_ZH[e]).join('')}，运势与资产判断均以此为准。${effNotes.length ? effNotes.join('；') + '。' : ''}取用次序：化气 > 专旺/从格 > 调候 > 扶抑 > 通关流通；多路用神相同者为真用神。` })
 
   // ---- overview lines ---------------------------------------------------------------
   const overview = `你的日主为${STEMS[dm]}，年干${STEMS[stems.year]}，年支${BRANCHES[branches.year]}，月干${STEMS[stems.month]}，月支${BRANCHES[branches.month]}，日支${BRANCHES[branches.day]}，时干${STEMS[stems.hour]}，时支${BRANCHES[branches.hour]}；天干为${[stems.year, stems.month, stems.hour].map((s) => STEMS[s]).join('、')}；地支为${allBranches.map((b) => BRANCHES[b]).join('、')}。`

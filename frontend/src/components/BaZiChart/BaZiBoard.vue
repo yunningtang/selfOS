@@ -130,7 +130,7 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
             <span class="t-faint wx-s">{{ chart.strength.season[k] }}</span>
           </li>
         </ul>
-        <p class="t-sm"><span class="t-muted">{{ t('喜用') }}</span> {{ elZh(analysis.effective.favourable) }} <span class="t-faint">·</span> <span class="t-muted">{{ t('忌') }}</span> {{ elZh(analysis.effective.unfavourable) }} <span class="t-faint">({{ t(analysis.effective.source) }})</span> <span class="t-faint">·</span> {{ chart.strength.support.ling ? t('得令') : t('失令') }} {{ chart.strength.support.di ? t('得地') : t('失地') }} {{ chart.strength.support.shi ? t('得势') : t('失势') }}</p>
+        <p class="t-sm"><span class="t-muted">{{ t('喜用') }}</span> {{ elZh(analysis.effective.favourable) }} <span class="t-faint">·</span> <span class="t-muted">{{ t('忌') }}</span> {{ elZh(analysis.effective.unfavourable) }} <span class="t-faint">({{ t(analysis.effective.basis) }})</span> <span class="t-faint">·</span> {{ chart.strength.support.ling ? t('得令') : t('失令') }} {{ chart.strength.support.di ? t('得地') : t('失地') }} {{ chart.strength.support.shi ? t('得势') : t('失势') }}</p>
         <p v-if="chart.classics.tiaoHou.levels.length" class="t-sm tiaohou"><span class="t-muted">{{ t('调候') }}</span>
           <template v-for="(lv, i) in chart.classics.tiaoHou.levels" :key="i">
             <span v-if="i" class="t-faint">›</span>

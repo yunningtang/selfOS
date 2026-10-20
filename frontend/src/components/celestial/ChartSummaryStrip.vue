@@ -25,7 +25,7 @@ const el = ELEMENTS[props.chart.dayMaster.element].token
 const items = computed(() => [
   { k: '日主', v: `${props.chart.dayMaster.stemChar}${ELEMENT_ZH[props.chart.dayMaster.element]} · ${t(props.chart.strength.verdict)}`, mode: 'chart' as const, tone: el },
   { k: '格局', v: analysis.value.patterns.slice(0, 2).map((p) => p.name).join(' · '), mode: 'analysis' as const },
-  { k: '喜用', v: `${analysis.value.effective.favourable.map((e) => ELEMENT_ZH[e]).join('')} · ${t(analysis.value.effective.source)}`, mode: 'analysis' as const },
+  { k: '喜用', v: `${analysis.value.effective.favourable.map((e) => ELEMENT_ZH[e]).join('')} · ${t(analysis.value.effective.source)}${analysis.value.effective.notes.length ? '+' : ''}`, mode: 'analysis' as const },
   { k: '当前大运', v: luck.value && luckF.value ? `${luck.value.stemChar}${luck.value.branchChar} · ${t(RATING_LABEL[luckF.value.rating])}` : '—', mode: 'forecast' as const },
   { k: '今年', v: `${yearF.value.stemChar}${yearF.value.branchChar} · ${t(RATING_LABEL[yearF.value.rating])}`, mode: 'forecast' as const },
   { k: '资产层级', v: wealth.value.band.name, mode: 'wealth' as const },
