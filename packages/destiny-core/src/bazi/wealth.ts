@@ -30,16 +30,26 @@ export interface RealityContext {
 }
 export const DEFAULT_CONTEXT: RealityContext = { cityTier: 'unknown', family: 'unknown', education: 'unknown', occupation: 'unknown' }
 
-export const CITY_TIERS: { value: CityTier; label: string; score: number; note: string }[] = [
-  { value: 'unknown', label: '未填写', score: 0, note: '按全国中位起点计' },
-  { value: 'tier1', label: '一线（北上广深）', score: 3, note: '机会与房产基数高，生活成本亦高' },
-  { value: 'newTier1', label: '新一线（杭蓉汉宁渝等）', score: 2, note: '机会多，成本相对可控' },
-  { value: 'tier2', label: '二线省会 / 强地级市', score: 1, note: '' },
-  { value: 'tier3', label: '三四线城市', score: 0, note: '' },
-  { value: 'county', label: '县城 / 乡镇 / 农村', score: -1, note: '起点低但成本低' },
-  { value: 'abroadDeveloped', label: '海外发达地区', score: 3, note: '' },
-  { value: 'abroadOther', label: '海外其他地区', score: 1, note: '' },
+/** `factor` scales the national band ranges to the city's price level (one-line city ≈ 2× national). */
+export const CITY_TIERS: { value: CityTier; label: string; score: number; note: string; factor: number }[] = [
+  { value: 'unknown', label: '未填写', score: 0, note: '按全国中位起点计', factor: 1 },
+  { value: 'tier1', label: '一线（北上广深）', score: 3, note: '机会与房产基数高，生活成本亦高', factor: 2.2 },
+  { value: 'newTier1', label: '新一线（杭蓉汉宁渝等）', score: 2, note: '机会多，成本相对可控', factor: 1.5 },
+  { value: 'tier2', label: '二线省会 / 强地级市', score: 1, note: '', factor: 1.2 },
+  { value: 'tier3', label: '三四线城市', score: 0, note: '', factor: 0.85 },
+  { value: 'county', label: '县城 / 乡镇 / 农村', score: -1, note: '起点低但成本低', factor: 0.5 },
+  { value: 'abroadDeveloped', label: '海外发达地区', score: 3, note: '', factor: 2.5 },
+  { value: 'abroadOther', label: '海外其他地区', score: 1, note: '', factor: 1 },
 ]
+/** Band boundaries in 万元 (national household net worth incl. property); scaled by the city factor for display. */
+export const BAND_BOUNDS: [number, number | null][] = [[0, 20], [20, 80], [80, 300], [300, 1000], [1000, 5000], [5000, null]]
+export function bandRange(level: Band['level'], cityFactor = 1): string {
+  const [lo, hi] = BAND_BOUNDS[level - 1]
+  const f = (v: number) => (v * cityFactor >= 10000 ? `${(v * cityFactor / 10000).toFixed(1).replace(/\.0$/, '')} 亿` : `${Math.round(v * cityFactor)} 万`)
+  if (lo === 0) return `家庭净资产 < ${f(hi!)}`
+  if (hi === null) return `> ${f(lo)}`
+  return `${f(lo)} – ${f(hi)}`
+}
 export const FAMILIES: { value: FamilyBackground; label: string; score: number; note: string }[] = [
   { value: 'unknown', label: '未填写', score: 0, note: '' },
   { value: 'wealthy', label: '富裕（企业主 / 多套房产 / 高净值）', score: 3, note: '父母资产可直接转化为起点' },
@@ -98,6 +108,9 @@ export interface WealthAssessment {
   luck: { score: number; parts: ScorePart[]; favourableYears: number; unfavourableYears: number; window: [number, number] }
   total: number
   band: Band
+  /** Band ranges scaled to the chosen city tier, index = level − 1 */
+  rangesForCity: string[]
+  cityFactor: number
   /** Band suggested by the chart alone (reality unknown) */
   chartBand: Band
   /** Band suggested by reality alone */
@@ -206,12 +219,12 @@ export function assessWealth(chart: BaziChart, analysis: BaziAnalysis, ctx: Real
   narrative.push(`现实起点：${baselineBand.name}（${baselineScore >= 0 ? '+' : ''}${baselineScore}）。${ctx.cityTier === 'unknown' && ctx.family === 'unknown' ? '未填写现实背景，按全国中位起点计；填写后结论会更贴近实际。' : `${city.label}、${fam.label}、${edu.label}、${occ.label}。`}`)
   narrative.push(`命局财力：${cp.map((p) => `${p.name}（${p.score >= 0 ? '+' : ''}${p.score}）`).join('、')}，合计 ${chartScore >= 0 ? '+' : ''}${chartScore}。日主${ELEMENT_ZH[chart.dayMaster.element]}${st}，财星${wealth.verdict}。`)
   narrative.push(`运势加成：25–55 岁 ${span} 年中偏吉 ${fav} 年、偏忌 ${unfav} 年${wealthLucks.length ? '，' + wealthLucks.map((l) => l.stemChar + l.branchChar).join('、') + '为财运' : ''}，合计 ${luckScore >= 0 ? '+' : ''}${luckScore}。`)
-  narrative.push(`综合：${total >= 0 ? '+' : ''}${total} → ${band.name}（${band.range}）。${band.level > baselineBand.level ? '命局与运势在起点之上有抬升，关键在把握财运年份。' : band.level < baselineBand.level ? '命局与运势拖累起点，守成重于进取，避免在忌年做大决定。' : '命局与起点相称，稳步积累即可。'}`)
+  narrative.push(`综合：${total >= 0 ? '+' : ''}${total} → ${band.name}（${bandRange(band.level, city.factor)}${city.factor !== 1 ? '，按' + city.label.split('（')[0] + '价格水平' : ''}）。${band.level > baselineBand.level ? '命局与运势在起点之上有抬升，关键在把握财运年份。' : band.level < baselineBand.level ? '命局与运势拖累起点，守成重于进取，避免在忌年做大决定。' : '命局与起点相称，稳步积累即可。'}`)
 
   return {
     baseline: { score: baselineScore, parts: bp }, chart: { score: chartScore, parts: cp },
     luck: { score: luckScore, parts: lp, favourableYears: fav, unfavourableYears: unfav, window },
-    total, band, chartBand, baselineBand, checkpoints,
+    total, band, chartBand, baselineBand, checkpoints, rangesForCity: BANDS.map((b) => bandRange(b.level, city.factor)), cityFactor: city.factor,
     education: { score: eduScore, parts: ep, verdict: eduVerdict, comparison },
     narrative,
   }

@@ -19,8 +19,12 @@ const topics = computed(() => Array.from(new Set(verdicts.value.map((v) => v.top
 const topic = ref<string>('全部')
 const FREE_ROWS = 12
 const allShown = computed(() => (topic.value === '全部' ? verdicts.value : verdicts.value.filter((v) => v.topic === topic.value)))
-const shown = computed(() => (props.locked ? allShown.value.slice(0, FREE_ROWS) : allShown.value))
+const showReference = ref(false)
+const mainRows = computed(() => allShown.value.filter((v) => v.tier !== 'reference'))
+const referenceRows = computed(() => allShown.value.filter((v) => v.tier === 'reference'))
+const shown = computed(() => (props.locked ? mainRows.value.slice(0, FREE_ROWS) : mainRows.value))
 const hidden = computed(() => allShown.value.length - shown.value.length)
+const coreCount = computed(() => allShown.value.filter((v) => v.tier === 'core').length)
 const tagClass = (v: Verdict) => (v.tag && ['吉', '贵', '富', '佳'].includes(v.tag) ? 'good' : v.tag && ['忌', '凶'].includes(v.tag) ? 'bad' : 'plain')
 const rowsFor = (k: string) => analysis.value.elementRows.filter((r) => r.pillar === k)
 const pillarGz = (k: string) => { const p = props.chart.pillars.find((x) => x.key === k)!; return p.stemChar + p.branchChar }
@@ -41,7 +45,7 @@ const verdictClass = (v: string) => (/太旺|过旺|从强/.test(v) ? 'hot' : /�
 
     <section class="verdicts">
       <header class="v-head">
-        <h3>{{ t('断语') }} <span class="t-muted t-num">{{ shown.length }}{{ t(' 条') }}</span></h3>
+        <h3>{{ t('断语') }} <span class="t-muted t-num">{{ shown.length }}{{ t(' 条') }}</span> <span class="t-caption">{{ t('定性') }} {{ coreCount }} · {{ t('细节') }} {{ mainRows.length - coreCount }} · {{ t('参考') }} {{ referenceRows.length }}</span></h3>
         <div class="chips" role="tablist">
           <button v-for="tp in ['全部', ...topics]" :key="tp" type="button" class="chip" :class="{ on: topic === tp }" @click="topic = tp">{{ t(tp) }}</button>
         </div>
@@ -50,13 +54,24 @@ const verdictClass = (v: string) => (/太旺|过旺|从强/.test(v) ? 'hot' : /�
         <table class="vt">
           <thead><tr><th>{{ t('断语') }}</th><th class="num">{{ t('可信度') }}</th><th>{{ t('推断依据（不懂四柱的不用看）') }}</th></tr></thead>
           <tbody>
-            <tr v-for="(v, i) in shown" :key="i">
-              <td><span v-if="v.tag" class="tag" :class="tagClass(v)">【{{ t(v.tag) }}<template v-if="v.star"> ★</template>】</span>{{ isEn ? (VERDICT_EN[v.text] ?? v.text) : v.text }}</td>
+            <tr v-for="(v, i) in shown" :key="i" :class="{ core: v.tier === 'core' }">
+              <td><span v-if="v.tier === 'core'" class="tier">{{ t('定性') }}</span><span v-if="v.tag" class="tag" :class="tagClass(v)">【{{ t(v.tag) }}<template v-if="v.star"> ★</template>】</span>{{ isEn ? (VERDICT_EN[v.text] ?? v.text) : v.text }}</td>
               <td class="num t-num">{{ v.confidence }}%</td>
               <td class="basis t-muted">{{ v.basis }}</td>
             </tr>
           </tbody>
         </table>
+      </div>
+      <div v-if="!locked && referenceRows.length" class="ref">
+        <button type="button" class="chip" :class="{ on: showReference }" @click="showReference = !showReference">{{ showReference ? t('收起参考条目') : `${t('展开参考条目')} (${referenceRows.length})` }}</button>
+        <p class="t-caption">{{ t('参考条目：纳音、藏干余气、神煞落柱、星运等辅助信息，确定性较低，默认折叠。') }}</p>
+        <div v-if="showReference" class="tw">
+          <table class="vt ref-table">
+            <tbody>
+              <tr v-for="(v, i) in referenceRows" :key="i"><td><span v-if="v.tag" class="tag" :class="tagClass(v)">【{{ t(v.tag) }}】</span>{{ v.text }}</td><td class="num t-num">{{ v.confidence }}%</td><td class="basis t-muted">{{ v.basis }}</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
       <PaywallCard v-if="locked" compact :title="`${t('还有')} ${hidden} ${t('条断语、评分、喜用神与五行十神详表')}`" />
     </section>
@@ -288,5 +303,27 @@ thead th {
 .pad {
   padding-top: var(--sp-3);
   line-height: 1.7;
+}
+.tier {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: var(--fs-2xs);
+  line-height: 18px;
+  color: var(--accent-ink);
+  background: var(--accent-soft);
+  vertical-align: 2px;
+}
+tr.core td:first-child {
+  font-weight: 500;
+}
+.ref {
+  display: grid;
+  gap: var(--sp-2);
+  padding-top: var(--sp-3);
+}
+.ref-table td {
+  color: var(--text-2);
 }
 </style>

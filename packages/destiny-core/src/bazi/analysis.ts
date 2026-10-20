@@ -121,6 +121,18 @@ function verdictFor(pct: number, present: boolean): string {
 
 const ZERO = () => Object.fromEntries(ELEMENT_ORDER.map((e) => [e, 0])) as Record<FiveElement, number>
 
+/** 从 / 专旺 thresholds (percent of total element strength); calibrated in scripts/calib-patterns.mts */
+export const PATTERN_THRESHOLDS = {
+  /** 日主 + 印 share at or above which the chart follows its own strength (从强 / 专旺) */
+  dominant: 62,
+  /** …and the 官杀 share must stay below this, otherwise it is just 身强 */
+  dominantOfficerMax: 8,
+  /** 日主 share alone for a true 专旺 (曲直、炎上…); otherwise 从强 */
+  pureDominant: 45,
+  followSelfMax: 12,
+  followResourceMax: 14,
+}
+
 export function analyseBazi(chart: BaziChart): BaziAnalysis {
   const stems = Object.fromEntries(chart.pillars.map((p) => [p.key, p.stem])) as Record<PillarKey, number>
   const branches = Object.fromEntries(chart.pillars.map((p) => [p.key, p.branch])) as Record<PillarKey, number>
@@ -259,13 +271,18 @@ export function analyseBazi(chart: BaziChart): BaziAnalysis {
   const pct = (e: FiveElement) => Math.round((sums[e] / grand) * 1000) / 10
   const motherEl = ELEMENT_ORDER.find((e) => generates(e, dmEl))!
   const dmRooted = allBranches.some((b) => HIDDEN_STEMS[b].some((h) => STEM_ELEMENT[h] === dmEl))
+  // 从格 needs 天干不见印比 (no exposed stem that feeds or sides with the 日主); a 比劫 is tolerated only for 从儿.
+  const exposedSupport = KEYS.filter((k) => k !== 'day').map((k) => STEM_ELEMENT[stems[k]])
+  const hasExposedResource = exposedSupport.includes(motherEl)
+  const hasExposedPeer = exposedSupport.includes(dmEl)
+  const T = PATTERN_THRESHOLDS
   const selfParty = pct(dmEl) + pct(motherEl)
   let special: BaziAnalysis['special'] = { type: null }
-  if (selfParty >= 62) {
+  if (selfParty >= T.dominant && pct(ELEMENT_ORDER.find((e) => controls(e, dmEl))!) < T.dominantOfficerMax) {
     const names: Record<FiveElement, string> = { wood: '曲直', fire: '炎上', earth: '稼穑', metal: '从革', water: '润下' }
-    special = { type: pct(dmEl) >= 45 ? '专旺' : '从强' }
+    special = { type: pct(dmEl) >= T.pureDominant ? '专旺' : '从强' }
     patterns.push({ name: special.type === '专旺' ? `${names[dmEl]}格（专旺）` : '从强格', kind: '变格', note: '日主与印比得势，顺其旺势为用，忌官杀财星逆之。' })
-  } else if (pct(dmEl) <= 12 && pct(motherEl) <= 14 && !dmRooted) {
+  } else if (pct(dmEl) <= T.followSelfMax && pct(motherEl) <= T.followResourceMax && !dmRooted && !hasExposedResource && (!hasExposedPeer || elementSummary.filter((s) => s.role !== '日主' && s.role !== '印').sort((a, b) => b.value - a.value)[0]?.role === '食伤')) {
     const dominant = elementSummary.filter((s) => s.role !== '日主' && s.role !== '印').sort((a, b) => b.value - a.value)[0]
     const follow = dominant?.role === '食伤' ? '从儿格' : dominant?.role === '财' ? '从财格' : '从杀格'
     special = { type: '从弱', follow }

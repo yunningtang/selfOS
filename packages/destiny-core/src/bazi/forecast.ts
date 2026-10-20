@@ -16,6 +16,19 @@ import type { BaziAnalysis } from './analysis'
 import type { Verdict, VerdictTag } from './verdicts'
 
 export type Rating = -3 | -2 | -1 | 0 | 1 | 2 | 3
+
+/**
+ * Signal weights for the period rating. Calibrated so that, over random charts, roughly 40% of
+ * years rate 吉 (≥1), 20% 平 and 40% 忌 (≤−1) — see scripts/calib-dist.mts. Real-event backtests
+ * (scripts/backtest.mts) are the next step once dated outcomes are available.
+ */
+export const FORECAST_WEIGHTS = {
+  favourableElement: 1, unfavourableElement: 1, tiaohou: 1, stemClashSelf: 1,
+  taiSuiSame: 1, taiSuiClash: 1, taiSuiHarm: 0.5, taiSuiBreak: 0.5, taiSuiPunish: 0.5, taiSuiCombine: 0.5, taiSuiTrine: 0.5,
+  dayClash: 1, otherClash: 0.5, dayCombine: 0.5, otherCombine: 0.25, punish: 0.25,
+  fuyin: 1, fanyin: 1, luckClashBoth: 1, luckClashBranch: 0.5, luckCombine: 0.25,
+  starGood: 0.5, starBad: 0.25,
+}
 export const RATING_LABEL: Record<Rating, string> = { 3: '大吉', 2: '吉', 1: '小吉', 0: '平', [-1]: '小忌', [-2]: '忌', [-3]: '凶' }
 
 export interface PeriodForecast {
@@ -103,66 +116,66 @@ function meet(n: Natal, stem: number, branch: number, kind: PeriodForecast['kind
 
   // 喜忌
   const favCount = [se, be].filter((e) => n.fav.has(e)).length, unfavCount = [se, be].filter((e) => n.unfav.has(e)).length
-  score += favCount - unfavCount
+  score += favCount * FORECAST_WEIGHTS.favourableElement - unfavCount * FORECAST_WEIGHTS.unfavourableElement
   if (favCount === 2) lines.push(v(`${word}干支${ELEMENT_ZH[se]}${ELEMENT_ZH[be]}皆为喜用：整体顺遂，宜进取。`, 84, `喜用${[...n.fav].map((e) => ELEMENT_ZH[e]).join('')}`, '格局', '吉'))
   else if (unfavCount === 2) lines.push(v(`${word}干支${ELEMENT_ZH[se]}${ELEMENT_ZH[be]}皆为忌神：阻滞较多，宜守成、少做大决定。`, 84, `忌${[...n.unfav].map((e) => ELEMENT_ZH[e]).join('')}`, '格局', '忌'))
   else if (favCount === 1 && unfavCount === 1) lines.push(v(`${word}一喜一忌（${ELEMENT_ZH[se]}${ELEMENT_ZH[be]}）：先难后易或喜忧参半，看上下半年。`, 78, '干支喜忌各半', '格局'))
   else if (favCount === 1) lines.push(v(`${word}${ELEMENT_ZH[se === (n.fav.has(se) ? se : be) ? se : be]}为喜用，小顺。`, 78, '干支一字为喜用', '格局', '吉'))
   else if (unfavCount === 1) lines.push(v(`${word}${ELEMENT_ZH[n.unfav.has(se) ? se : be]}为忌，小阻。`, 78, '干支一字为忌', '格局', '忌'))
-  if (n.tiaohou.has(STEMS[stem])) { score += 1; lines.push(v(`${word}天干${STEMS[stem]}正是调候用神：寒暖燥湿得补，层次上升之期。`, 84, `调候用神${STEMS[stem]}透出`, '格局', '佳')) }
+  if (n.tiaohou.has(STEMS[stem])) { score += FORECAST_WEIGHTS.tiaohou; lines.push(v(`${word}天干${STEMS[stem]}正是调候用神：寒暖燥湿得补，层次上升之期。`, 84, `调候用神${STEMS[stem]}透出`, '格局', '佳')) }
 
   // 天干与日主
   if (stem === n.dm) lines.push(v(`${word}干与日主同字（伏吟天干）：诸事重复、自我强势，与人争竞。`, 76, `${word}干${STEMS[stem]}=日干`, '性格'))
   const combo = STEM_COMBINE.find(([a, b]) => (a === stem && b === n.dm) || (a === n.dm && b === stem))
   if (combo) { lines.push(v(`${word}干${STEMS[stem]}合日干${STEMS[n.dm]}（化${ELEMENT_ZH[combo[2]]}）：有合作、牵绊或感情之事，身被合则主意易被人左右。`, 80, `${STEMS[stem]}${STEMS[n.dm]}相合`, '六亲')); tags.push('合身') }
-  if (pairIn(stem, n.dm, STEM_CLASH)) { score -= 1; lines.push(v(`${word}干${STEMS[stem]}冲克日干：压力直逼自身，防健康与冲突。`, 78, `${STEMS[stem]}${STEMS[n.dm]}相冲`, '健康', '忌')) }
+  if (pairIn(stem, n.dm, STEM_CLASH)) { score -= FORECAST_WEIGHTS.stemClashSelf; lines.push(v(`${word}干${STEMS[stem]}冲克日干：压力直逼自身，防健康与冲突。`, 78, `${STEMS[stem]}${STEMS[n.dm]}相冲`, '健康', '忌')) }
 
   // 太岁（与年支）
   const yb = n.branches.year
-  if (branch === yb) { score -= 1; tags.push(kind === 'year' ? '本命年' : '值太岁'); lines.push(v(`${word}支与年支同为${BRANCHES[branch]}，${kind === 'year' ? '本命年' : '值太岁'}：旧事翻新、起伏较大，宜稳。`, 80, `${word}支=年支${BRANCHES[yb]}`, '六亲', '忌')) }
-  if (pairIn(branch, yb, BRANCH_CLASH)) { score -= 1; tags.push('冲太岁'); lines.push(v(`${word}支${BRANCHES[branch]}冲年支${BRANCHES[yb]}（冲太岁）：变动、搬迁、长辈之忧，宜动中求静。`, 82, `${BRANCHES[branch]}${BRANCHES[yb]}相冲`, '六亲', '忌')) }
-  if (pairIn(branch, yb, BRANCH_HARM)) { score -= 0.5; tags.push('害太岁'); lines.push(v(`${word}支害年支（害太岁）：小人暗损，防是非。`, 76, `${BRANCHES[branch]}${BRANCHES[yb]}相害`, '六亲', '忌')) }
-  if (pairIn(branch, yb, BRANCH_BREAK)) { score -= 0.5; tags.push('破太岁'); lines.push(v(`${word}支破年支（破太岁）：破耗波折，防财物损失。`, 74, `${BRANCHES[branch]}${BRANCHES[yb]}相破`, '财运', '忌')) }
-  if (BRANCH_PUNISH_PAIRS.some(([a, b]) => (a === branch && b === yb) || (a === yb && b === branch)) || (branch === yb && BRANCH_SELF_PUNISH.includes(branch))) { score -= 0.5; tags.push('刑太岁'); lines.push(v(`${word}支刑年支（刑太岁）：拉扯是非、暗疾，防官非。`, 76, `${BRANCHES[branch]}${BRANCHES[yb]}相刑`, '健康', '凶')) }
-  if (BRANCH_SIX_COMBINE.some(([a, b]) => (a === branch && b === yb) || (a === yb && b === branch))) { score += 0.5; tags.push('合太岁'); lines.push(v(`${word}支合年支（合太岁）：得长辈贵人缘，诸事和顺。`, 78, `${BRANCHES[branch]}${BRANCHES[yb]}六合`, '六亲', '吉')) }
+  if (branch === yb) { score -= FORECAST_WEIGHTS.taiSuiSame; tags.push(kind === 'year' ? '本命年' : '值太岁'); lines.push(v(`${word}支与年支同为${BRANCHES[branch]}，${kind === 'year' ? '本命年' : '值太岁'}：旧事翻新、起伏较大，宜稳。`, 80, `${word}支=年支${BRANCHES[yb]}`, '六亲', '忌')) }
+  if (pairIn(branch, yb, BRANCH_CLASH)) { score -= FORECAST_WEIGHTS.taiSuiClash; tags.push('冲太岁'); lines.push(v(`${word}支${BRANCHES[branch]}冲年支${BRANCHES[yb]}（冲太岁）：变动、搬迁、长辈之忧，宜动中求静。`, 82, `${BRANCHES[branch]}${BRANCHES[yb]}相冲`, '六亲', '忌')) }
+  if (pairIn(branch, yb, BRANCH_HARM)) { score -= FORECAST_WEIGHTS.taiSuiHarm; tags.push('害太岁'); lines.push(v(`${word}支害年支（害太岁）：小人暗损，防是非。`, 76, `${BRANCHES[branch]}${BRANCHES[yb]}相害`, '六亲', '忌')) }
+  if (pairIn(branch, yb, BRANCH_BREAK)) { score -= FORECAST_WEIGHTS.taiSuiBreak; tags.push('破太岁'); lines.push(v(`${word}支破年支（破太岁）：破耗波折，防财物损失。`, 74, `${BRANCHES[branch]}${BRANCHES[yb]}相破`, '财运', '忌')) }
+  if (BRANCH_PUNISH_PAIRS.some(([a, b]) => (a === branch && b === yb) || (a === yb && b === branch)) || (branch === yb && BRANCH_SELF_PUNISH.includes(branch))) { score -= FORECAST_WEIGHTS.taiSuiPunish; tags.push('刑太岁'); lines.push(v(`${word}支刑年支（刑太岁）：拉扯是非、暗疾，防官非。`, 76, `${BRANCHES[branch]}${BRANCHES[yb]}相刑`, '健康', '凶')) }
+  if (BRANCH_SIX_COMBINE.some(([a, b]) => (a === branch && b === yb) || (a === yb && b === branch))) { score += FORECAST_WEIGHTS.taiSuiCombine; tags.push('合太岁'); lines.push(v(`${word}支合年支（合太岁）：得长辈贵人缘，诸事和顺。`, 78, `${BRANCHES[branch]}${BRANCHES[yb]}六合`, '六亲', '吉')) }
   const trine = BRANCH_TRINE.find(([g]) => g.includes(branch) && g.includes(yb) && branch !== yb)
-  if (trine) { score += 0.5; lines.push(v(`${word}支与年支三合${ELEMENT_ZH[trine[1]]}局：人缘聚合，${n.fav.has(trine[1]) ? '合为喜用，吉' : n.unfav.has(trine[1]) ? '合成忌神，须防被卷入' : '平'}。`, 76, `${BRANCHES[branch]}${BRANCHES[yb]}半合`, '六亲', n.fav.has(trine[1]) ? '吉' : undefined)) }
+  if (trine) { score += FORECAST_WEIGHTS.taiSuiTrine; lines.push(v(`${word}支与年支三合${ELEMENT_ZH[trine[1]]}局：人缘聚合，${n.fav.has(trine[1]) ? '合为喜用，吉' : n.unfav.has(trine[1]) ? '合成忌神，须防被卷入' : '平'}。`, 76, `${BRANCHES[branch]}${BRANCHES[yb]}半合`, '六亲', n.fav.has(trine[1]) ? '吉' : undefined)) }
 
   // 与日支、月支、时支
   for (const k of ['day', 'month', 'hour'] as const) {
     const nb = n.branches[k]
     if (pairIn(branch, nb, BRANCH_CLASH)) {
-      score -= k === 'day' ? 1 : 0.5
+      score -= k === 'day' ? FORECAST_WEIGHTS.dayClash : FORECAST_WEIGHTS.otherClash
       tags.push(k === 'day' ? '冲日支' : k === 'month' ? '冲月支' : '冲时支')
       lines.push(v(`${word}支${BRANCHES[branch]}冲${k === 'day' ? '日' : k === 'month' ? '月' : '时'}支${BRANCHES[nb]}：${POS_WHO[k]}有变动，${k === 'day' ? '婚姻感情或身体起波澜、易搬迁' : k === 'month' ? '工作环境或父母兄弟有变' : '子女居所之事生变'}。`, 82, `${BRANCHES[branch]}${BRANCHES[nb]}相冲`, '六亲', '忌'))
     } else if (BRANCH_SIX_COMBINE.some(([a, b]) => (a === branch && b === nb) || (a === nb && b === branch))) {
-      score += k === 'day' ? 0.5 : 0.25
+      score += k === 'day' ? FORECAST_WEIGHTS.dayCombine : FORECAST_WEIGHTS.otherCombine
       lines.push(v(`${word}支合${k === 'day' ? '日' : k === 'month' ? '月' : '时'}支${BRANCHES[nb]}：${POS_WHO[k]}和合，${k === 'day' ? '感情婚姻有进展，未婚者有缘' : '相关人事顺遂'}。`, 78, `${BRANCHES[branch]}${BRANCHES[nb]}六合`, '六亲', '吉'))
       if (k === 'day') tags.push('合日支')
     } else if (pairIn(branch, nb, BRANCH_HARM)) {
       lines.push(v(`${word}支害${k === 'day' ? '日' : k === 'month' ? '月' : '时'}支：${POS_WHO[k]}暗生嫌隙。`, 72, `${BRANCHES[branch]}${BRANCHES[nb]}相害`, '六亲', '忌'))
     } else if (BRANCH_PUNISH_PAIRS.some(([a, b]) => (a === branch && b === nb) || (a === nb && b === branch))) {
-      score -= 0.25
+      score -= FORECAST_WEIGHTS.punish
       lines.push(v(`${word}支刑${k === 'day' ? '日' : k === 'month' ? '月' : '时'}支：${POS_WHO[k]}有拉扯、暗疾或是非。`, 74, `${BRANCHES[branch]}${BRANCHES[nb]}相刑`, '健康', '忌'))
     }
   }
 
   // 伏吟 / 反吟 日柱
-  if (stem === n.stems.day && branch === n.branches.day) { score -= 1; tags.push('伏吟'); lines.push(v(`${word}${gz}与日柱伏吟：旧事重演、心情郁闷，宜守静。`, 80, `${word}干支=日柱`, '健康', '忌')) }
-  if (pairIn(stem, n.stems.day, STEM_CLASH) && pairIn(branch, n.branches.day, BRANCH_CLASH)) { score -= 1; tags.push('反吟'); lines.push(v(`${word}${gz}与日柱天克地冲（反吟）：大变动之期，婚姻、健康、居所皆须慎。`, 84, `${word}干支与日柱天克地冲`, '健康', '凶')) }
+  if (stem === n.stems.day && branch === n.branches.day) { score -= FORECAST_WEIGHTS.fuyin; tags.push('伏吟'); lines.push(v(`${word}${gz}与日柱伏吟：旧事重演、心情郁闷，宜守静。`, 80, `${word}干支=日柱`, '健康', '忌')) }
+  if (pairIn(stem, n.stems.day, STEM_CLASH) && pairIn(branch, n.branches.day, BRANCH_CLASH)) { score -= FORECAST_WEIGHTS.fanyin; tags.push('反吟'); lines.push(v(`${word}${gz}与日柱天克地冲（反吟）：大变动之期，婚姻、健康、居所皆须慎。`, 84, `${word}干支与日柱天克地冲`, '健康', '凶')) }
 
   // 神煞
   const dayGroup = trineGroup(n.branches.day), yearGroup = trineGroup(yb)
   for (const [name, byGroup, , kindOf] of TRINE_STARS) {
     if (byGroup[dayGroup] === branch || byGroup[yearGroup] === branch) {
       if (YEAR_STAR_TEXT[name]) { lines.push(v(YEAR_STAR_TEXT[name].replace('年', word === '流年' ? '年' : word === '大运' ? '运' : '月'), 76, `${word}支${BRANCHES[branch]}为${name}`, '神煞', kindOf === 'auspicious' ? '吉' : kindOf === 'inauspicious' ? '凶' : undefined)); tags.push(name) }
-      if (kindOf === 'inauspicious') score -= 0.25
+      if (kindOf === 'inauspicious') score -= FORECAST_WEIGHTS.starBad
     }
   }
   for (const [name, byStem, , kindOf] of STEM_STARS) {
     if (byStem[n.dm].includes(branch) && YEAR_STAR_TEXT[name]) {
       lines.push(v(YEAR_STAR_TEXT[name].replace('年', word === '流年' ? '年' : word === '大运' ? '运' : '月'), 76, `日干${STEMS[n.dm]}见${BRANCHES[branch]}为${name}`, '神煞', kindOf === 'auspicious' ? '吉' : kindOf === 'inauspicious' ? '凶' : undefined))
-      if (kindOf === 'auspicious') { score += 0.5; tags.push(name === '天乙贵人' ? '贵人' : name) } else if (kindOf === 'inauspicious') score -= 0.25
+      if (kindOf === 'auspicious') { score += FORECAST_WEIGHTS.starGood; tags.push(name === '天乙贵人' ? '贵人' : name) } else if (kindOf === 'inauspicious') score -= FORECAST_WEIGHTS.starBad
     }
   }
 
@@ -170,9 +183,9 @@ function meet(n: Natal, stem: number, branch: number, kind: PeriodForecast['kind
   if (luck && kind !== 'luck') {
     const ls = luck.sexagenary % 10, lb = luck.sexagenary % 12
     if (ls === stem && lb === branch) { tags.push('岁运并临'); lines.push(v(`${word}与大运${luck.stemChar}${luck.branchChar}干支相同（岁运并临）：大事之期，吉凶皆放大。`, 84, '岁运并临', '事业', '内容')) }
-    else if (pairIn(stem, ls, STEM_CLASH) && pairIn(branch, lb, BRANCH_CLASH)) { score -= 1; tags.push('岁运相冲'); lines.push(v(`${word}与大运天克地冲：运与年相争，变动剧烈，宜避开重大决策。`, 82, `${gz}冲${luck.stemChar}${luck.branchChar}`, '事业', '凶')) }
-    else if (pairIn(branch, lb, BRANCH_CLASH)) { score -= 0.5; lines.push(v(`${word}支冲大运支：环境与节奏生变。`, 76, `${BRANCHES[branch]}${BRANCHES[lb]}相冲`, '事业', '忌')) }
-    else if (BRANCH_SIX_COMBINE.some(([a, b]) => (a === branch && b === lb) || (a === lb && b === branch))) { score += 0.25; lines.push(v(`${word}支合大运支：运年相合，顺势而为。`, 74, `${BRANCHES[branch]}${BRANCHES[lb]}六合`, '事业', '吉')) }
+    else if (pairIn(stem, ls, STEM_CLASH) && pairIn(branch, lb, BRANCH_CLASH)) { score -= FORECAST_WEIGHTS.luckClashBoth; tags.push('岁运相冲'); lines.push(v(`${word}与大运天克地冲：运与年相争，变动剧烈，宜避开重大决策。`, 82, `${gz}冲${luck.stemChar}${luck.branchChar}`, '事业', '凶')) }
+    else if (pairIn(branch, lb, BRANCH_CLASH)) { score -= FORECAST_WEIGHTS.luckClashBranch; lines.push(v(`${word}支冲大运支：环境与节奏生变。`, 76, `${BRANCHES[branch]}${BRANCHES[lb]}相冲`, '事业', '忌')) }
+    else if (BRANCH_SIX_COMBINE.some(([a, b]) => (a === branch && b === lb) || (a === lb && b === branch))) { score += FORECAST_WEIGHTS.luckCombine; lines.push(v(`${word}支合大运支：运年相合，顺势而为。`, 74, `${BRANCHES[branch]}${BRANCHES[lb]}六合`, '事业', '吉')) }
   }
 
   // 日主在此支的星运

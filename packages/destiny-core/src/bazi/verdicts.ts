@@ -22,6 +22,10 @@ export interface Verdict {
   star?: boolean
   /** 性格 财运 事业 婚姻 六亲 健康 神煞 格局 */
   topic: string
+  /** core: 格局与旺衰层面的定性结论 · detail: 十神宫位层面的具体断语 · reference: 纳音、藏干余气、神煞落柱等参考 */
+  tier?: 'core' | 'detail' | 'reference'
+  /** 'key=value'; two verdicts with the same key but different values contradict, the lower-confidence one is dropped */
+  claim?: string
 }
 
 interface Ctx {
@@ -92,7 +96,7 @@ function buildCtx(chart: BaziChart, a: BaziAnalysis): Ctx {
   }
 }
 
-type Rule = { when: (c: Ctx) => boolean; text: string | ((c: Ctx) => string); conf: number; basis: string | ((c: Ctx) => string); tag?: VerdictTag; star?: boolean; topic: string }
+type Rule = { when: (c: Ctx) => boolean; text: string | ((c: Ctx) => string); conf: number; basis: string | ((c: Ctx) => string); tag?: VerdictTag; star?: boolean; topic: string; claim?: string }
 const r = (topic: string, conf: number, when: Rule['when'], text: Rule['text'], basis: Rule['basis'], tag?: VerdictTag, star?: boolean): Rule => ({ topic, conf, when, text, basis, tag, star })
 
 const RULES: Rule[] = [
@@ -111,9 +115,9 @@ const RULES: Rule[] = [
   r('格局', 88, (c) => c.pattern('印旺身弱'), '印旺身弱，母慈灭子：受长辈庇护过重而少自主，宜财星损印、早离家自立。', '印星太旺，日主无根', '忌'),
 
   // ---- 身强身弱 ---------------------------------------------------------------------
-  r('性格', 90, (c) => c.strong, '身强：主观自信，耐压能扛事，不喜受人管束；宜以财官食伤泄秀，忌再帮身。', (c) => `日主${c.elZh}，身强，同党 ${c.rolePct['日主'] + c.rolePct['印']}%`),
-  r('性格', 90, (c) => c.weak, '身弱：心思细腻，易受环境影响，依赖感强；宜印比扶身，得贵人则成。', (c) => `日主${c.elZh}，身弱，同党 ${c.rolePct['日主'] + c.rolePct['印']}%`),
-  r('性格', 86, (c) => c.verdict === '中和', '中和：性情平和，不走极端，顺逆皆能自处；喜用以调候为先。', '日主中和'),
+  { ...r('性格', 90, (c) => c.strong, '身强：主观自信，耐压能扛事，不喜受人管束；宜以财官食伤泄秀，忌再帮身。', (c) => `日主${c.elZh}，身强，同党 ${c.rolePct['日主'] + c.rolePct['印']}%`), claim: 'dm=strong' },
+  { ...r('性格', 90, (c) => c.weak, '身弱：心思细腻，易受环境影响，依赖感强；宜印比扶身，得贵人则成。', (c) => `日主${c.elZh}，身弱，同党 ${c.rolePct['日主'] + c.rolePct['印']}%`), claim: 'dm=weak' },
+  { ...r('性格', 86, (c) => c.verdict === '中和', '中和：性情平和，不走极端，顺逆皆能自处；喜用以调候为先。', '日主中和'), claim: 'dm=mid' },
   r('健康', 88, (c) => !c.rooted && !c.pattern('从格'), '日主无根，体质偏弱，早年易病，需防过劳；宜借印星之运扶身。', '日主无根，非从格', '忌'),
   r('性格', 84, (c) => c.tiaohouIn, '调候用神在局，寒暖燥湿得宜，一生少极端困顿，层次较高。', '调候用神透出或得地', '佳', true),
   r('性格', 84, (c) => !c.tiaohouIn, '调候用神不在局，需待大运补足寒暖燥湿；成就多在调候运中。', '调候用神未透未藏', '忌'),
@@ -236,11 +240,21 @@ export function computeVerdicts(chart: BaziChart, analysis: BaziAnalysis): Verdi
       text: typeof rule.text === 'function' ? rule.text(c) : rule.text,
       confidence: rule.conf,
       basis: typeof rule.basis === 'function' ? rule.basis(c) : rule.basis,
-      tag: rule.tag, star: rule.star, topic: rule.topic,
+      tag: rule.tag, star: rule.star, topic: rule.topic, claim: rule.claim, tier: rule.topic === '格局' || rule.conf >= 92 || rule.tag === '格' ? 'core' : 'detail',
     })
   }
   const seen = new Set<string>()
-  return [...out, ...tableVerdicts(chart, analysis)].filter((x) => (seen.has(x.text) ? false : (seen.add(x.text), true))).sort((a, b) => b.confidence - a.confidence)
+  const all = [...out, ...tableVerdicts(chart, analysis)].filter((x) => (seen.has(x.text) ? false : (seen.add(x.text), true))).sort((a, b) => b.confidence - a.confidence)
+  // Contradictions: same claim key, different value → keep the higher-confidence line (list is sorted).
+  const claimed = new Map<string, string>()
+  return all.filter((x) => {
+    if (!x.claim) return true
+    const [k, val] = x.claim.split('=')
+    const prev = claimed.get(k)
+    if (prev !== undefined && prev !== val) return false
+    claimed.set(k, val)
+    return true
+  })
 }
 
 export const TOPICS = ['格局', '性格', '财运', '事业', '六亲', '健康', '神煞'] as const

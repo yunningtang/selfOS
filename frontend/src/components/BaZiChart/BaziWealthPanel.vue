@@ -48,11 +48,11 @@ const levelPct = (l: number) => `${((l - 1) / 5) * 100}%`
     <section class="result lq-glass">
       <div class="band">
         <span class="t-label">{{ t('综合资产层级') }}</span>
-        <p class="band-name">{{ w.band.name }} <span class="t-muted t-sm">{{ w.band.range }}</span></p>
+        <p class="band-name">{{ w.band.name }} <span class="t-muted t-sm">{{ w.rangesForCity[w.band.level - 1] }}</span></p>
         <p class="t-sm t-muted">{{ w.band.note }}</p>
         <ol class="scale" :aria-label="t('六级')">
           <li v-for="b in BANDS" :key="b.level" :class="{ on: b.level === w.band.level, base: b.level === w.baselineBand.level, chart: b.level === w.chartBand.level }">
-            <span class="dot" /><span class="nm">{{ b.name }}</span>
+            <span class="dot" /><span class="nm">{{ b.name }}</span><span class="rg t-faint">{{ w.rangesForCity[b.level - 1].replace('家庭净资产 ', '') }}</span>
           </li>
           <span class="marker" :style="{ left: levelPct(w.band.level) }" aria-hidden="true" />
         </ol>
@@ -78,7 +78,7 @@ const levelPct = (l: number) => `${((l - 1) / 5) * 100}%`
       <ol class="cp-list">
         <li v-for="c in w.checkpoints" :key="c.age" class="lq-surface">
           <span class="cp-age t-num">{{ c.age }}{{ t('岁') }} · {{ c.year }}</span>
-          <span class="cp-band">{{ c.band.name }} <span class="t-muted t-sm">{{ c.band.range }}</span></span>
+          <span class="cp-band">{{ c.band.name }} <span class="t-muted t-sm">{{ w.rangesForCity[c.band.level - 1] }}</span></span>
           <span class="t-caption">{{ c.note }}</span>
         </li>
       </ol>
@@ -99,7 +99,7 @@ const levelPct = (l: number) => `${((l - 1) / 5) * 100}%`
         <p>{{ t('现实起点：城市 −1…+3、家庭 −2…+3、学历 −2…+3、职业 −1…+2，按选项固定分值相加。') }}</p>
         <p>{{ t('命局财力：财星占比与身财平衡（从财格 +3；财旺身能任 +2；财中和 +1；财多身弱 −1；财弱 −1）、食伤生财 +1、比劫夺财 −1、禄神 +1、调候得用 +1、财官双美 +1、专旺从强 +1、印星太旺 −1、伤官见官 −1，截到 −3…+4。') }}</p>
         <p>{{ t('运势加成：25–55 岁逐年评级（见「运势」页），偏吉年数减偏忌年数占比 >30% 记 +2、>10% 记 +1、<−10% 记 −1、<−30% 记 −2；该段内有财星大运 +1；有两步以上吉大运 +1，截到 −2…+3。') }}</p>
-        <p>{{ t('层级映射：合计 ≤−2 艰难、≤1 温饱、≤4 小康、≤7 中产、≤10 富裕、≥11 高净值。区间为全国家庭净资产（含房产）的量级参考，一线城市同层级的金额会更高。') }}</p>
+        <p>{{ t('层级映射：合计 ≤−2 艰难、≤1 温饱、≤4 小康、≤7 中产、≤10 富裕、≥11 高净值。区间为全国家庭净资产（含房产）的量级参考，并按所选城市的价格水平缩放：一线 ×2.2、新一线 ×1.5、二线 ×1.2、三四线 ×0.85、县乡 ×0.5。') }}</p>
         <p>{{ t('学业：印星占比、文昌学堂国印太极、官印或伤印相配、伤官见官、15–22 岁流年评级；与实际学历对照给出「潜力未释放 / 相符 / 后天补足」。') }}</p>
       </div>
     </LqCollapse>
@@ -181,9 +181,14 @@ h3 {
 .scale li {
   display: grid;
   justify-items: center;
-  gap: 4px;
+  gap: 2px;
   font-size: var(--fs-xs);
   color: var(--text-3);
+  text-align: center;
+}
+.rg {
+  font-size: var(--fs-2xs);
+  white-space: nowrap;
 }
 .scale .dot {
   position: relative;

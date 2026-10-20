@@ -216,8 +216,9 @@ const LUCK_GOD: Record<string, string> = {
 
 const RELATION_VERB: Record<string, string> = { 合: '相合，主和顺牵绊、互有助益', 会: '三会成方，一气独旺', 冲: '相冲，主变动分离、不安', 刑: '相刑，主拉扯是非、暗疾', 害: '相害，主暗损不和', 破: '相破，主耗损波折' }
 
-function v(text: string, confidence: number, basis: string, topic: string, tag?: VerdictTag): Verdict {
-  return { text, confidence, basis, topic, tag }
+function v(text: string, confidence: number, basis: string, topic: string, tag?: VerdictTag, extra: Partial<Verdict> = {}): Verdict {
+  const tier: Verdict['tier'] = extra.tier ?? (topic === '格局' ? 'core' : confidence >= 82 ? 'detail' : 'reference')
+  return { text, confidence, basis, topic, tag, ...extra, tier }
 }
 
 const bucket = (verdict: string): 0 | 1 | 2 | 3 => (/太旺|过旺|从强/.test(verdict) ? 0 : /偏弱|太弱/.test(verdict) ? 2 : /从弱|^无$/.test(verdict) ? 3 : 1)
@@ -245,7 +246,7 @@ export function tableVerdicts(chart: BaziChart, a: BaziAnalysis): Verdict[] {
     const p = pillars[k]
     const main = p.hidden[0]?.tenGod
     if (main && BRANCH_POS_GOD[k][main]) out.push(v(BRANCH_POS_GOD[k][main], 88, `${POS[k]}支本气${main}`, k === 'day' ? '六亲' : k === 'month' ? '事业' : '六亲'))
-    for (const h of p.hidden.slice(1)) out.push(v(`${POS_PILLAR[k]}藏${h.tenGod}（${h.rank}）：${POS_WHO[k]}方面暗${GOD_SHORT[h.tenGod].slice(1)}，力量较轻。`, 80, `${POS[k]}支${h.rank}${h.stemChar}${h.tenGod}`, '六亲'))
+    for (const h of p.hidden.slice(1)) out.push(v(`${POS_PILLAR[k]}藏${h.tenGod}（${h.rank}）：${POS_WHO[k]}方面暗${GOD_SHORT[h.tenGod].slice(1)}，力量较轻。`, 80, `${POS[k]}支${h.rank}${h.stemChar}${h.tenGod}`, '六亲', undefined, { tier: 'reference' }))
   }
   // 星运
   for (const k of KEYS) {
@@ -255,7 +256,7 @@ export function tableVerdicts(chart: BaziChart, a: BaziAnalysis): Verdict[] {
   // 纳音
   for (const k of KEYS) {
     const n = pillars[k].naYin
-    if (NAYIN_TEXT[n]) out.push(v(`${POS_PILLAR[k]}纳音${NAYIN_TEXT[n]}（应于${POS_WHO[k]}）`, 80, `${POS[k]}柱纳音${n}`, '性格'))
+    if (NAYIN_TEXT[n]) out.push(v(`${POS_PILLAR[k]}纳音${NAYIN_TEXT[n]}（应于${POS_WHO[k]}）`, 80, `${POS[k]}柱纳音${n}`, '性格', undefined, { tier: 'reference' }))
   }
   // 时支、命宫、生肖、月支
   out.push(v(HOUR_BRANCH[pillars.hour.branch], 86, `时支${BRANCHES[pillars.hour.branch]}`, '性格'))
@@ -292,7 +293,8 @@ export function tableVerdicts(chart: BaziChart, a: BaziAnalysis): Verdict[] {
       out.push(v('日主得印比之势而成专旺 / 从强：顺其旺势，以印比食伤为用，忌官杀财星逆之。', 88, `日主与印合计 ${chart.strength.selfParty}%，${a.special.type}`, '格局', '格'))
       continue
     }
-    out.push(v(s.role === '日主' ? ROLE_VERDICT[s.role][b] : ROLE_VERDICT[s.role][b], 88, `${ELEMENT_ZH[s.element]}（${s.role}）${s.verdict}，占 ${s.percent}%`, '格局', b === 0 ? '忌' : b === 1 ? '吉' : undefined))
+    const claimKey = s.role === '日主' ? 'dm' : s.role === '财' ? 'wealth' : s.role === '官杀' ? 'officer' : s.role === '印' ? 'resource' : 'output'
+    out.push(v(ROLE_VERDICT[s.role][b], 88, `${ELEMENT_ZH[s.element]}（${s.role}）${s.verdict}，占 ${s.percent}%`, '格局', b === 0 ? '忌' : b === 1 ? '吉' : undefined, { claim: `${claimKey}=${['strong', 'mid', 'weak', 'none'][b]}` }))
     if (s.count === 0 && s.exposure === '无') out.push(v(`四柱缺${ELEMENT_ZH[s.element]}（${s.role}）：${s.role === '财' ? '财缘靠后天' : s.role === '官杀' ? '少约束少名位' : s.role === '印' ? '少庇护' : s.role === '食伤' ? '表达内敛' : '根基薄'}，可以颜色、方位与大运补之。`, 82, `四柱不见${ELEMENT_ZH[s.element]}`, '格局', '忌'))
   }
   // 空亡
