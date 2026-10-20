@@ -14,6 +14,8 @@ interface ImportMetaEnv {
   readonly VITE_LICENSE_JWK?: string
   /** Price text shown on the paywall card */
   readonly VITE_PRICE_LABEL?: string
+  /** 'true' to gate the analysis behind the paywall; otherwise everything is free */
+  readonly VITE_PAYWALL_ENABLED?: string
 }
 
 declare module '*.vue' {

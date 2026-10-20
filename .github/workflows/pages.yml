@@ -41,6 +41,7 @@ jobs:
           VITE_PAYWALL_URL: ${{ vars.PAYWALL_URL }}
           VITE_LICENSE_JWK: ${{ vars.LICENSE_JWK }}
           VITE_PRICE_LABEL: ${{ vars.PRICE_LABEL }}
+          VITE_PAYWALL_ENABLED: ${{ vars.PAYWALL_ENABLED }}
       - run: mkdir -p frontend/dist/destiny && cp -r apps/destiny/dist/. frontend/dist/destiny/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

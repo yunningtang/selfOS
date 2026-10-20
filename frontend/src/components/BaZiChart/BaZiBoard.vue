@@ -8,6 +8,7 @@ import BaziAnalysisPanel from './BaziAnalysisPanel.vue'
 import BaziForecastPanel from './BaziForecastPanel.vue'
 import BaziWealthPanel from './BaziWealthPanel.vue'
 import { useLicense } from '@/composables/useLicense'
+import { analyseBazi } from '@selfos/destiny-core/bazi/analysis'
 import { ELEMENTS } from '@/data/lexicon'
 import { computeRelations, type LabelledPillar } from '@selfos/destiny-core/bazi/relations'
 import * as tables from '@selfos/destiny-core/bazi/tables'
@@ -20,6 +21,7 @@ const { t } = useI18n()
 const props = defineProps<{ chart: BaziChart; gate?: boolean }>()
 const lic = useLicense()
 const locked = computed(() => !!props.gate && !lic.pro.value)
+const analysis = computed(() => analyseBazi(props.chart))
 const emit = defineEmits<{ edit: [] }>()
 const mode = defineModel<'chart' | 'analysis' | 'forecast' | 'wealth'>('mode', { default: 'chart' })
 const store = useDivinationStore()
@@ -126,7 +128,7 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
             <span class="t-faint wx-s">{{ chart.strength.season[k] }}</span>
           </li>
         </ul>
-        <p class="t-sm"><span class="t-muted">{{ t('喜用') }}</span> {{ elZh(chart.strength.favourable) }} <span class="t-faint">·</span> <span class="t-muted">{{ t('忌') }}</span> {{ elZh(chart.strength.unfavourable) }} <span class="t-faint">·</span> {{ chart.strength.support.ling ? t('得令') : t('失令') }} {{ chart.strength.support.di ? t('得地') : t('失地') }} {{ chart.strength.support.shi ? t('得势') : t('失势') }}</p>
+        <p class="t-sm"><span class="t-muted">{{ t('喜用') }}</span> {{ elZh(analysis.effective.favourable) }} <span class="t-faint">·</span> <span class="t-muted">{{ t('忌') }}</span> {{ elZh(analysis.effective.unfavourable) }} <span class="t-faint">({{ t(analysis.effective.source) }})</span> <span class="t-faint">·</span> {{ chart.strength.support.ling ? t('得令') : t('失令') }} {{ chart.strength.support.di ? t('得地') : t('失地') }} {{ chart.strength.support.shi ? t('得势') : t('失势') }}</p>
         <p v-if="chart.classics.tiaoHou.levels.length" class="t-sm tiaohou"><span class="t-muted">{{ t('调候') }}</span>
           <template v-for="(lv, i) in chart.classics.tiaoHou.levels" :key="i">
             <span v-if="i" class="t-faint">›</span>

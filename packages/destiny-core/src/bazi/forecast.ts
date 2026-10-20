@@ -77,7 +77,7 @@ interface Natal {
 function natal(chart: BaziChart, analysis?: BaziAnalysis): Natal {
   return {
     chart, dm: chart.dayMaster.stem, dmEl: chart.dayMaster.element,
-    fav: new Set(chart.strength.favourable), unfav: new Set(chart.strength.unfavourable),
+    fav: new Set(analysis?.effective.favourable ?? chart.strength.favourable), unfav: new Set(analysis?.effective.unfavourable ?? chart.strength.unfavourable),
     tiaohou: new Set(analysis?.tiaohou.stems ?? chart.classics.tiaoHou.levels.flat()),
     stems: Object.fromEntries(chart.pillars.map((p) => [p.key, p.stem])) as Record<PillarKey, number>,
     branches: Object.fromEntries(chart.pillars.map((p) => [p.key, p.branch])) as Record<PillarKey, number>,

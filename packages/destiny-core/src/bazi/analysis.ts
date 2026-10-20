@@ -99,6 +99,8 @@ export interface BaziAnalysis {
   tiaohou: { stems: string[]; line: string; text: string }
   /** The 从/专旺 judgement used for 喜忌 */
   special: { type: '从弱' | '专旺' | '从强' | null; follow?: string }
+  /** The 喜忌 every other reading uses: 从格 / 专旺 override 扶抑 when present */
+  effective: { favourable: FiveElement[]; unfavourable: FiveElement[]; source: '从格' | '专旺' | '扶抑' }
 }
 
 const roleOf = (dmEl: FiveElement, el: FiveElement): ElementRole =>
@@ -369,7 +371,12 @@ export function analyseBazi(chart: BaziChart): BaziAnalysis {
       ? { type: '从格', favourable: [childEl, wealthEl, officerEl].map((e) => ELEMENT_ZH[e]), unfavourable: [motherEl, dmEl].map((e) => ELEMENT_ZH[e]), note: `${special.follow}，顺从当旺之势，忌印比帮身。` }
       : { type: '专旺', favourable: [dmEl, motherEl, childEl].map((e) => ELEMENT_ZH[e]), unfavourable: [officerEl, wealthEl].map((e) => ELEMENT_ZH[e]), note: '专旺格 / 从强格，顺其旺势，喜印比食伤，忌官杀财星逆之。' })
   }
-  useGods.push({ type: '总结', favourable: [], unfavourable: [], note: '重要性：化气 > 专旺/从格 > 调候 > 扶抑 > 流通；多路用神相同者为真用神。调候得用者命局层次高。以上为规则推导，具体仍需综合命盘。' })
+  const special2 = useGods.find((u) => u.type === '从格' || u.type === '专旺')
+  const zh2el = (z: string) => ELEMENT_ORDER.find((e) => ELEMENT_ZH[e] === z)!
+  const effective: BaziAnalysis['effective'] = special2
+    ? { favourable: special2.favourable.map(zh2el), unfavourable: special2.unfavourable.map(zh2el), source: special2.type as '从格' | '专旺' }
+    : { favourable: st.favourable, unfavourable: st.unfavourable, source: '扶抑' }
+  useGods.push({ type: '总结', favourable: effective.favourable.map((e) => ELEMENT_ZH[e]), unfavourable: effective.unfavourable.map((e) => ELEMENT_ZH[e]), note: `本盘采用${effective.source}取用：喜${effective.favourable.map((e) => ELEMENT_ZH[e]).join('')}、忌${effective.unfavourable.map((e) => ELEMENT_ZH[e]).join('')}，运势与资产判断均以此为准。重要性：化气 > 专旺/从格 > 调候 > 扶抑 > 流通；多路用神相同者为真用神。` })
 
   // ---- overview lines ---------------------------------------------------------------
   const overview = `你的日主为${STEMS[dm]}，年干${STEMS[stems.year]}，年支${BRANCHES[branches.year]}，月干${STEMS[stems.month]}，月支${BRANCHES[branches.month]}，日支${BRANCHES[branches.day]}，时干${STEMS[stems.hour]}，时支${BRANCHES[branches.hour]}；天干为${[stems.year, stems.month, stems.hour].map((s) => STEMS[s]).join('、')}；地支为${allBranches.map((b) => BRANCHES[b]).join('、')}。`
@@ -383,7 +390,7 @@ export function analyseBazi(chart: BaziChart): BaziAnalysis {
   return {
     overview, relationsLine, patterns, elementRows: rows, elementSummary, tenGods: godRows, scores, totalScore, useGods,
     tiaohou: { stems: thStems, line: tiaohouLine, text: jb ? `${jb.tiaohou}${jb.luck ? '；大运' + jb.luck : ''}${jb.note ? '；' + jb.note : ''}` : '' },
-    special,
+    special, effective,
   }
 }
 

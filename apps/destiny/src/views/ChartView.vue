@@ -16,6 +16,8 @@ const { t, isEn } = useI18n()
 const div = useDivinationStore()
 const { birth, ready, bazi, ziwei, loading, error } = storeToRefs(div)
 const lic = useLicense()
+// Free for now; set VITE_PAYWALL_ENABLED=true (with the paywall service configured) to gate 分析 / 运势 / 资产.
+const paywall = import.meta.env.VITE_PAYWALL_ENABLED === 'true'
 const system = ref<'bazi' | 'ziwei'>('bazi')
 const editing = ref(false)
 const baziMode = ref<'chart' | 'analysis' | 'forecast' | 'wealth'>('chart')
@@ -69,7 +71,7 @@ const tabMeta = computed(() => {
         <p class="t-caption">{{ tabMeta }}</p>
       </div>
       <Transition name="fade" mode="out-in">
-        <div v-if="system === 'bazi'" key="bazi" class="panel"><BaZiBoard v-if="bazi" v-model:mode="baziMode" :chart="bazi" gate @edit="editing = true" /><p v-else class="t-muted">{{ loading ? t('正在加载星历并排盘…') : t('尚未排盘。') }}</p></div>
+        <div v-if="system === 'bazi'" key="bazi" class="panel"><BaZiBoard v-if="bazi" v-model:mode="baziMode" :chart="bazi" :gate="paywall" @edit="editing = true" /><p v-else class="t-muted">{{ loading ? t('正在加载星历并排盘…') : t('尚未排盘。') }}</p></div>
         <div v-else key="ziwei" class="panel"><ZiweiPanel v-if="ziwei" :chart="ziwei" /><p v-else class="t-muted">{{ loading ? t('排盘中…') : t('尚未排盘。') }}</p></div>
       </Transition>
     </template>

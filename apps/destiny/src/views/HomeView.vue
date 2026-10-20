@@ -5,12 +5,9 @@ import LiquidOrb from '@/components/ambient/LiquidOrb.vue'
 import LqButton from '@/components/ui/LqButton.vue'
 import { useDivinationStore } from '@/stores/divination'
 import { useI18n } from '@/i18n'
-import PaywallCard from '@/components/paywall/PaywallCard.vue'
-import { useLicense } from '@/composables/useLicense'
 
 const { t } = useI18n()
 const { ready, birth } = storeToRefs(useDivinationStore())
-const lic = useLicense()
 const pad = (n: number) => String(n).padStart(2, '0')
 const profileLine = computed(() => `${birth.value.name ? birth.value.name + ' · ' : ''}${birth.value.year}-${pad(birth.value.month)}-${pad(birth.value.day)} ${pad(birth.value.hour)}:${pad(birth.value.minute)} · ${birth.value.place}`)
 const STEPS = [
@@ -19,8 +16,6 @@ const STEPS = [
   { n: '03', title: '阅读分析', text: '百余条断语、格局、喜用神、五行与十神强弱，每一条都标明推断依据。' },
 ]
 const SYSTEMS = ['八字 · 四柱、大运流年流月、神煞、调候、古籍', '紫微斗数 · 十二宫、四化、大限流年']
-const FREE = ['四柱排盘、大运流年流月', '紫微斗数十二宫与大限流年', '分析前 12 条断语', '命盘要点与当前大运评级']
-const PRO = ['全部约 100 条断语与推断依据', '评分、喜用神、五行与十神详表', '运势：逐年、逐月预判与依据', '资产与学业：现实背景校准与检查点', '本机永久解锁，邮箱跨设备恢复']
 </script>
 
 <template>
@@ -51,21 +46,7 @@ const PRO = ['全部约 100 条断语与推断依据', '评分、喜用神、五
     <ul class="systems">
       <li v-for="s in SYSTEMS" :key="s" class="t-sm t-muted">{{ t(s) }}</li>
     </ul>
-    <section class="pricing">
-      <div class="plan lq-surface">
-        <p class="t-label">{{ t('免费') }}</p>
-        <h3>{{ t('排盘') }}</h3>
-        <ul><li v-for="f in FREE" :key="f">{{ t(f) }}</li></ul>
-      </div>
-      <div class="plan pro">
-        <PaywallCard v-if="!lic.pro.value" :title="t('完整分析')" />
-        <div v-else class="lq-surface plan-inner">
-          <p class="t-label">{{ t('完整版') }}</p>
-          <h3>{{ t('已解锁') }}</h3>
-          <ul><li v-for="f in PRO" :key="f">{{ t(f) }}</li></ul>
-        </div>
-      </div>
-    </section>
+    <p class="free t-sm t-muted">{{ t('目前全部功能免费开放，欢迎反馈不准或不合理之处，算法会持续调整。') }}</p>
   </section>
 </template>
 
@@ -134,6 +115,11 @@ h1 {
   gap: var(--sp-2) var(--sp-6);
 }
 
+.free {
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+}
 .pricing {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);

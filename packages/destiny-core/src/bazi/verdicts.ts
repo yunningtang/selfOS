@@ -73,7 +73,7 @@ function buildCtx(chart: BaziChart, a: BaziAnalysis): Ctx {
   const rolePct = Object.fromEntries(a.elementSummary.map((s) => [s.role, s.percent])) as Record<ElementRole, number>
   const roleEl = (r: ElementRole) => a.elementSummary.find((s) => s.role === r)!.element
   const godRole = (g: string): ElementRole => (g === '比肩' || g === '劫财' ? '日主' : g === '食神' || g === '伤官' ? '食伤' : g === '正财' || g === '偏财' ? '财' : g === '正官' || g === '七杀' ? '官杀' : '印')
-  const fav = new Set(chart.strength.favourable)
+  const fav = new Set(a.effective.favourable)
   const relations = chart.relations
   const rooted = keys.some((k) => HIDDEN_STEMS[branches[k]].some((h) => STEM_ELEMENT[h] === dmEl))
   const th = a.tiaohou.stems

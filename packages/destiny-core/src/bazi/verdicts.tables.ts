@@ -285,8 +285,14 @@ export function tableVerdicts(chart: BaziChart, a: BaziAnalysis): Verdict[] {
   }
   // 五行各角色旺衰
   for (const s of a.elementSummary) {
-    const b = bucket(s.verdict)
-    out.push(v(ROLE_VERDICT[s.role][b], 88, `${ELEMENT_ZH[s.element]}（${s.role}）${s.verdict}，占 ${s.percent}%`, '格局', b === 0 ? '忌' : b === 1 ? '吉' : undefined))
+    const b = s.role === '日主'
+      ? (a.special.type === '从弱' ? 3 : chart.strength.verdict === '身强' ? 0 : chart.strength.verdict === '身弱' ? 2 : 1)
+      : bucket(s.verdict)
+    if (s.role === '日主' && (a.special.type === '专旺' || a.special.type === '从强')) {
+      out.push(v('日主得印比之势而成专旺 / 从强：顺其旺势，以印比食伤为用，忌官杀财星逆之。', 88, `日主与印合计 ${chart.strength.selfParty}%，${a.special.type}`, '格局', '格'))
+      continue
+    }
+    out.push(v(s.role === '日主' ? ROLE_VERDICT[s.role][b] : ROLE_VERDICT[s.role][b], 88, `${ELEMENT_ZH[s.element]}（${s.role}）${s.verdict}，占 ${s.percent}%`, '格局', b === 0 ? '忌' : b === 1 ? '吉' : undefined))
     if (s.count === 0 && s.exposure === '无') out.push(v(`四柱缺${ELEMENT_ZH[s.element]}（${s.role}）：${s.role === '财' ? '财缘靠后天' : s.role === '官杀' ? '少约束少名位' : s.role === '印' ? '少庇护' : s.role === '食伤' ? '表达内敛' : '根基薄'}，可以颜色、方位与大运补之。`, 82, `四柱不见${ELEMENT_ZH[s.element]}`, '格局', '忌'))
   }
   // 空亡
@@ -340,7 +346,9 @@ export function tableVerdicts(chart: BaziChart, a: BaziAnalysis): Verdict[] {
 
   // 神煞落柱
   for (const s of chart.shensha) {
-    for (const k of s.pillars) out.push(v(`${s.name}落${POS_PILLAR[k]}：${POS_WHO[k]}或${POS_PHASE[k].slice(0, 2)}方面，${s.note}。`, 78, `${POS[k]}柱${s.name}`, '神煞', s.kind === 'auspicious' ? '吉' : s.kind === 'inauspicious' ? '凶' : undefined))
+    const where = s.pillars.map((k) => POS[k]).join('、')
+    const who = s.pillars.map((k) => POS_WHO[k]).join('，')
+    out.push(v(`${s.name}落${where}柱：应于${who}，${s.note}。`, 78, `${where}柱${s.name}`, '神煞', s.kind === 'auspicious' ? '吉' : s.kind === 'inauspicious' ? '凶' : undefined))
   }
   return out
 }
