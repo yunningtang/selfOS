@@ -8,6 +8,7 @@ export const EN: Record<string, string> = {
   '收起名词解释': 'Hide glossary', '这些词是什么意思？': 'What do these terms mean?',
   '计分明细': 'Score breakdown', '起点': 'Start', '命局': 'Chart',
   '每个年龄点按前后十年的运势在综合层级上微调；30 岁前还在积累期，按惯例压低两档，40 岁压低一档。': 'Each age point nudges the overall band by the surrounding decade of luck; before 30 assets are still accumulating, so two bands lower by convention, one band lower at 40.',
+  '女主': 'Self (F)', '男主': 'Self (M)', '天干': 'Stem', '地支': 'Branch',
   // ---- navigation / chrome
   '入口': 'Threshold', '生命素材': 'Seed', '生命之树': 'Inner Atlas', '记忆之室': 'Memory Chamber', '排盘': 'Charts',
   '内在议会': 'Inner Council', '自性化报告': 'Reflection', '出生信息': 'Birth data',

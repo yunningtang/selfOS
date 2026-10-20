@@ -13,7 +13,7 @@ import { analyseBazi } from '@selfos/destiny-core/bazi/analysis'
 import { ELEMENTS } from '@/data/lexicon'
 import { computeRelations, type LabelledPillar } from '@selfos/destiny-core/bazi/relations'
 import * as tables from '@selfos/destiny-core/bazi/tables'
-import { ELEMENT_ZH, HIDDEN_STEMS, STEMS, TEN_GOD_SHORT, tenGod, lifeStage } from '@selfos/destiny-core/bazi/tables'
+import { ELEMENT_ZH, HIDDEN_STEMS, STEMS, tenGod, lifeStage } from '@selfos/destiny-core/bazi/tables'
 import { fmt1 } from '@/composables/format'
 import { useDivinationStore } from '@/stores/divination'
 import type { BaziChart, FiveElement, PillarKey } from '@/types'
@@ -104,17 +104,44 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
     <template v-else>
     <!-- Hero: the eight characters -->
     <div class="hero">
-      <div class="natal" :class="{ wide: columns.length > 4 }">
-        <div v-for="c in columns" :key="c.key" class="col" :class="{ day: c.key === 'day', transit: c.transit }">
-          <span class="p-label">{{ t(c.label) }}<span v-if="c.sub" class="t-faint"> · {{ c.sub }}</span></span>
-          <span class="p-god">{{ t(c.stemTenGod) }}</span>
-          <span class="p-char" :style="{ '--tone': el(c.stemElement) }">{{ c.stemChar }}</span>
-          <span class="p-char" :style="{ '--tone': el(c.branchElement) }">{{ c.branchChar }}</span>
-          <span class="p-hidden">
-            <span v-for="h in c.hidden" :key="h.stemChar"><b :style="{ color: el(h.element) }">{{ h.stemChar }}</b>{{ TEN_GOD_SHORT[h.tenGod] }}</span>
+      <div class="natal" :style="{ '--n': columns.length }" role="table" :aria-label="t('四柱')">
+        <div class="nr head" role="row">
+          <span class="rl" />
+          <span v-for="c in columns" :key="c.key" class="nc" :class="{ day: c.key === 'day', transit: c.transit }"><b>{{ t(c.label) }}</b><small v-if="c.sub" class="t-faint">{{ c.sub }}</small></span>
+        </div>
+        <div class="nr" role="row">
+          <span class="rl">{{ t('主星') }}</span>
+          <span v-for="c in columns" :key="c.key" class="nc god" :class="{ day: c.key === 'day' }" :style="{ color: el(c.stemElement) }">{{ c.key === 'day' ? t(chart.input.gender === 'F' ? '女主' : '男主') : t(c.stemTenGod) }}</span>
+        </div>
+        <div class="nr" role="row">
+          <span class="rl">{{ t('天干') }}</span>
+          <span v-for="c in columns" :key="c.key" class="nc gz" :class="{ day: c.key === 'day' }" :style="{ '--tone': el(c.stemElement) }">{{ c.stemChar }}</span>
+        </div>
+        <div class="nr" role="row">
+          <span class="rl">{{ t('地支') }}</span>
+          <span v-for="c in columns" :key="c.key" class="nc gz" :class="{ day: c.key === 'day' }" :style="{ '--tone': el(c.branchElement) }">{{ c.branchChar }}</span>
+        </div>
+        <div class="nr" role="row">
+          <span class="rl">{{ t('藏干') }}</span>
+          <span v-for="c in columns" :key="c.key" class="nc hidden" :class="{ day: c.key === 'day' }">
+            <span v-for="h in c.hidden" :key="h.stemChar" :style="{ color: el(h.element) }">{{ h.stemChar }}<i>·</i>{{ t(h.tenGod) }}</span>
           </span>
-          <span class="p-foot">{{ c.lifeStage }}<span class="t-faint"> · {{ c.selfSeat }}</span></span>
-          <span class="p-ny">{{ c.naYin }}<template v-if="c.kongWang"> · <span class="kong">{{ t('空亡') }}</span></template></span>
+        </div>
+        <div class="nr" role="row">
+          <span class="rl">{{ t('星运') }}</span>
+          <span v-for="c in columns" :key="c.key" class="nc txt" :class="{ day: c.key === 'day' }">{{ c.lifeStage }}</span>
+        </div>
+        <div class="nr" role="row">
+          <span class="rl">{{ t('自坐') }}</span>
+          <span v-for="c in columns" :key="c.key" class="nc txt" :class="{ day: c.key === 'day' }">{{ c.selfSeat }}</span>
+        </div>
+        <div class="nr" role="row">
+          <span class="rl">{{ t('纳音') }}</span>
+          <span v-for="c in columns" :key="c.key" class="nc txt small" :class="{ day: c.key === 'day' }">{{ c.naYin }}<em v-if="c.kongWang" class="kong">{{ t('空亡') }}</em></span>
+        </div>
+        <div class="nr" role="row">
+          <span class="rl">{{ t('神煞') }}</span>
+          <span v-for="c in columns" :key="c.key" class="nc ss" :class="{ day: c.key === 'day' }"><span v-for="n in c.shensha" :key="n">{{ n }}</span><span v-if="!c.shensha.length" class="t-faint">—</span></span>
         </div>
       </div>
       <div class="essence">
@@ -249,91 +276,99 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
   gap: var(--sp-8);
   align-items: start;
 }
+/* Row-labelled 四柱 table (问真 idiom): label column + one column per pillar, every column equal width,
+   nothing scrolls — the characters scale with the viewport instead. */
 .natal {
-  display: flex;
-  align-items: flex-start;
-  overflow-x: auto;
-  border-top: 1px solid var(--hairline);
-  border-bottom: 1px solid var(--hairline);
-}
-.col {
-  --tone: var(--text-2);
-  position: relative;
+  --cell: clamp(40px, calc((100% - 3.2em) / var(--n)), 120px);
   display: grid;
-  flex: 1 0 96px;
-  align-content: start;
-  justify-items: center;
-  gap: 3px;
-  padding: 14px 8px;
-  border-right: 1px solid var(--hairline);
-}
-.col:last-child {
-  border-right: 0;
-}
-.col.day {
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
-}
-.col.day::after {
-  content: '';
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 0;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--accent);
-}
-.col.transit {
-  background: color-mix(in srgb, var(--text-3) 6%, transparent);
-}
-.col.transit .p-label {
-  color: var(--accent-ink);
-}
-.p-label {
-  font-size: var(--fs-xs);
-  color: var(--text-2);
-  white-space: nowrap;
-}
-.p-god {
-  font-size: var(--fs-2xs);
-  color: var(--text-3);
-}
-.p-char {
+  gap: 0;
   font-family: var(--font-cjk);
   letter-spacing: 0;
-  font-size: 42px;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.nr {
+  display: grid;
+  grid-template-columns: 3.2em repeat(var(--n), minmax(0, 1fr));
+  align-items: center;
+  padding: 9px 0;
+}
+.nr:nth-child(even) {
+  background: color-mix(in srgb, var(--text-3) 5%, transparent);
+}
+.nr.head {
+  padding: 10px 0 6px;
+  background: transparent;
+}
+.rl {
+  padding-left: 8px;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+.nc {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  min-width: 0;
+  padding: 0 2px;
+  text-align: center;
+  line-height: 1.45;
+}
+.nc.day {
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+.nr.head .nc {
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+.nr.head .nc b {
+  font-weight: 500;
+}
+.nr.head .nc small {
+  font-size: var(--fs-2xs);
+}
+.nr.head .nc.transit b {
+  color: var(--accent-ink);
+}
+.nc.god {
+  font-size: var(--fs-sm);
+}
+.nc.gz {
+  padding: 3px 0;
+  font-size: clamp(26px, calc(var(--cell) * 0.62), 44px);
   line-height: 1.15;
   font-weight: 500;
   color: var(--tone);
-  text-shadow: 0 0 22px color-mix(in srgb, var(--tone) 30%, transparent);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--tone) 28%, transparent);
 }
-.p-hidden {
-  display: grid;
+.nc.hidden {
   gap: 2px;
-  margin-top: 6px;
   font-size: var(--fs-2xs);
-  color: var(--text-2);
   line-height: 1.5;
-  letter-spacing: 0.02em;
-  text-align: center;
+  white-space: nowrap;
 }
-.p-hidden b {
-  font-weight: var(--fw-medium);
-  margin-right: 1px;
+.nc.hidden i {
+  font-style: normal;
+  opacity: 0.6;
 }
-.p-foot {
-  margin-top: 4px;
-  font-size: var(--fs-2xs);
+.nc.txt {
+  font-size: var(--fs-sm);
   color: var(--text-2);
-  white-space: nowrap;
 }
-.p-ny {
+.nc.small {
   font-size: var(--fs-2xs);
-  letter-spacing: 0.02em;
   color: var(--text-3);
-  white-space: nowrap;
+}
+.nc.ss {
+  gap: 2px;
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--text-2);
 }
 .kong {
+  display: block;
+  font-style: normal;
   color: var(--wx-fire);
 }
 .essence {
@@ -543,12 +578,31 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
   }
 }
 @media (max-width: 640px) {
-  .col {
-    flex-basis: 86px;
-    padding: 12px 4px;
+  .natal {
+    border-radius: var(--r-md);
   }
-  .p-char {
-    font-size: 34px;
+  .nr {
+    grid-template-columns: 2.8em repeat(var(--n), minmax(0, 1fr));
+    padding: 7px 0;
+  }
+  .rl {
+    padding-left: 6px;
+    font-size: var(--fs-2xs);
+  }
+  .nc.gz {
+    font-size: clamp(24px, 9vw, 34px);
+  }
+  .nc.god,
+  .nc.txt {
+    font-size: var(--fs-xs);
+  }
+  .nc.hidden,
+  .nc.small,
+  .nc.ss {
+    font-size: 11px;
+  }
+  .nc.hidden i {
+    display: none;
   }
   .facts {
     grid-template-columns: 1fr;
