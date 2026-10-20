@@ -103,6 +103,8 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDoc))
   align-items: center;
   gap: 8px;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   cursor: pointer;
   text-align: left;
 }
@@ -121,8 +123,12 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDoc))
   color: var(--text-3);
 }
 .hint {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
   font-size: var(--fs-2xs);
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .chev {
   flex: none;

@@ -128,7 +128,7 @@ const tabMeta = computed(() => {
 .atmo {
   position: absolute;
   top: -80px;
-  right: -40px;
+  right: 0;
   z-index: -1;
   width: 380px;
   height: 380px;
@@ -142,6 +142,16 @@ const tabMeta = computed(() => {
     lq-morph 26s var(--ease-in-out) infinite,
     lq-breathe 11s var(--ease-in-out) infinite;
   pointer-events: none;
+}
+.celestial > * {
+  min-width: 0;
+}
+@media (max-width: 640px) {
+  .atmo {
+    top: -40px;
+    width: 220px;
+    height: 220px;
+  }
 }
 .profile {
   border-radius: var(--r-xl);

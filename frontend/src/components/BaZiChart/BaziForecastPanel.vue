@@ -292,4 +292,28 @@ thead th {
     width: 100%;
   }
 }
+@media (max-width: 640px) {
+  .vt thead {
+    display: none;
+  }
+  .vt tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 8px;
+    padding: 10px 0;
+    border-top: 1px solid var(--hairline);
+  }
+  .vt td {
+    padding: 0;
+    border: 0;
+  }
+  .vt td.basis {
+    grid-column: 1 / -1;
+    max-width: none;
+    font-size: var(--fs-xs);
+  }
+  .detail {
+    padding: var(--sp-3);
+  }
+}
 </style>

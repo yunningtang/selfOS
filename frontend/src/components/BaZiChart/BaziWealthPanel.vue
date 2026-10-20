@@ -116,6 +116,10 @@ const levelPct = (l: number) => `${((l - 1) / 5) * 100}%`
 .wealth {
   display: grid;
   gap: var(--sp-5);
+  min-width: 0;
+}
+.wealth > * {
+  min-width: 0;
 }
 .intro {
   line-height: 1.85;
@@ -145,6 +149,7 @@ h3 {
 .f {
   display: grid;
   gap: 6px;
+  min-width: 0;
 }
 .lbl {
   font-size: var(--fs-xs);
@@ -168,7 +173,7 @@ h3 {
 .scale {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   margin-top: var(--sp-3);
   padding-top: 14px;
 }
@@ -192,6 +197,25 @@ h3 {
 .rg {
   font-size: var(--fs-2xs);
   white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .scale {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: var(--sp-3);
+  }
+  .scale::before {
+    display: none;
+  }
+  .scale .dot {
+    top: 0;
+  }
+  .scale li.on .dot {
+    top: -3px;
+  }
+  .rg {
+    white-space: normal;
+    line-height: 1.3;
+  }
 }
 .scale .dot {
   position: relative;
@@ -334,14 +358,14 @@ h3 {
   .ctx-grid,
   .cols,
   .cp-list {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 600px) {
   .ctx-grid,
   .cols,
   .cp-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>

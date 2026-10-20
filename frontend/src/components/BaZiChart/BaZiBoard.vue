@@ -104,8 +104,8 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
     <template v-else>
     <!-- Hero: the eight characters -->
     <div class="hero">
-      <ol class="pillars" :class="{ wide: columns.length > 4 }">
-        <li v-for="c in columns" :key="c.key" class="pillar" :class="{ day: c.key === 'day', transit: c.transit }">
+      <div class="natal" :class="{ wide: columns.length > 4 }">
+        <div v-for="c in columns" :key="c.key" class="col" :class="{ day: c.key === 'day', transit: c.transit }">
           <span class="p-label">{{ t(c.label) }}<span v-if="c.sub" class="t-faint"> · {{ c.sub }}</span></span>
           <span class="p-god">{{ t(c.stemTenGod) }}</span>
           <span class="p-char" :style="{ '--tone': el(c.stemElement) }">{{ c.stemChar }}</span>
@@ -113,9 +113,10 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
           <span class="p-hidden">
             <span v-for="h in c.hidden" :key="h.stemChar"><b :style="{ color: el(h.element) }">{{ h.stemChar }}</b>{{ TEN_GOD_SHORT[h.tenGod] }}</span>
           </span>
-          <span class="p-foot">{{ c.lifeStage }}<template v-if="c.kongWang"> {{ t('· 空亡') }}</template></span>
-        </li>
-      </ol>
+          <span class="p-foot">{{ c.lifeStage }}<span class="t-faint"> · {{ c.selfSeat }}</span></span>
+          <span class="p-ny">{{ c.naYin }}<template v-if="c.kongWang"> · <span class="kong">{{ t('空亡') }}</span></template></span>
+        </div>
+      </div>
       <div class="essence">
         <p class="dm">
           <span class="dm-char" :style="{ '--tone': el(chart.dayMaster.element) }">{{ chart.dayMaster.stemChar }}</span>
@@ -235,6 +236,10 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
 .board {
   display: grid;
   gap: var(--sp-7);
+  min-width: 0;
+}
+.board > * {
+  min-width: 0;
 }
 
 /* ── Hero ─────────────────────────────────────────────── */
@@ -244,67 +249,90 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
   gap: var(--sp-8);
   align-items: start;
 }
-.pillars {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--sp-3);
+.natal {
+  display: flex;
+  align-items: flex-start;
+  overflow-x: auto;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
 }
-.pillars.wide {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-}
-.pillar {
+.col {
   --tone: var(--text-2);
+  position: relative;
   display: grid;
+  flex: 1 0 96px;
+  align-content: start;
   justify-items: center;
-  gap: 4px;
-  padding: var(--sp-4) var(--sp-2) var(--sp-4);
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: inset 0 0 0 1px var(--hairline);
+  gap: 2px;
+  padding: 12px 6px 12px;
+  border-right: 1px solid var(--hairline);
 }
-.pillar.day {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--c-lavender) 10%, var(--surface)), var(--surface));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-lavender) 35%, transparent);
+.col:last-child {
+  border-right: 0;
 }
-.pillar.transit {
-  background: var(--surface-sunken);
+.col.day {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+.col.day::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.col.transit {
+  background: color-mix(in srgb, var(--text-3) 6%, transparent);
+}
+.col.transit .p-label {
+  color: var(--accent-ink);
 }
 .p-label {
   font-size: var(--fs-xs);
   color: var(--text-2);
+  white-space: nowrap;
 }
 .p-god {
-  font-size: var(--fs-xs);
+  font-size: var(--fs-2xs);
   color: var(--text-3);
 }
 .p-char {
   font-family: var(--font-cjk);
   letter-spacing: 0;
-  font-size: 44px;
-  line-height: 1.15;
+  font-size: 40px;
+  line-height: 1.12;
   font-weight: 500;
   color: var(--tone);
-  text-shadow: 0 0 22px color-mix(in srgb, var(--tone) 35%, transparent);
-}
-.p-char + .p-char {
-  margin-top: -4px;
+  text-shadow: 0 0 22px color-mix(in srgb, var(--tone) 30%, transparent);
 }
 .p-hidden {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2px 8px;
+  display: grid;
+  gap: 1px;
   margin-top: 6px;
   font-size: var(--fs-2xs);
   color: var(--text-2);
+  line-height: 1.35;
+  text-align: center;
 }
 .p-hidden b {
   font-weight: var(--fw-medium);
   margin-right: 1px;
 }
 .p-foot {
+  margin-top: 4px;
   font-size: var(--fs-2xs);
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.p-ny {
+  font-size: 10px;
   color: var(--text-3);
+  white-space: nowrap;
+}
+.kong {
+  color: var(--wx-fire);
 }
 .essence {
   display: grid;
@@ -513,19 +541,21 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
   }
 }
 @media (max-width: 640px) {
-  .pillars,
-  .pillars.wide {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
-  }
-  .pillars.wide {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .col {
+    flex-basis: 84px;
+    padding: 10px 4px;
   }
   .p-char {
-    font-size: 34px;
+    font-size: 32px;
   }
   .facts {
     grid-template-columns: 1fr;
+  }
+  .facts div {
+    grid-template-columns: 56px 1fr;
+  }
+  .essence {
+    padding: var(--sp-4);
   }
 }
 .tiaohou {
