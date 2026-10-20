@@ -30,18 +30,18 @@
   --font-cjk: 'PingFang SC', 'HarmonyOS Sans SC', 'MiSans', 'Microsoft YaHei UI', 'Microsoft YaHei',
     'Noto Sans SC', 'Noto Sans CJK SC', 'Source Han Sans SC', 'Hiragino Sans GB', 'Inter Variable', system-ui, sans-serif;
 
-  --fs-2xs: 0.6875rem; /* 11 */
-  --fs-xs: 0.75rem; /* 12 */
-  --fs-sm: 0.8125rem; /* 13 */
-  --fs-base: 0.9375rem; /* 15 */
-  --fs-md: 1.0625rem; /* 17 */
+  --fs-2xs: 0.75rem; /* 12 */
+  --fs-xs: 0.8125rem; /* 13 */
+  --fs-sm: 0.875rem; /* 14 */
+  --fs-base: 1rem; /* 16 */
+  --fs-md: 1.125rem; /* 18 */
   --fs-lg: 1.25rem; /* 20 */
   --fs-xl: 1.5rem; /* 24 */
   --fs-2xl: 1.875rem; /* 30 */
 
   --lh-tight: 1.25;
   --lh-snug: 1.4;
-  --lh-body: 1.6;
+  --lh-body: 1.65;
   --lh-read: 1.75;
 
   --fw-regular: 400;

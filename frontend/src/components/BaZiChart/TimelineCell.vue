@@ -53,9 +53,9 @@ const ny = computed(() => nayin(props.sexa))
   flex: 0 0 auto;
   align-content: start;
   justify-items: center;
-  gap: 2px;
-  min-width: 92px;
-  padding: 10px 6px 12px;
+  gap: 3px;
+  min-width: 96px;
+  padding: 12px 6px 14px;
   border: 0;
   border-right: 1px solid var(--hairline);
   border-radius: 0;
@@ -110,18 +110,19 @@ button.tc:hover {
 }
 .t-gz {
   font-family: var(--font-cjk);
-  font-size: 26px;
-  line-height: 1.1;
+  font-size: 28px;
+  line-height: 1.15;
   font-weight: 500;
   letter-spacing: 0;
 }
 .t-hidden {
   display: grid;
-  gap: 1px;
+  gap: 2px;
   margin-top: 4px;
   font-size: var(--fs-2xs);
   color: var(--text-2);
-  line-height: 1.35;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
   text-align: center;
 }
 .t-hidden b {
@@ -135,7 +136,8 @@ button.tc:hover {
   white-space: nowrap;
 }
 .t-ny {
-  font-size: 10px;
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.02em;
   color: var(--text-3);
   white-space: nowrap;
 }

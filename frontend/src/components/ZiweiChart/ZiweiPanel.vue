@@ -197,18 +197,18 @@ const mut = (k: (typeof MUTAGENS)[number]) => props.chart.mutagen[k] ?? '—'
   color: var(--text-3);
 }
 .bri {
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1;
   color: var(--text-3);
   font-style: normal;
 }
 .mu {
   display: inline-block;
-  min-width: 14px;
-  padding: 0 3px;
+  min-width: 16px;
+  padding: 0 4px;
   border-radius: 4px;
-  font-size: 10px;
-  line-height: 15px;
+  font-size: 11px;
+  line-height: 16px;
   font-style: normal;
   color: var(--text-on-accent);
   background: var(--text-3);
@@ -253,9 +253,9 @@ const mut = (k: (typeof MUTAGENS)[number]) => props.chart.mutagen[k] ?? '—'
 .pname em {
   padding: 0 4px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 11px;
   font-style: normal;
-  line-height: 15px;
+  line-height: 16px;
   color: var(--text-on-accent);
   background: var(--accent);
 }
@@ -267,7 +267,7 @@ const mut = (k: (typeof MUTAGENS)[number]) => props.chart.mutagen[k] ?? '—'
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  font-size: 10px;
+  font-size: 11px;
 }
 .ov {
   padding: 0 4px;
@@ -345,10 +345,10 @@ const mut = (k: (typeof MUTAGENS)[number]) => props.chart.mutagen[k] ?? '—'
 .hua-chip i {
   display: inline-grid;
   place-items: center;
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
-  font-size: 10px;
+  font-size: 11px;
   font-style: normal;
   color: var(--text-on-accent);
   background: var(--m);

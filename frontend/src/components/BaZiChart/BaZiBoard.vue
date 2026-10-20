@@ -263,8 +263,8 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
   flex: 1 0 96px;
   align-content: start;
   justify-items: center;
-  gap: 2px;
-  padding: 12px 6px 12px;
+  gap: 3px;
+  padding: 14px 8px;
   border-right: 1px solid var(--hairline);
 }
 .col:last-child {
@@ -301,19 +301,20 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
 .p-char {
   font-family: var(--font-cjk);
   letter-spacing: 0;
-  font-size: 40px;
-  line-height: 1.12;
+  font-size: 42px;
+  line-height: 1.15;
   font-weight: 500;
   color: var(--tone);
   text-shadow: 0 0 22px color-mix(in srgb, var(--tone) 30%, transparent);
 }
 .p-hidden {
   display: grid;
-  gap: 1px;
+  gap: 2px;
   margin-top: 6px;
   font-size: var(--fs-2xs);
   color: var(--text-2);
-  line-height: 1.35;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
   text-align: center;
 }
 .p-hidden b {
@@ -327,7 +328,8 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
   white-space: nowrap;
 }
 .p-ny {
-  font-size: 10px;
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.02em;
   color: var(--text-3);
   white-space: nowrap;
 }
@@ -542,11 +544,11 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
 }
 @media (max-width: 640px) {
   .col {
-    flex-basis: 84px;
-    padding: 10px 4px;
+    flex-basis: 86px;
+    padding: 12px 4px;
   }
   .p-char {
-    font-size: 32px;
+    font-size: 34px;
   }
   .facts {
     grid-template-columns: 1fr;

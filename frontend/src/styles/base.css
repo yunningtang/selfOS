@@ -159,8 +159,11 @@ canvas {
 /* 中文排版：命盘与分析区域按中文习惯——中文字体优先、略放字距、更高行高、不用负字距。 */
 .cjk-prose {
   font-family: var(--font-cjk);
-  letter-spacing: 0.03em;
-  line-height: 1.85;
+  letter-spacing: 0.02em;
+  line-height: 1.8;
+}
+.cjk-prose p {
+  text-align: justify;
 }
 .cjk-prose h1,
 .cjk-prose h2,

@@ -85,7 +85,7 @@ const desc = computed(() =>
   fill: color-mix(in srgb, var(--c-lavender) 9%, transparent);
 }
 .num {
-  font-size: 11px;
+  font-size: 12px;
   fill: var(--text-3);
   font-variant-numeric: tabular-nums;
   pointer-events: none;
@@ -97,11 +97,11 @@ const desc = computed(() =>
   pointer-events: none;
 }
 .r {
-  font-size: 8px;
+  font-size: 9px;
   fill: var(--text-2);
 }
 .asc-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   fill: var(--accent-ink);
 }
