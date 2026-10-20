@@ -117,7 +117,10 @@ export interface WealthAssessment {
   baselineBand: Band
   checkpoints: { age: number; year: number; band: Band; note: string }[]
   education: { score: number; parts: ScorePart[]; verdict: string; comparison: string }
+  /** Technical narrative with scores (for the 计分明细) */
   narrative: string[]
+  /** Plain-language reading of the same result, for readers with no 八字 background */
+  plain: string[]
 }
 
 const bandFor = (total: number): Band => BANDS[total <= -2 ? 0 : total <= 1 ? 1 : total <= 4 ? 2 : total <= 7 ? 3 : total <= 10 ? 4 : 5]
@@ -221,11 +224,46 @@ export function assessWealth(chart: BaziChart, analysis: BaziAnalysis, ctx: Real
   narrative.push(`运势加成：25–55 岁 ${span} 年中偏吉 ${fav} 年、偏忌 ${unfav} 年${wealthLucks.length ? '，' + wealthLucks.map((l) => l.stemChar + l.branchChar).join('、') + '为财运' : ''}，合计 ${luckScore >= 0 ? '+' : ''}${luckScore}。`)
   narrative.push(`综合：${total >= 0 ? '+' : ''}${total} → ${band.name}（${bandRange(band.level, city.factor)}${city.factor !== 1 ? '，按' + city.label.split('（')[0] + '价格水平' : ''}）。${band.level > baselineBand.level ? '命局与运势在起点之上有抬升，关键在把握财运年份。' : band.level < baselineBand.level ? '命局与运势拖累起点，守成重于进取，避免在忌年做大决定。' : '命局与起点相称，稳步积累即可。'}`)
 
+  // ---- 通俗解读
+  const PLAIN_PART: Record<string, string> = {
+    从财格: '命局整体顺着财走，是天生适合经商、靠钱生钱的类型',
+    财旺身能任: '命里财的能量充足，你自己也扛得住，赚到的钱留得住',
+    财多身弱: '财的能量不少，但你自身偏弱，机会多却容易留不住，要靠学习和贵人撑着',
+    财星中和: '财的能量适中，有钱可赚，也不会被钱困住',
+    财星微弱: '命里财的能量偏弱，赚钱不是本能，要靠手艺、口才或好运势来补',
+    食伤生财: '有一条靠才华和表达换钱的路',
+    比劫夺财: '同辈、朋友和合伙容易分走你的钱',
+    禄神: '有自己的衣食之源，基本生活不愁',
+    调候得用: '命局配得恰当，上限比一般人高',
+    财官双美: '钱和地位能互相成就',
+    '专旺 / 从强': '专注一行容易做出成绩',
+    印星太旺: '庇护太多、依赖心强，反而把财挡在外面',
+    伤官见官: '和体制、规矩容易起冲突，升迁与合同多波折',
+  }
+  const plain: string[] = []
+  plain.push(`综合来看，你的家庭资产大概率落在「${band.name}」这一档（${bandRange(band.level, city.factor)}）：${band.note}。这是量级判断，不是具体数字。`)
+  plain.push(
+    ctx.cityTier === 'unknown' && ctx.family === 'unknown' && ctx.education === 'unknown'
+      ? '现实起点还没填，先按全国中位的出身和条件来算；在上面填上城市、家庭、学历和职业，结论会贴近得多。'
+      : `只看现实条件（${[city, fam, edu, occ].filter((x) => x.value !== 'unknown').map((x) => x.label.split('（')[0]).join('、')}），起点本身对应「${baselineBand.name}」。`,
+  )
+  plain.push(`只看命局本身、不考虑出身：${cp.map((p) => PLAIN_PART[p.name] ?? p.reason).join('；')}。合起来命局自带的财力属于「${chartBand.name}」一档。`)
+  plain.push(`25–55 岁这三十年里，顺的年份 ${fav} 年、不顺的 ${unfav} 年${wealthLucks.length ? `，其中 ${wealthLucks.map((l) => `${l.startAge}–${l.startAge + 9} 岁`).join('、')}是赚钱的窗口期` : ''}；这段运势${luckScore > 0 ? '整体在帮你' : luckScore < 0 ? '整体在拖你' : '基本持平'}。`)
+  plain.push(
+    baselineBand.level > chartBand.level
+      ? '你的起点高于命局自带的财力：家底和环境给的比命里自带的多，这种情况守住、稳步增值比冒险扩张更重要。'
+      : baselineBand.level < chartBand.level
+        ? '命局自带的财力高于你的起点：你有机会靠自己往上走，关键是抓住顺的年份。'
+        : '起点和命局相称，稳步积累就好。',
+  )
+  plain.push(`按年龄看：30 岁前后大约在「${checkpoints[0].band.name}」，40 岁「${checkpoints[1].band.name}」，50 岁「${checkpoints[2].band.name}」。30 岁前还在积累期，所以按惯例压低两档，40 岁压低一档。`)
+
   return {
     baseline: { score: baselineScore, parts: bp }, chart: { score: chartScore, parts: cp },
     luck: { score: luckScore, parts: lp, favourableYears: fav, unfavourableYears: unfav, window },
     total, band, chartBand, baselineBand, checkpoints, rangesForCity: BANDS.map((b) => bandRange(b.level, city.factor)), cityFactor: city.factor,
     education: { score: eduScore, parts: ep, verdict: eduVerdict, comparison },
     narrative,
+    plain,
   }
 }

@@ -26,7 +26,6 @@ const analysis = computed(() => analyseBazi(props.chart))
 const w = computed(() => assessWealth(props.chart, analysis.value, ctx.value))
 const filled = computed(() => Object.values(ctx.value).some((v) => v !== 'unknown'))
 const sign = (n: number) => (n > 0 ? `+${n}` : `${n}`)
-const levelPct = (l: number) => `${((l - 1) / 5) * 100}%`
 </script>
 
 <template>
@@ -53,14 +52,20 @@ const levelPct = (l: number) => `${((l - 1) / 5) * 100}%`
         <span class="t-label">{{ t('综合资产层级') }}</span>
         <p class="band-name">{{ w.band.name }} <span class="t-muted t-sm">{{ w.rangesForCity[w.band.level - 1] }}</span></p>
         <p class="t-sm t-muted">{{ w.band.note }}</p>
-        <ol class="scale" :aria-label="t('六级')">
-          <li v-for="b in BANDS" :key="b.level" :class="{ on: b.level === w.band.level, base: b.level === w.baselineBand.level, chart: b.level === w.chartBand.level }">
-            <span class="dot" /><span class="nm">{{ b.name }}</span><span class="rg t-faint">{{ w.rangesForCity[b.level - 1].replace('家庭净资产 ', '') }}</span>
-          </li>
-          <span class="marker" :style="{ left: levelPct(w.band.level) }" aria-hidden="true" />
-        </ol>
-        <p class="legend t-caption"><span class="k on">●</span> {{ t('综合') }} <span class="k base">●</span> {{ t('仅现实起点') }}：{{ w.baselineBand.name }} <span class="k chart">●</span> {{ t('仅命局与运势') }}：{{ w.chartBand.name }}</p>
       </div>
+      <div class="plain">
+        <p v-for="(n, i) in w.plain" :key="i">{{ n }}</p>
+      </div>
+      <ol class="scale" :aria-label="t('六级')">
+        <li v-for="b in BANDS" :key="b.level" :class="{ on: b.level === w.band.level, base: b.level === w.baselineBand.level, chart: b.level === w.chartBand.level }">
+          <span class="dot" /><span class="nm">{{ b.name }}</span><span class="rg t-faint">{{ w.rangesForCity[b.level - 1].replace('家庭净资产 ', '') }}</span><span class="nt t-caption">{{ b.note }}</span>
+          <span class="mk" aria-hidden="true"><span v-if="b.level === w.band.level" class="k on">{{ t('综合') }}</span><span v-if="b.level === w.baselineBand.level" class="k base">{{ t('起点') }}</span><span v-if="b.level === w.chartBand.level" class="k chart">{{ t('命局') }}</span></span>
+        </li>
+      </ol>
+      <p class="legend t-caption"><span class="k on">●</span> {{ t('综合') }}：{{ w.band.name }} <span class="k base">●</span> {{ t('仅现实起点') }}：{{ w.baselineBand.name }} <span class="k chart">●</span> {{ t('仅命局与运势') }}：{{ w.chartBand.name }}</p>
+    </section>
+
+    <LqCollapse :title="t('计分明细')" :summary="`${t('合计')} ${sign(w.total)} → ${w.band.name}`">
       <div class="cols">
         <div v-for="(col, i) in [['现实起点', w.baseline], ['命局财力', w.chart], ['运势加成', w.luck]] as const" :key="i" class="col">
           <h4>{{ t(col[0]) }} <b class="t-num" :class="{ pos: col[1].score > 0, neg: col[1].score < 0 }">{{ sign(col[1].score) }}</b></h4>
@@ -69,12 +74,10 @@ const levelPct = (l: number) => `${((l - 1) / 5) * 100}%`
           </ul>
         </div>
       </div>
-      <p class="total t-sm"><span class="t-muted">{{ t('合计') }}</span> <b class="t-num">{{ sign(w.total) }}</b> <span class="t-faint">→ {{ w.band.name }}</span></p>
-    </section>
-
-    <section class="narr">
-      <p v-for="(n, i) in w.narrative" :key="i" class="t-sm">{{ n }}</p>
-    </section>
+      <div class="narr">
+        <p v-for="(n, i) in w.narrative" :key="i" class="t-sm t-muted">{{ n }}</p>
+      </div>
+    </LqCollapse>
 
     <section class="cps">
       <h3>{{ t('阶段检查点') }}</h3>
@@ -85,7 +88,7 @@ const levelPct = (l: number) => `${((l - 1) / 5) * 100}%`
           <span class="t-caption">{{ c.note }}</span>
         </li>
       </ol>
-      <p class="t-caption">{{ t('检查点按该年龄前后十年的流年评级在综合层级上微调，30 岁前资产尚在积累期，故下调两级，40 岁下调一级。') }}</p>
+      <p class="t-caption">{{ t('每个年龄点按前后十年的运势在综合层级上微调；30 岁前还在积累期，按惯例压低两档，40 岁压低一档。') }}</p>
     </section>
 
     <section class="edu lq-surface">
@@ -170,12 +173,24 @@ h3 {
   font-weight: 500;
   line-height: 1.2;
 }
+.plain {
+  display: grid;
+  gap: 6px;
+  max-width: 72ch;
+}
+.plain p {
+  line-height: 1.85;
+}
+.plain p:first-child {
+  font-weight: 500;
+}
+/* six-level ladder: horizontal on wide screens, vertical rows on phones */
 .scale {
   position: relative;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  margin-top: var(--sp-3);
-  padding-top: 14px;
+  margin: var(--sp-2) 0 0;
+  padding: 14px 0 0;
 }
 .scale::before {
   content: '';
@@ -194,27 +209,67 @@ h3 {
   color: var(--text-3);
   text-align: center;
 }
+.scale .nt,
+.scale .mk {
+  display: none;
+}
 .rg {
   font-size: var(--fs-2xs);
   white-space: nowrap;
 }
+.mk .k {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-2xs);
+  line-height: 18px;
+  color: var(--text-on-accent);
+}
+.mk .k.on { background: var(--accent); }
+.mk .k.base { background: var(--wx-earth); }
+.mk .k.chart { background: var(--c-mist); }
 @media (max-width: 640px) {
   .scale {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    row-gap: var(--sp-3);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    padding: 0;
   }
   .scale::before {
     display: none;
   }
-  .scale .dot {
-    top: 0;
+  .scale li {
+    grid-template-columns: 14px auto minmax(0, 1fr) auto;
+    grid-template-areas: 'dot nm rg mk' '. nt nt nt';
+    align-items: center;
+    justify-items: start;
+    column-gap: 8px;
+    row-gap: 0;
+    padding: 8px 0;
+    border-top: 1px solid var(--hairline);
+    text-align: left;
+  }
+  .scale li:first-child {
+    border-top: 0;
+  }
+  .scale .dot { grid-area: dot; top: 0; }
+  .scale .nm { grid-area: nm; font-size: var(--fs-sm); color: var(--text-2); }
+  .scale .rg { grid-area: rg; min-width: 0; font-size: var(--fs-xs); white-space: normal; line-height: 1.3; }
+  .scale .nt { grid-area: nt; display: block; }
+  .scale .mk { grid-area: mk; display: inline-flex; gap: 4px; }
+  .scale li.on {
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+    margin: 0 calc(-1 * var(--sp-3));
+    padding-left: var(--sp-3);
+    padding-right: var(--sp-3);
   }
   .scale li.on .dot {
-    top: -3px;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    box-shadow: 0 0 0 3px var(--accent-soft);
   }
-  .rg {
-    white-space: normal;
-    line-height: 1.3;
+  .scale li.on .nm {
+    color: var(--text);
   }
 }
 .scale .dot {
@@ -242,9 +297,7 @@ h3 {
   color: var(--text);
   font-weight: 500;
 }
-.marker {
-  display: none;
-}
+
 .legend .k.on {
   color: var(--accent);
 }
@@ -296,7 +349,9 @@ h3 {
 .narr {
   display: grid;
   gap: 6px;
-  padding: 0 var(--sp-2);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--hairline);
   line-height: 1.85;
 }
 .cps {
