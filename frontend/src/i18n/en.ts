@@ -239,4 +239,5 @@ export const EN: Record<string, string> = {
   '排出八字与紫微': 'Cast BaZi and Zi Wei', '四柱、大运流年流月、紫微十二宫与四化，节气按天文计算到分钟。': 'Four pillars, luck periods, Zi Wei palaces and transformations; solar terms computed astronomically to the minute.',
   '目前全部功能免费开放，欢迎反馈不准或不合理之处，算法会持续调整。': 'Everything is free for now. Tell us where a reading is off; the rules keep being tuned.',
   '定性': 'Core', '细节': 'Detail', '参考': 'Reference', '收起参考条目': 'Hide reference lines', '展开参考条目': 'Show reference lines', '参考条目：纳音、藏干余气、神煞落柱、星运等辅助信息，确定性较低，默认折叠。': 'Reference lines: nayin, residual hidden stems, star placements, life stages. Lower certainty, folded by default.',
+  '上一年': 'Previous year', '下一年': 'Next year', '回到今年': 'Back to this year', '点选切换，评级为该段十年的综合倾向': 'Click to switch; the badge is the decade\'s overall tendency', '点选查看该月依据': 'Click a month for its basis', '查看': 'View', '筛选': 'Filter', '在上方流月条点选一个月份。': 'Pick a month in the strip above.', '该筛选下没有条目。': 'No lines under this filter.', '本年十二月概览': 'The year month by month',
 }

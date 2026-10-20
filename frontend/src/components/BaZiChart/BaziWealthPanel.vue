@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import LqCollapse from '@/components/ui/LqCollapse.vue'
 import LqButton from '@/components/ui/LqButton.vue'
+import LqSelect from '@/components/ui/LqSelect.vue'
 import PaywallCard from '@/components/paywall/PaywallCard.vue'
 import { analyseBazi } from '@selfos/destiny-core/bazi/analysis'
 import { assessWealth, BANDS, CITY_TIERS, EDUCATIONS, FAMILIES, OCCUPATIONS, DEFAULT_CONTEXT, type RealityContext } from '@selfos/destiny-core/bazi/wealth'
@@ -18,7 +19,9 @@ const ctx = computed<RealityContext>({
   get: () => birth.value.context ?? DEFAULT_CONTEXT,
   set: (v) => (birth.value = { ...birth.value, context: v }),
 })
-const set = (k: keyof RealityContext, v: string) => (ctx.value = { ...ctx.value, [k]: v } as RealityContext)
+const ctxOptions = (list: { value: string; label: string; note: string }[]) => list.map((o) => ({ value: o.value, label: o.label, hint: o.note || undefined }))
+const ctxModel = (k: keyof RealityContext) => computed({ get: () => ctx.value[k] as string, set: (v: string) => (ctx.value = { ...ctx.value, [k]: v } as RealityContext) })
+const cityTier = ctxModel('cityTier'), family = ctxModel('family'), education = ctxModel('education'), occupation = ctxModel('occupation')
 const analysis = computed(() => analyseBazi(props.chart))
 const w = computed(() => assessWealth(props.chart, analysis.value, ctx.value))
 const filled = computed(() => Object.values(ctx.value).some((v) => v !== 'unknown'))
@@ -38,10 +41,10 @@ const levelPct = (l: number) => `${((l - 1) / 5) * 100}%`
         <span class="t-caption">{{ filled ? t('已填写，可随时修改') : t('未填写时按全国中位起点计算') }}</span>
       </header>
       <div class="ctx-grid">
-        <label class="f"><span class="lbl">{{ t('出生 / 成长城市') }}</span><select class="lq-input" :value="ctx.cityTier" @change="set('cityTier', ($event.target as HTMLSelectElement).value)"><option v-for="o in CITY_TIERS" :key="o.value" :value="o.value">{{ o.label }}</option></select></label>
-        <label class="f"><span class="lbl">{{ t('家庭背景') }}</span><select class="lq-input" :value="ctx.family" @change="set('family', ($event.target as HTMLSelectElement).value)"><option v-for="o in FAMILIES" :key="o.value" :value="o.value">{{ o.label }}</option></select></label>
-        <label class="f"><span class="lbl">{{ t('学历') }}</span><select class="lq-input" :value="ctx.education" @change="set('education', ($event.target as HTMLSelectElement).value)"><option v-for="o in EDUCATIONS" :key="o.value" :value="o.value">{{ o.label }}</option></select></label>
-        <label class="f"><span class="lbl">{{ t('职业') }}</span><select class="lq-input" :value="ctx.occupation" @change="set('occupation', ($event.target as HTMLSelectElement).value)"><option v-for="o in OCCUPATIONS" :key="o.value" :value="o.value">{{ o.label }}</option></select></label>
+        <div class="f"><span class="lbl">{{ t('出生 / 成长城市') }}</span><LqSelect v-model="cityTier" :options="ctxOptions(CITY_TIERS)" :label="t('出生 / 成长城市')" /></div>
+        <div class="f"><span class="lbl">{{ t('家庭背景') }}</span><LqSelect v-model="family" :options="ctxOptions(FAMILIES)" :label="t('家庭背景')" /></div>
+        <div class="f"><span class="lbl">{{ t('学历') }}</span><LqSelect v-model="education" :options="ctxOptions(EDUCATIONS)" :label="t('学历')" /></div>
+        <div class="f"><span class="lbl">{{ t('职业') }}</span><LqSelect v-model="occupation" :options="ctxOptions(OCCUPATIONS)" :label="t('职业')" /></div>
       </div>
     </section>
 

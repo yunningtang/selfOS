@@ -4,6 +4,7 @@ import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import LqButton from '@/components/ui/LqButton.vue'
 import LqSegmented from '@/components/ui/LqSegmented.vue'
+import LqSelect from '@/components/ui/LqSelect.vue'
 import Notice from '@/components/ui/Notice.vue'
 import { listTimeZones } from '@/data/cities'
 import { fmtOffset, zoneOffsetAt } from '@selfos/destiny-core/ephemeris/time'
@@ -34,6 +35,12 @@ const STEPS = [
 ] as const
 const step = ref(0)
 const zones = listTimeZones()
+const zoneOptions = zones.map((z) => ({ value: z, label: z }))
+const houseOptions = computed(() => HOUSE_SYSTEMS.map((h) => ({ value: h.code, label: isEn.value ? h.en : h.zh, hint: isEn.value ? undefined : h.en })))
+const ayanamsaOptions = Object.entries(AYANAMSAS).map(([k, a]) => ({ value: k, label: a.name }))
+const ctxOptions = (list: { value: string; label: string; note: string }[]) => list.map((o) => ({ value: o.value, label: o.label, hint: o.note || undefined }))
+const ctxModel = (k: keyof RealityContext) => computed({ get: () => ctx.value[k] as string, set: (v: string) => (ctx.value = { ...ctx.value, [k]: v } as RealityContext) })
+const cityTier = ctxModel('cityTier'), family = ctxModel('family'), education = ctxModel('education'), occupation = ctxModel('occupation')
 const { query: cityQuery, matches, searching, clear } = usePlaceSearch()
 
 // Snapshot for cancel in edit mode
@@ -115,7 +122,6 @@ async function finish() {
 watch(step, () => (touched.value = false))
 
 const ctx = computed<RealityContext>({ get: () => birth.value.context ?? DEFAULT_CONTEXT, set: (v) => (birth.value = { ...birth.value, context: v }) })
-const setCtx = (k: keyof RealityContext, e: Event) => (ctx.value = { ...ctx.value, [k]: (e.target as HTMLSelectElement).value } as RealityContext)
 const ctxLine = computed(() => [CITY_TIERS.find((x) => x.value === ctx.value.cityTier)?.label, FAMILIES.find((x) => x.value === ctx.value.family)?.label, EDUCATIONS.find((x) => x.value === ctx.value.education)?.label, OCCUPATIONS.find((x) => x.value === ctx.value.occupation)?.label].filter((x) => x && x !== '未填写').join(' · ') || t('未填写'))
 const pad = (n: number) => String(n).padStart(2, '0')
 const houseName = (code: string) => { const h = HOUSE_SYSTEMS.find((x) => x.code === code); return h ? (isEn.value ? h.en : h.zh + t('宫位制')) : '' }
@@ -212,9 +218,7 @@ const summary = computed(() => {
           <span class="lbl">{{ t('时区') }} <span class="t-faint">{{ offsetNote }}</span></span>
           <div class="tz">
             <LqSegmented v-model="zoneMode" :options="[{ value: 'iana', label: t('按地区') }, { value: 'fixed', label: t('固定偏移') }]" :label="t('时区方式')" size="sm" />
-            <select v-if="zoneMode === 'iana'" v-model="birth.timeZone" class="lq-input" :aria-label="t('时区')">
-              <option v-for="z in zones" :key="z" :value="z">{{ z }}</option>
-            </select>
+            <LqSelect v-if="zoneMode === 'iana'" v-model="birth.timeZone" :options="zoneOptions" :label="t('时区')" searchable />
             <input v-else v-model.number="fixedOffset" class="lq-input t-num" type="number" step="0.25" min="-12" max="14" :aria-label="t('UTC 偏移小时')" />
           </div>
         </div>
@@ -239,7 +243,7 @@ const summary = computed(() => {
         </div>
         <div class="field">
           <span class="lbl">{{ t('占星宫位制') }}</span>
-          <select v-model="westernSettings.houseSystem" class="lq-input" :aria-label="t('宫位制')"><option v-for="h in HOUSE_SYSTEMS" :key="h.code" :value="h.code">{{ isEn ? h.en : h.zh + ' · ' + h.en }}</option></select>
+          <LqSelect v-model="westernSettings.houseSystem" :options="houseOptions" :label="t('宫位制')" />
         </div>
         <div class="field">
           <span class="lbl">{{ t('月交点') }}</span>
@@ -247,7 +251,7 @@ const summary = computed(() => {
         </div>
         <div class="field">
           <span class="lbl">{{ t('Jyotish 岁差（Ayanamsa）') }}</span>
-          <select v-model="vedicSettings.ayanamsa" class="lq-input" aria-label="Ayanamsa"><option v-for="(a, k) in AYANAMSAS" :key="k" :value="k">{{ a.name }}</option></select>
+          <LqSelect v-model="vedicSettings.ayanamsa" :options="ayanamsaOptions" label="Ayanamsa" />
         </div>
         <div class="field">
           <span class="lbl">{{ t('Dasha 年长') }}</span>
@@ -261,10 +265,10 @@ const summary = computed(() => {
 
       <!-- Step 4: reality context (optional) -->
       <div v-else-if="step === 3" class="grid">
-        <div class="field"><span class="lbl">{{ t('出生 / 成长城市') }}</span><select class="lq-input" :value="ctx.cityTier" @change="setCtx('cityTier', $event)"><option v-for="o in CITY_TIERS" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
-        <div class="field"><span class="lbl">{{ t('家庭背景') }}</span><select class="lq-input" :value="ctx.family" @change="setCtx('family', $event)"><option v-for="o in FAMILIES" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
-        <div class="field"><span class="lbl">{{ t('学历') }}</span><select class="lq-input" :value="ctx.education" @change="setCtx('education', $event)"><option v-for="o in EDUCATIONS" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
-        <div class="field"><span class="lbl">{{ t('职业') }}</span><select class="lq-input" :value="ctx.occupation" @change="setCtx('occupation', $event)"><option v-for="o in OCCUPATIONS" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
+        <div class="field"><span class="lbl">{{ t('出生 / 成长城市') }}</span><LqSelect v-model="cityTier" :options="ctxOptions(CITY_TIERS)" :label="t('出生 / 成长城市')" /></div>
+        <div class="field"><span class="lbl">{{ t('家庭背景') }}</span><LqSelect v-model="family" :options="ctxOptions(FAMILIES)" :label="t('家庭背景')" /></div>
+        <div class="field"><span class="lbl">{{ t('学历') }}</span><LqSelect v-model="education" :options="ctxOptions(EDUCATIONS)" :label="t('学历')" /></div>
+        <div class="field"><span class="lbl">{{ t('职业') }}</span><LqSelect v-model="occupation" :options="ctxOptions(OCCUPATIONS)" :label="t('职业')" /></div>
         <p class="span t-caption">{{ t('这些信息不影响排盘本身，只用于「资产」页把命局与现实起点放在一起判断。不填也可以继续。') }}</p>
       </div>
 
