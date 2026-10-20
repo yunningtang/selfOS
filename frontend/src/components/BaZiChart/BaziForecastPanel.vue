@@ -163,6 +163,7 @@ const detailTitle = computed(() => {
 }
 .row {
   display: flex;
+  align-items: flex-start;
   overflow-x: auto;
   border-top: 1px solid var(--hairline);
   border-bottom: 1px solid var(--hairline);

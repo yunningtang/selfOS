@@ -422,6 +422,7 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
 }
 .row {
   display: flex;
+  align-items: flex-start;
   overflow-x: auto;
   border-top: 1px solid var(--hairline);
   border-bottom: 1px solid var(--hairline);
