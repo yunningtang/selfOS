@@ -216,6 +216,7 @@ export function plainReading(chart: BaziChart, analysis: BaziAnalysis, verdicts:
   }
   const fy = forecastYear(chart, thisYear, analysis)
   nowParas.push(`今年 ${thisYear} 年是 ${fy.stemChar}${fy.branchChar} 年，评级「${RATING_LABEL[fy.rating]}」：${fy.summary}`)
+  nowParas.push(`分开看今年：${fy.domains.map((d) => `${d.name}${RATING_LABEL[d.rating]}${Math.abs(d.score) >= 1.5 ? `（${d.keyword}）` : ''}`).join('，')}。`)
   nowParas.push(`想看逐年、逐月的详细推断，切到「运势」页。`)
   const now: PlainSection = { key: 'now', title: '你现在处在什么阶段', paras: nowParas }
 

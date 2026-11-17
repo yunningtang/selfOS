@@ -7,7 +7,7 @@ import LqSegmented from '@/components/ui/LqSegmented.vue'
 import BaziAnalysisPanel from './BaziAnalysisPanel.vue'
 import BaziForecastPanel from './BaziForecastPanel.vue'
 import BaziWealthPanel from './BaziWealthPanel.vue'
-import TimelineCell from './TimelineCell.vue'
+import TimelineTable from './TimelineTable.vue'
 import { useLicense } from '@/composables/useLicense'
 import { analyseBazi } from '@selfos/destiny-core/bazi/analysis'
 import { ELEMENTS } from '@/data/lexicon'
@@ -191,15 +191,9 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
         <p v-if="transitRelations.length" class="t-sm"><span v-for="(r, i) in transitRelations" :key="i" class="rel" :class="r.tone">{{ r.members.map(label).join('') }}{{ r.note }}</span></p>
       </header>
       <div class="rail">
-        <div class="row">
-          <TimelineCell v-for="l in chart.luck.pillars" :key="l.index" :top="`${l.startAge}${t('岁')}`" :sexa="l.sexagenary" :day-master="chart.dayMaster.stem" :sub="String(l.startYear)" :on="l.index === luckIndex" :now="l.startYear <= thisYear && thisYear <= l.endYear" @click="store.selectLuck(l.index)" />
-        </div>
-        <div v-if="annual.length" class="row nested">
-          <TimelineCell v-for="a in annual" :key="a.year" :top="String(a.year)" :sexa="a.sexagenary" :day-master="chart.dayMaster.stem" :sub="`${a.nominalAge}${t('虚岁')}`" :on="a.year === annualYear" :now="a.year === thisYear" @click="store.selectYear(a.year)" />
-        </div>
-        <div v-if="monthly.length" class="row nested">
-          <TimelineCell v-for="m in monthly" :key="m.index" :top="`${m.term} ${m.startsAt.slice(5, 10)}`" :sexa="m.sexagenary" :day-master="chart.dayMaster.stem" static />
-        </div>
+        <TimelineTable :items="chart.luck.pillars.map((l) => ({ key: l.index, top: `${l.startAge}${t('岁')}`, sub: String(l.startYear), sexa: l.sexagenary, on: l.index === luckIndex, now: l.startYear <= thisYear && thisYear <= l.endYear }))" :day-master="chart.dayMaster.stem" :sub-label="t('起年')" @select="(k) => store.selectLuck(Number(k))" />
+        <TimelineTable v-if="annual.length" nested :items="annual.map((a) => ({ key: a.year, top: String(a.year), sub: String(a.nominalAge), sexa: a.sexagenary, on: a.year === annualYear, now: a.year === thisYear }))" :day-master="chart.dayMaster.stem" :sub-label="t('虚岁')" @select="(k) => store.selectYear(Number(k))" />
+        <TimelineTable v-if="monthly.length" nested :items="monthly.map((m) => ({ key: m.index, top: m.term, sub: m.startsAt.slice(5, 10), sexa: m.sexagenary }))" :day-master="chart.dayMaster.stem" :top-label="t('节气')" :sub-label="t('起日')" />
       </div>
     </section>
 
@@ -483,18 +477,7 @@ const stemEl = (ch: string) => tables.STEM_ELEMENT[STEMS.indexOf(ch as (typeof S
 }
 .rail {
   display: grid;
-  gap: var(--sp-2);
-}
-.row {
-  display: flex;
-  align-items: flex-start;
-  overflow-x: auto;
-  border-top: 1px solid var(--hairline);
-  border-bottom: 1px solid var(--hairline);
-}
-.row.nested {
-  margin-left: var(--sp-4);
-  border-left: 2px solid var(--hairline-2);
+  gap: var(--sp-3);
 }
 /* ── Detail table ─────────────────────────────────────── */
 .tw {
